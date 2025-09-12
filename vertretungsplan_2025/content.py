@@ -250,7 +250,7 @@ BASE_PAYLOAD = {
     "departmentIds": [],
     "departmentElementType": 1,
     "hideCancelWithSubstitution": False,  # ersetztes als ausgefallen anzeigen
-    "hideCancelCausedByEvent": True,  # leave false
+    "hideCancelCausedByEvent": False,  # LEAVE FALSE
     "showTime": False,
     "showSubstText": True,
     "showAbsentElements": [],
