@@ -1,31 +1,130 @@
 from collections import defaultdict
-from typing import TypedDict
+from typing import Mapping, TypedDict, cast
 
 
 class ColorDict(TypedDict):
     pale: str
-    normal: str
-    strong: str
+    dark: str
+    stronger: str
+    strongest: str
 
 
-COLORS: dict[int, ColorDict] = defaultdict(
-    lambda: {"pale": "#FFFFFF", "normal": "#AAAAAA", "strong": "#000000"},
-    [
-        (0, {"pale": "#F5F4F6", "normal": None, "strong": None}),
-        (1, {"pale": "#FFD6EB", "normal": "#F862C6", "strong": "#F415AA"}),
-        (5, {"pale": "#FFD6D6", "normal": "#EF476F", "strong": "#EB1E3A"}),
-        (6, {"pale": "#FFEDD6", "normal": "#F78C6B", "strong": "#F34A16"}),
-        (7, {"pale": "#FEFFD6", "normal": "#FFD166", "strong": "#FFBC1F"}),
-        (8, {"pale": "#DDFFD6", "normal": "#83D483", "strong": "#49C149"}),
-        (9, {"pale": "#D8FDEF", "normal": "#06D6A0", "strong": "#06DBA2"}),
-        (10, {"pale": "#D6FCFF", "normal": "#0CB0A9", "strong": "#1AEFE4"}),
-        (11, {"pale": "#D6F1FF", "normal": "#29A3CC", "strong": "#1FB7EA"}),
-        (12, {"pale": "#D6E6FF", "normal": "#1D85A8", "strong": "#1082A8"}),
-        (13, {"pale": "#DCD6FF", "normal": "#135970", "strong": "#0C6583"}),
-    ],
+COLORS = cast(
+    Mapping[int, ColorDict],
+    defaultdict(
+        lambda: {
+            "pale": "#CCCCCC",
+            "dark": "",
+            "stronger": "#AAAAAA",
+            "strongest": "#000000",
+        },
+        [
+            (
+                0,
+                {
+                    "pale": "#F5F4F6",
+                    "dark": "NONE",
+                    "stronger": "NONE",
+                    "strongest": "NONE",
+                },
+            ),
+            (
+                1,
+                {
+                    "pale": "#FFD6E7",
+                    "dark": "#990040",
+                    "stronger": "#F862C6",
+                    "strongest": "#F415AA",
+                },
+            ),
+            (
+                5,
+                {
+                    "pale": "#FFD6D6",
+                    "dark": "#990000",
+                    "stronger": "#EF476F",
+                    "strongest": "#EB1E3A",
+                },
+            ),
+            (
+                6,
+                {
+                    "pale": "#FFEDD6",
+                    "dark": "#995700",
+                    "stronger": "#F78C6B",
+                    "strongest": "#F34A16",
+                },
+            ),
+            (
+                7,
+                {
+                    "pale": "#FEFFD6",
+                    "dark": "#968600",
+                    "stronger": "#FFD166",
+                    "strongest": "#FFBC1F",
+                },
+            ),
+            (
+                8,
+                {
+                    "pale": "#DDFFD6",
+                    "dark": "#1a9900",
+                    "stronger": "#83D483",
+                    "strongest": "#49C149",
+                },
+            ),
+            (
+                9,
+                {
+                    "pale": "#D8FDEF",
+                    "dark": "#08915d",
+                    "stronger": "#06D6A0",
+                    "strongest": "#06DBA2",
+                },
+            ),
+            (
+                10,
+                {
+                    "pale": "#D6FCFF",
+                    "dark": "#008f99",
+                    "stronger": "#0CB0A9",
+                    "strongest": "#1AEFE4",
+                },
+            ),
+            (
+                11,
+                {
+                    "pale": "#D6F1FF",
+                    "dark": "#006699",
+                    "stronger": "#29A3CC",
+                    "strongest": "#1FB7EA",
+                },
+            ),
+            (
+                12,
+                {
+                    "pale": "#D6E6FF",
+                    "dark": "#003b99",
+                    "stronger": "#1D85A8",
+                    "strongest": "#1082A8",
+                },
+            ),
+            (
+                13,
+                {
+                    "pale": "#DCD6FF",
+                    "dark": "#170099",
+                    "stronger": "#135970",
+                    "strongest": "#0C6583",
+                },
+            ),
+        ],
+    ),
 )
 
-# target palette FFD6FF-FFD6E7-FFD6D6-FFEDD6-FEFFD6-DDFFD6-D8FDEF-D6FCFF-D6F1FF-D6E6FF-DCD6FF-EED6FF
+# target pale palette FFD6FF-FFD6E7-FFD6D6-FFEDD6-FEFFD6-DDFFD6-D8FDEF-D6FCFF-D6F1FF-D6E6FF-DCD6FF-
+
+# target darke palette 990040-990000-995700-969900-1a9900-08915d-008f99-006699-003b99-170099-D499FF
 
 # TEXT_COLOR = "#111827"
 

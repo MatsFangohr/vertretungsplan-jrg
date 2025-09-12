@@ -37,7 +37,7 @@ logging.basicConfig(level=logging.INFO)
 def general_log(message: str, func: Callable[[str], None]) -> None:
     current_time = time.time()
     elapsed = current_time - start_time
-    func(f"[{elapsed:02.3f}s] {message}")
+    func(f"[{elapsed:05.3f}s] {message}")
 
 
 def warn(message: str) -> None:
@@ -174,7 +174,9 @@ class TimetableChange:
             elif status.strip() and not message.strip():
                 message = status
 
-        return cls(hours, klasse, lessonname, newteacher, originalteacher, message, entfall)
+        return cls(
+            hours, klasse, lessonname, newteacher, originalteacher, message, entfall
+        )
 
     def __repr__(self: Self) -> str:
         base = "[c] " if self.canceled else ""
@@ -202,14 +204,12 @@ class TimetableChange:
             if self.teacher:
                 if self.lessonname:
                     if self.originalteacher:
-                        out += f"{self.hours}. Stunde: {self.lessonname} bei {self.teacher} statt {self.originalteacher}"
+                        out += f"{self.hours}. Stunde: {self.lessonname} bei {self.teacher} <span style='color: {COLORS[self.year]['dark']}'>statt {self.originalteacher}</span>"
                     else:
                         out += f"{self.hours}. Stunde: {self.lessonname} bei {self.teacher}"
                 else:
                     if self.originalteacher:
-                        out += (
-                            f"{self.hours}. Stunde bei {self.teacher} statt {self.originalteacher}"
-                        )
+                        out += f"{self.hours}. Stunde bei {self.teacher} <span style='color: {COLORS[self.year]['dark']}'>statt {self.originalteacher}</span>"
                     else:
                         out += f"{self.hours}. Stunde bei {self.teacher}"
             else:
