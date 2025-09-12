@@ -442,8 +442,7 @@ class VertretungsplanFormatter:
 
             info(f"generated {len(day_divs)} of {len(dates)} days")
 
-        last_change = dt.datetime.now()
-        self.footer_data = {"last_change": last_change}
+        self.footer_data = {"last_change": last_update_global}
 
         next_update_time = croniter.croniter(
             SetupData.CRON_SPEC, dt.datetime.now()
@@ -456,7 +455,7 @@ class VertretungsplanFormatter:
             + HTMLElements.BUTTONS
             + main_element
             + self.generate_footer(
-                last_change=last_change,
+                last_change=last_update_global,
                 next_update=next_update_time,
             )
         )
