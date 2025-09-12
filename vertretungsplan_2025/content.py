@@ -1,146 +1,226 @@
+# ruff: noqa: E501
 from collections import defaultdict
-from typing import Mapping, TypedDict, cast
+from collections.abc import Mapping
+from typing import Literal, TypedDict, cast
 
 
 class ColorDict(TypedDict):
     pale: str
     dark: str
-    stronger: str
-    strongest: str
+    normal: str
+    strong: str
 
 
-COLORS = cast(
-    Mapping[int, ColorDict],
-    defaultdict(
-        lambda: {
-            "pale": "#CCCCCC",
-            "dark": "",
-            "stronger": "#AAAAAA",
-            "strongest": "#000000",
-        },
-        [
-            (
-                0,
-                {
-                    "pale": "#F5F4F6",
-                    "dark": "NONE",
-                    "stronger": "NONE",
-                    "strongest": "NONE",
-                },
-            ),
-            (
-                1,
-                {
-                    "pale": "#FFD6E7",
-                    "dark": "#990040",
-                    "stronger": "#F862C6",
-                    "strongest": "#F415AA",
-                },
-            ),
-            (
-                5,
-                {
-                    "pale": "#FFD6D6",
-                    "dark": "#990000",
-                    "stronger": "#EF476F",
-                    "strongest": "#EB1E3A",
-                },
-            ),
-            (
-                6,
-                {
-                    "pale": "#FFEDD6",
-                    "dark": "#995700",
-                    "stronger": "#F78C6B",
-                    "strongest": "#F34A16",
-                },
-            ),
-            (
-                7,
-                {
-                    "pale": "#FEFFD6",
-                    "dark": "#968600",
-                    "stronger": "#FFD166",
-                    "strongest": "#FFBC1F",
-                },
-            ),
-            (
-                8,
-                {
-                    "pale": "#DDFFD6",
-                    "dark": "#1a9900",
-                    "stronger": "#83D483",
-                    "strongest": "#49C149",
-                },
-            ),
-            (
-                9,
-                {
-                    "pale": "#D8FDEF",
-                    "dark": "#08915d",
-                    "stronger": "#06D6A0",
-                    "strongest": "#06DBA2",
-                },
-            ),
-            (
-                10,
-                {
-                    "pale": "#D6FCFF",
-                    "dark": "#008f99",
-                    "stronger": "#0CB0A9",
-                    "strongest": "#1AEFE4",
-                },
-            ),
-            (
-                11,
-                {
-                    "pale": "#D6F1FF",
-                    "dark": "#006699",
-                    "stronger": "#29A3CC",
-                    "strongest": "#1FB7EA",
-                },
-            ),
-            (
-                12,
-                {
-                    "pale": "#D6E6FF",
-                    "dark": "#003b99",
-                    "stronger": "#1D85A8",
-                    "strongest": "#1082A8",
-                },
-            ),
-            (
-                13,
-                {
-                    "pale": "#DCD6FF",
-                    "dark": "#170099",
-                    "stronger": "#135970",
-                    "strongest": "#0C6583",
-                },
-            ),
-        ],
-    ),
-)
+class SetupData:
+    @staticmethod
+    def get_color(cls: int, tone: Literal["pale", "dark", "normal", "strong"]) -> str:
+        return SetupData.COLORS[cls][tone]
 
-# target pale palette FFD6FF-FFD6E7-FFD6D6-FFEDD6-FEFFD6-DDFFD6-D8FDEF-D6FCFF-D6F1FF-D6E6FF-DCD6FF-
+    BASE_PAYLOAD = {
+        "formatName": "itslearning",
+        "schoolName": "rist2024",
+        "dateOffset": 0,
+        "strikethrough": False,
+        "mergeBlocks": True,  # leave on
+        "showOnlyFutureSub": False,  # show past
+        "showBreakSupervisions": False,  # nothing
+        "showTeacher": True,
+        "showClass": False,
+        "showHour": True,
+        "showInfo": True,
+        "showRoom": False,  # nur sport physik bio
+        "showSubject": True,
+        "groupBy": 1,
+        "hideAbsent": False,  # klassenfahrten
+        "departmentIds": [],
+        "departmentElementType": 1,
+        "hideCancelWithSubstitution": False,  # ersetztes als ausgefallen anzeigen
+        "hideCancelCausedByEvent": False,  # LEAVE FALSE
+        "showTime": False,
+        "showSubstText": True,
+        "showAbsentElements": [],
+        "showAffectedElements": [1],
+        "showUnitTime": False,
+        "showMessages": True,
+        "showStudentgroup": False,
+        "enableSubstitutionFrom": False,  # disable skip to next day
+        "showSubstitutionFrom": 1200,
+        "showTeacherOnEvent": False,  # nothing
+        "showAbsentTeacher": True,
+        "strikethroughAbsentTeacher": False,
+        "activityTypeIds": [],
+        "showEvent": True,
+        "showCancel": True,
+        "showOnlyCancel": False,
+        "showSubstTypeColor": False,
+        "showExamSupervision": True,
+        "showUnheraldedExams": True,
+    }
 
-# target darke palette 990040-990000-995700-969900-1a9900-08915d-008f99-006699-003b99-170099-D499FF
+    LESSON_NAMES = {
+        "Mat": "Mathe",
+        "Eng": "Englisch",
+        "Deu": "Deutsch",
+        "Lat": "Latein",
+        "Franz": "Französisch",
+        "Phy": "Physik",
+        "Mus": "Musik",
+        "Spo": "Sport",
+        "Che": "Chemie",
+        "Inf": "Informatik",
+        "Sem": "Seminar",
+        "Bio": "Bio",
+        "Geo": "Erdkunde",
+        "Ges": "Geschichte",
+        "förCho": "Chor",
+        "Ita": "Italienisch",
+        "Rel": "Religion",
+        "Kun": "Kunst",
+        "FörKL": "Klassenleitung",
+        "Phi": "Philosophie",
+        "Swi": "Schwimmen",
+        "DSp": "DSP",
+        "WiP": "WiPo",
+        "Men": "Men",
+        "A15": "Schulleitungsrunde",
+        "": "",
+    }
 
-# TEXT_COLOR = "#111827"
+    CRON_SPEC = "*/7 6-23 * * 0-5"
 
-TEXT_COLOR = "#000000"
+    TEXT_COLOR = "#000000"
+    # TEXT_COLOR = "#111827"
 
-WEEKDAYS = {
-    0: "Montag",
-    1: "Dienstag",
-    2: "Mittwoch",
-    3: "Donnerstag",
-    4: "Freitag",
-    5: "Samstag",
-    6: "Sonntag",
-}
+    WEEKDAYS = {
+        0: "Montag",
+        1: "Dienstag",
+        2: "Mittwoch",
+        3: "Donnerstag",
+        4: "Freitag",
+        5: "Samstag",
+        6: "Sonntag",
+    }
 
-FOOTER_TEMPLATE = """<footer><div class="centered-box-div">
+    # target pale palette FFD6FF-FFD6E7-FFD6D6-FFEDD6-FEFFD6-DDFFD6-D8FDEF-D6FCFF-D6F1FF-D6E6FF-DCD6FF-
+
+    # target dark palette 990040-990000-995700-969900-1a9900-08915d-008f99-006699-003b99-170099-D499FF
+
+    COLORS = cast(
+        Mapping[int, ColorDict],
+        defaultdict(
+            lambda: {
+                "pale": "#CCCCCC",
+                "dark": "",
+                "normal": "#AAAAAA",
+                "strong": "#000000",
+            },
+            [
+                (
+                    0,
+                    {
+                        "pale": "#F5F4F6",
+                        "dark": "NONE",
+                        "normal": "NONE",
+                        "strong": "NONE",
+                    },
+                ),
+                (
+                    1,
+                    {
+                        "pale": "#FFD6E7",
+                        "dark": "#990040",
+                        "normal": "#F862C6",
+                        "strong": "#F415AA",
+                    },
+                ),
+                (
+                    5,
+                    {
+                        "pale": "#FFD6D6",
+                        "dark": "#990000",
+                        "normal": "#EF476F",
+                        "strong": "#EB1E3A",
+                    },
+                ),
+                (
+                    6,
+                    {
+                        "pale": "#FFEDD6",
+                        "dark": "#995700",
+                        "normal": "#F78C6B",
+                        "strong": "#F34A16",
+                    },
+                ),
+                (
+                    7,
+                    {
+                        "pale": "#FEFFD6",
+                        "dark": "#968600",
+                        "normal": "#FFD166",
+                        "strong": "#FFBC1F",
+                    },
+                ),
+                (
+                    8,
+                    {
+                        "pale": "#DDFFD6",
+                        "dark": "#1a9900",
+                        "normal": "#83D483",
+                        "strong": "#49C149",
+                    },
+                ),
+                (
+                    9,
+                    {
+                        "pale": "#D8FDEF",
+                        "dark": "#08915d",
+                        "normal": "#06D6A0",
+                        "strong": "#06DBA2",
+                    },
+                ),
+                (
+                    10,
+                    {
+                        "pale": "#D6FCFF",
+                        "dark": "#008f99",
+                        "normal": "#0CB0A9",
+                        "strong": "#1AEFE4",
+                    },
+                ),
+                (
+                    11,
+                    {
+                        "pale": "#D6F1FF",
+                        "dark": "#006699",
+                        "normal": "#29A3CC",
+                        "strong": "#1FB7EA",
+                    },
+                ),
+                (
+                    12,
+                    {
+                        "pale": "#D6E6FF",
+                        "dark": "#003b99",
+                        "normal": "#1D85A8",
+                        "strong": "#1082A8",
+                    },
+                ),
+                (
+                    13,
+                    {
+                        "pale": "#DCD6FF",
+                        "dark": "#170099",
+                        "normal": "#135970",
+                        "strong": "#0C6583",
+                    },
+                ),
+            ],
+        ),
+    )
+
+
+class HTMLElements:
+    FOOTER_TEMPLATE = """<footer><div class="centered-box-div">
 Letzte Änderung: {{letzteänderung}}<br>
 Letzte Aktualisierung: {{letzteakt}}<br>
 Nächste Aktualisierung: {{nächsteakt}}
@@ -151,7 +231,7 @@ Nächste Aktualisierung: {{nächsteakt}}
 <a href='https://ko-fi.com/K3K71KYTMX' target='_blank'>Kaffee kaufen</a>
 </div></footer>"""
 
-HEAD_TEMPLATE = """<!DOCTYPE html>
+    HEAD_TEMPLATE = """<!DOCTYPE html>
 <html lang="de">
 
 <head>
@@ -326,52 +406,11 @@ HEAD_TEMPLATE = """<!DOCTYPE html>
 </head>
 """
 
-BUTTONS = f"""<div class="navigation" style="position: fixed;">
-    <span id="leftarrow" class="arrow" style="opacity: 0.3;" onclick="prevPage()"><svg width="2.5rem" fill="{TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M73.4 297.4C60.9 309.9 60.9 330.2 73.4 342.7L233.4 502.7C245.9 515.2 266.2 515.2 278.7 502.7C291.2 490.2 291.2 469.9 278.7 457.4L173.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L173.3 288L278.7 182.6C291.2 170.1 291.2 149.8 278.7 137.3C266.2 124.8 245.9 124.8 233.4 137.3L73.4 297.3z"/></svg></span>
-    <span id="rightarrow" class="arrow" style="opacity: 1;" onclick="nextPage()"><svg width="2.5rem" fill="{TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/></svg></span></div>"""
+    BUTTONS = f"""<div class="navigation" style="position: fixed;">
+    <span id="leftarrow" class="arrow" style="opacity: 0.3;" onclick="prevPage()"><svg width="2.5rem" fill="{SetupData.TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M73.4 297.4C60.9 309.9 60.9 330.2 73.4 342.7L233.4 502.7C245.9 515.2 266.2 515.2 278.7 502.7C291.2 490.2 291.2 469.9 278.7 457.4L173.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L173.3 288L278.7 182.6C291.2 170.1 291.2 149.8 278.7 137.3C266.2 124.8 245.9 124.8 233.4 137.3L73.4 297.3z"/></svg></span>
+    <span id="rightarrow" class="arrow" style="opacity: 1;" onclick="nextPage()"><svg width="2.5rem" fill="{SetupData.TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/></svg></span></div>"""
 
-BASE_PAYLOAD = {
-    "formatName": "itslearning",
-    "schoolName": "rist2024",
-    "dateOffset": 0,
-    "strikethrough": False,
-    "mergeBlocks": True,  # leave on
-    "showOnlyFutureSub": False,  # show past
-    "showBreakSupervisions": False,  # nothing
-    "showTeacher": True,
-    "showClass": False,
-    "showHour": True,
-    "showInfo": True,
-    "showRoom": False,  # nur sport physik bio
-    "showSubject": True,
-    "groupBy": 1,
-    "hideAbsent": False,  # klassenfahrten
-    "departmentIds": [],
-    "departmentElementType": 1,
-    "hideCancelWithSubstitution": False,  # ersetztes als ausgefallen anzeigen
-    "hideCancelCausedByEvent": False,  # LEAVE FALSE
-    "showTime": False,
-    "showSubstText": True,
-    "showAbsentElements": [],
-    "showAffectedElements": [1],
-    "showUnitTime": False,
-    "showMessages": True,
-    "showStudentgroup": False,
-    "enableSubstitutionFrom": False,  # disable skip to next day
-    "showSubstitutionFrom": 1200,
-    "showTeacherOnEvent": False,  # nothing
-    "showAbsentTeacher": True,
-    "strikethroughAbsentTeacher": False,
-    "activityTypeIds": [],
-    "showEvent": True,
-    "showCancel": True,
-    "showOnlyCancel": False,
-    "showSubstTypeColor": False,
-    "showExamSupervision": True,
-    "showUnheraldedExams": True,
-}
-
-ABOUT_TEXT = """<footer><div class="daywrapper active">
+    ABOUT_TEXT = """<footer><div class="daywrapper active">
 <h1>About</h1>
 <hr>
 <div class="colorblock">
@@ -385,35 +424,4 @@ Computerprogramme machen extrem selten Fehler; ich mache beim Programmieren aber
     </p>
 </div></div></footer>"""
 
-LESSON_NAMES = {
-    "Mat": "Mathe",
-    "Eng": "Englisch",
-    "Deu": "Deutsch",
-    "Lat": "Latein",
-    "Franz": "Französisch",
-    "Phy": "Physik",
-    "Mus": "Musik",
-    "Spo": "Sport",
-    "Che": "Chemie",
-    "Inf": "Informatik",
-    "Sem": "Seminar",
-    "Bio": "Bio",
-    "Geo": "Erdkunde",
-    "Ges": "Geschichte",
-    "förCho": "Chor",
-    "Ita": "Italienisch",
-    "Rel": "Religion",
-    "Kun": "Kunst",
-    "FörKL": "Klassenleitung",
-    "Phi": "Philosophie",
-    "Swi": "Schwimmen",
-    "DSp": "DSP",
-    "WiP": "WiPo",
-    "Men": "Men",
-    "A15": "Schulleitungsrunde",
-    "": "",
-}
-
-CRON_SPEC = "*/7 6-23 * * 0-5"
-
-ANNOUNCE_ICON = f"""<svg class="announce-icon" fill="{TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M525.2 82.9C536.7 88 544 99.4 544 112L544 528C544 540.6 536.7 552 525.2 557.1C513.7 562.2 500.4 560.3 490.9 552L444.3 511.3C400.7 473.2 345.6 451 287.9 448.3L287.9 544C287.9 561.7 273.6 576 255.9 576L223.9 576C206.2 576 191.9 561.7 191.9 544L191.9 448C121.3 448 64 390.7 64 320C64 249.3 121.3 192 192 192L276.5 192C338.3 191.8 397.9 169.3 444.4 128.7L491 88C500.4 79.7 513.9 77.8 525.3 82.9zM288 384L288 384.2C358.3 386.9 425.8 412.7 480 457.6L480 182.3C425.8 227.2 358.3 253 288 255.7L288 384z"/></svg>"""
+    ANNOUNCE_ICON = f"""<svg class="announce-icon" fill="{SetupData.TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M525.2 82.9C536.7 88 544 99.4 544 112L544 528C544 540.6 536.7 552 525.2 557.1C513.7 562.2 500.4 560.3 490.9 552L444.3 511.3C400.7 473.2 345.6 451 287.9 448.3L287.9 544C287.9 561.7 273.6 576 255.9 576L223.9 576C206.2 576 191.9 561.7 191.9 544L191.9 448C121.3 448 64 390.7 64 320C64 249.3 121.3 192 192 192L276.5 192C338.3 191.8 397.9 169.3 444.4 128.7L491 88C500.4 79.7 513.9 77.8 525.3 82.9zM288 384L288 384.2C358.3 386.9 425.8 412.7 480 457.6L480 182.3C425.8 227.2 358.3 253 288 255.7L288 384z"/></svg>"""
