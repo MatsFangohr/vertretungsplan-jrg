@@ -306,6 +306,12 @@ LESSON_NAMES = {
     "Rel": "Religion",
     "Kun": "Kunst",
     "FörKL": "Klassenleitung",
+    "Phi": "Philosophie",
+    "Swi": "Schwimmen",
+    "DSp": "DSP",
+    "WiP": "WiPo",
+    "Men": "Men",
+    "A15": "Schulleitungsrunde",
     "": "",
 }
 

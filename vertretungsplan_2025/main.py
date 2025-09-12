@@ -318,13 +318,19 @@ def generate_div(date: datetime.date, div_id: int, active: bool) -> tuple[str, b
                 out += f"""</div><hr>{create_background_color_div(rows[0].year)}"""
                 old_year = rows[0].year
             currentclass = rows[0].klasse
-            currentrows = [rows.pop(0)]
+            firstrow = rows.pop(0)
+            currentrows = [firstrow]
+
             while len(rows) > 0:
                 if rows[0].klasse == currentclass:
                     currentrows.append(rows.pop(0))
                 else:
                     break
             out += f"<h2>{currentclass}</h2>\n<p>"
+            if "Klassenfahrt" in firstrow.message:
+                out += f"Klassenfahrt mit {firstrow.teacher}</p>"
+                continue
+
             for row in currentrows:
                 out += row.repr_html() + "<br>"
             out += "</p>"
