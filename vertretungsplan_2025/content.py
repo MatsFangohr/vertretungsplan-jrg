@@ -83,6 +83,9 @@ class SetupData:
         "WiP": "WiPo",
         "Men": "Men",
         "A15": "Schulleitungsrunde",
+        "MusBläs": "Musik (Bläser)",
+        "Lion": "Lion's Quest",
+        "FuP": "Forschen und Präsentieren",
         "": "",
     }
 

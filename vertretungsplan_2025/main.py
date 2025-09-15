@@ -189,6 +189,8 @@ class TimetableChange:
         """only replaces 'AA' with 'Aufgaben'"""
         if message.strip() == "AA":
             return "Aufgaben"
+        elif message.strip() == "AA @ home":
+            return "Aufgaben (zuhause)"
         return message
 
     @staticmethod
