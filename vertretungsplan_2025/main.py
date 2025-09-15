@@ -413,7 +413,7 @@ class VertretungsplanFormatter:
         tomorrow = today + dt.timedelta(days=1)
 
         active = [False] * len(dates)
-        if today in dates and tomorrow in dates:
+        if today in dates and tomorrow in dates or today.weekday() == 4:
             if dt.datetime.now() > dt.datetime.combine(
                 dt.date.today(), dt.time(14, 30)
             ):
