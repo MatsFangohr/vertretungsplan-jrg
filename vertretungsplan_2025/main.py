@@ -283,7 +283,7 @@ class VertretungsplanFormatter:
     """Do not instantiate outside of the class. Only call via `generate_html_files`."""
 
     footer_data: FormattingData | None
-    next_div_id = 1
+    next_div_id = 0
 
     def __init__(self: Self):
         pass

@@ -388,7 +388,7 @@ Nächste Aktualisierung: {{nächsteakt}}
 
         function showPage(index) {
             Array.from(pages).forEach((page, i) => {
-                page.classList.toggle('active', i + 1 == index);
+                page.classList.toggle('active', i == index);
             })
         }
 
