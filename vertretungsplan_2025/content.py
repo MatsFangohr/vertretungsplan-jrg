@@ -13,8 +13,8 @@ class ColorDict(TypedDict):
 
 class SetupData:
     @staticmethod
-    def get_color(cls: int, tone: Literal["pale", "dark", "normal", "strong"]) -> str:
-        return SetupData.COLORS[cls][tone]
+    def get_color(klass: int, tone: Literal["pale", "dark", "normal", "strong"]) -> str:
+        return SetupData.COLORS[klass][tone]
 
     BASE_PAYLOAD = {
         "formatName": "itslearning",
@@ -34,7 +34,7 @@ class SetupData:
         "hideAbsent": False,  # klassenfahrten
         "departmentIds": [],
         "departmentElementType": 1,
-        "hideCancelWithSubstitution": False,  # ersetztes als ausgefallen anzeigen
+        "hideCancelWithSubstitution": True,  # ersetztes als ausgefallen anzeigen
         "hideCancelCausedByEvent": False,  # LEAVE FALSE
         "showTime": False,
         "showSubstText": True,
@@ -86,6 +86,8 @@ class SetupData:
         "MusBläs": "Musik (Bläser)",
         "Lion": "Lion's Quest",
         "FuP": "Forschen und Präsentieren",
+        "Spa": "Spanisch",
+        "SoRMS": "Schule ohne Rassismus",
         "": "",
     }
 

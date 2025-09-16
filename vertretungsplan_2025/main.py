@@ -84,8 +84,10 @@ class TimetableChange:
         self.klasse = klasse.strip()
 
         # teachers should be uppercase
-        self.teacher = teacher.upper().strip()
-        self.originalteacher = originalteacher.upper().strip()
+        self.teacher = TimetableChange.strip_html(teacher.upper().strip())
+        self.originalteacher = TimetableChange.strip_html(
+            originalteacher.upper().strip()
+        )
 
         self.message = TimetableChange.parse_message(message)
         self.lessonname = TimetableChange.parse_lesson_name(lessonname)
@@ -106,7 +108,7 @@ class TimetableChange:
         hours, lessonname, teacherinfo, status, message = rowdata["data"]
 
         # teacherinfo is either 'AB' or 'AB, CD, EF'or 'AB (CD)' or 'AB, CD (EF)'
-        split_info = TimetableChange.strip_html(teacherinfo).split("(")
+        split_info = teacherinfo.split("(")
         match split_info:
             # case 'AB' or 'AB, CD, EF'
             case [teacher]:
