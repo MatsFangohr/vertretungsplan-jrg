@@ -299,8 +299,17 @@ Nächste Aktualisierung: {{nächsteakt}}
         }
 
         .colorblock {
-            padding-left: 1rem;
-            padding-right: 1rem;
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        .daywrapper > .colorblock:last-child {
+            border-radius: 0 0 15px 15px;
+            padding-bottom: 12px;
+        }
+
+        .daywrapper > .colorblock:last-child > p:last-child {
+            padding-bottom: 0;
         }
 
         .daywrapper {
@@ -359,6 +368,10 @@ Nächste Aktualisierung: {{nächsteakt}}
         h3 {
             padding: 0.5rem 0 0 0;
             margin: 0;
+        }
+
+        main {
+            margin: 8px;
         }
 
     </style>
