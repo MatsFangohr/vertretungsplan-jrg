@@ -242,7 +242,7 @@ Nächste Aktualisierung: {{nächsteakt}}
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>JRG Vertretungsplan</title>
+    <title>{{title}}</title>
     <link rel="canonical" href="https://vertretungsplan.fangohr.org/jrg" />
     <link rel="icon" href="/jrg/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32" type="image/png">
@@ -387,12 +387,12 @@ Nächste Aktualisierung: {{nächsteakt}}
             const leftButton = document.getElementById("leftarrow"); 
             const rightButton = document.getElementById("rightarrow"); 
         
-            if (currentPage < pages.length) {
+            if (currentPage < pages.length - 1) {
                 rightButton.style.opacity = 1;
             } else {
                 rightButton.style.opacity = 0.3;
             }
-            if (currentPage > 1) {
+            if (currentPage > 0) {
                 leftButton.style.opacity = 1;
             } else {
                 leftButton.style.opacity = 0.3;
@@ -406,7 +406,7 @@ Nächste Aktualisierung: {{nächsteakt}}
         }
 
         function nextPage() {
-            if (currentPage < pages.length) {
+            if (currentPage < pages.length - 1) {
                 currentPage++;
                 showPage(currentPage);
             }
@@ -414,7 +414,7 @@ Nächste Aktualisierung: {{nächsteakt}}
         }
 
         function prevPage() {
-            if (currentPage > 1) {
+            if (currentPage > 0) {
                 currentPage--;
                 showPage(currentPage);
             }

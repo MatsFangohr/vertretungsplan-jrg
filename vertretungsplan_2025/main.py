@@ -107,21 +107,38 @@ class TimetableChange:
 
         hours, lessonname, teacherinfo, status, message = rowdata["data"]
 
-        # teacherinfo is either 'AB' or 'AB, CD, EF'or 'AB (CD)' or 'AB, CD (EF)'
-        split_info = teacherinfo.split("(")
-        match split_info:
-            # case 'AB' or 'AB, CD, EF'
-            case [teacher]:
-                newteacher = teacher
-                originalteacher = ""
+        if klasse == "Verw":
+            newteacher = ", ".join(
+                filter(
+                    lambda teacher: teacher != "",
+                    re.sub(
+                        "\\([^)]+\\)",
+                        "",
+                        (
+                            TimetableChange.strip_html(teacherinfo)
+                            .replace("-", "")
+                            .replace(",", "")
+                        ),
+                    ).split(" "),
+                )
+            )
+            originalteacher = ""
+        else:
+            # teacherinfo is either 'AB' or 'AB, CD, EF'or 'AB (CD)' or 'AB, CD (EF)'
+            split_info = teacherinfo.split("(")
+            match split_info:
+                # case 'AB' or 'AB, CD, EF'
+                case [teacher]:
+                    newteacher = teacher
+                    originalteacher = ""
 
-            # case 'AB (CD)' or 'AB, CD (EF)'
-            case [new, original]:
-                newteacher = new
-                originalteacher = original.strip(")")
+                # case 'AB (CD)' or 'AB, CD (EF)'
+                case [new, original]:
+                    newteacher = new
+                    originalteacher = original.strip(")")
 
-            case _:
-                raise ValueError(f"invalid teacherinfo: {split_info}!")
+                case _:
+                    raise ValueError(f"invalid teacherinfo: {split_info}!")
 
         # marker for ausfall
         if status.strip() == "Entfall":
@@ -289,9 +306,16 @@ class VertretungsplanFormatter:
         pass
 
     def generate_header(self: Self, startpage: int, text_color: str) -> str:
-        return HTMLElements.HEAD_TEMPLATE.replace(
-            "{{startpage}}", str(startpage)
-        ).replace("{{textcolor}}", text_color)
+        return (
+            HTMLElements.HEAD_TEMPLATE.replace("{{startpage}}", str(startpage))
+            .replace("{{textcolor}}", text_color)
+            .replace(
+                "{{title}}",
+                "JRG Vertretungsplan"
+                if platform.system() == "Linux"
+                else "[DEBUG] Vertretungsplan",
+            )
+        )
 
     def generate_footer(
         self: Self, last_change: dt.datetime, next_update: dt.datetime
@@ -417,11 +441,13 @@ class VertretungsplanFormatter:
         tomorrow = today + dt.timedelta(days=1)
 
         active = [False] * len(dates)
+        startpage = 0
         if today in dates and tomorrow in dates or today.weekday() == 4:
             if dt.datetime.now() > dt.datetime.combine(
                 dt.date.today(), dt.time(14, 30)
             ):
                 active[1] = True
+                startpage = 1
             else:
                 active[0] = True
         else:
@@ -455,7 +481,7 @@ class VertretungsplanFormatter:
         main_element = "<main>" + "".join(day_divs) + "</main>"
 
         return (
-            self.generate_header(startpage=0, text_color=SetupData.TEXT_COLOR)
+            self.generate_header(startpage=startpage, text_color=SetupData.TEXT_COLOR)
             + HTMLElements.BUTTONS
             + main_element
             + self.generate_footer(
