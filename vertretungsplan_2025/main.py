@@ -307,30 +307,43 @@ class VertretungsplanFormatter:
     def __init__(self: Self):
         pass
 
-    def generate_header(self: Self, startpage: int, text_color: str) -> str:
-        return (
-            HTMLElements.HEAD_TEMPLATE.replace("{{startpage}}", str(startpage))
-            .replace("{{textcolor}}", text_color)
-            .replace(
-                "{{title}}",
+    def generate_header(
+        self: Self,
+        startpage: int,
+        text_color: str,
+        last_change: dt.datetime,
+        next_update: dt.datetime,
+    ) -> str:
+        header = HTMLElements.HEAD_TEMPLATE
+        for placeholder, replacement in [
+            ("letzteänderungTimestamp", str(last_change.timestamp())),
+            ("letzteaktTimestamp", str(dt.datetime.now().timestamp())),
+            ("nächsteaktTimestamp", str(next_update.timestamp())),
+            ("startpage", str(startpage)),
+            ("textcolor", text_color),
+            (
+                "title",
                 "JRG Vertretungsplan"
                 if platform.system() == "Linux"
                 else "[DEBUG] Vertretungsplan",
-            )
-        )
+            ),
+        ]:
+            header = header.replace("{{" + placeholder + "}}", replacement)
+        return header
 
     def generate_footer(
         self: Self, last_change: dt.datetime, next_update: dt.datetime
     ) -> str:
         dt_format = "%d.%m.%Y, %H:%M"
 
-        return (
-            HTMLElements.FOOTER_TEMPLATE.replace(
-                "{{letzteänderung}}", last_change.strftime(dt_format)
-            )
-            .replace("{{letzteakt}}", dt.datetime.now().strftime(dt_format))
-            .replace("{{nächsteakt}}", next_update.strftime(dt_format))
-        )
+        footer = HTMLElements.FOOTER_TEMPLATE
+        for keyword, replacement in [
+            ("letzteänderung", last_change.strftime(dt_format)),
+            ("letzteakt", dt.datetime.now().strftime(dt_format)),
+            ("nächsteakt", next_update.strftime(dt_format)),
+        ]:
+            footer = footer.replace("{{" + keyword + "}}", replacement)
+        return footer
 
     def create_background_color_div(self: Self, year: int) -> str:
         color = SetupData.get_color(year, "pale")
@@ -485,7 +498,12 @@ class VertretungsplanFormatter:
         main_element = "<main>" + "".join(day_divs) + "</main>"
 
         return (
-            self.generate_header(startpage=startpage, text_color=SetupData.TEXT_COLOR)
+            self.generate_header(
+                startpage=startpage,
+                text_color=SetupData.TEXT_COLOR,
+                last_change=last_update_global,
+                next_update=next_update_time,
+            )
             + HTMLElements.BUTTONS
             + main_element
             + self.generate_footer(
@@ -507,7 +525,12 @@ class VertretungsplanFormatter:
         ).get_next(dt.datetime)
 
         return (
-            self.generate_header(startpage=0, text_color=SetupData.TEXT_COLOR)
+            self.generate_header(
+                startpage=0,
+                text_color=SetupData.TEXT_COLOR,
+                last_change=self.footer_data["last_change"],
+                next_update=next_update_time,
+            )
             + HTMLElements.ABOUT_TEXT
             + self.generate_footer(
                 last_change=self.footer_data["last_change"],

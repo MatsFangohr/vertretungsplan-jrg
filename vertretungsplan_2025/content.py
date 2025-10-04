@@ -225,11 +225,11 @@ class SetupData:
 
 
 class HTMLElements:
-    FOOTER_TEMPLATE = """<footer><div class="centered-box-div">
-Letzte Änderung: {{letzteänderung}}<br>
-Letzte Aktualisierung: {{letzteakt}}<br>
-Nächste Aktualisierung: {{nächsteakt}}
-</div><div class="centered-box-div">
+    FOOTER_TEMPLATE = """<footer><div class="centered-box-div cbd-vertical">
+<span id="letzteAenderung">Stand: {{letzteänderung}}</span><br>
+<span id="letzteAktualisierung">Letzte Aktualisierung: {{letzteakt}}</span><br>
+<span id="naechsteAktualisierung">Nächste Aktualisierung: {{nächsteakt}}</span>
+</div><div class="centered-box-div cbd-horizontal">
 <a href="/jrg/about">About</a><br>
 <a href="/jrg">Home</a>
 <a href="https://samos.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a>
@@ -258,10 +258,16 @@ Nächste Aktualisierung: {{nächsteakt}}
         }
 
         .centered-box-div {
-            display: flex;
             justify-content: center;
             text-align: center;
             padding: 5px;
+        }
+
+        .cbd-vertical {
+        }
+
+        .cbd-horizontal {
+            display: flex;
         }
         
         h1 {
@@ -380,13 +386,17 @@ Nächste Aktualisierung: {{nächsteakt}}
         const pages = document.getElementsByClassName('daywrapper');
         document.addEventListener("DOMContentLoaded", function() {
             updateButtons();
+            updateTimestamps();
         });
         updateButtons();
-        
+
         function updateButtons() {
+            if (pages.length == 0) {
+                return;
+            }
             const leftButton = document.getElementById("leftarrow"); 
             const rightButton = document.getElementById("rightarrow"); 
-        
+
             if (currentPage < pages.length - 1) {
                 rightButton.style.opacity = 1;
             } else {
@@ -410,7 +420,8 @@ Nächste Aktualisierung: {{nächsteakt}}
                 currentPage++;
                 showPage(currentPage);
             }
-            updateButtons()
+            updateButtons();
+            updateTimestamps();
         }
 
         function prevPage() {
@@ -418,8 +429,45 @@ Nächste Aktualisierung: {{nächsteakt}}
                 currentPage--;
                 showPage(currentPage);
             }
-            updateButtons()
+            updateButtons();
+            updateTimestamps();
         }
+
+        function getRelativeTime(date) {
+            const now = new Date();
+            const diffInSeconds = Math.floor((date - now) / 1000);
+
+            const units = [
+                { unit: 'year', seconds: 31536000 },
+                { unit: 'month', seconds: 2592000 },
+                { unit: 'day', seconds: 86400 },
+                { unit: 'hour', seconds: 3600 },
+                { unit: 'minute', seconds: 60 },
+                { unit: 'second', seconds: 1 },
+            ];
+
+            for (const { unit, seconds } of units) {
+                const delta = diffInSeconds / seconds;
+                if (Math.abs(delta) >= 1 || unit === 'second') {
+                const formatter = new Intl.RelativeTimeFormat('de', { numeric: 'auto' });
+                return formatter.format(Math.round(delta), unit);
+                }
+            }
+        }
+
+        // let lastChange = new Date({{letzteänderungTimestamp}} * 1000); 
+        let lastUpdate = new Date({{letzteaktTimestamp}} * 1000); 
+        let nextUpdate = new Date({{nächsteaktTimestamp}} * 1000);
+
+        function updateTimestamps() {
+            let lastUpdateField = document.getElementById("letzteAktualisierung");
+            let nextUpdateField = document.getElementById("naechsteAktualisierung");
+
+            lastUpdateField.textContent = "Letzte Aktualisierung: " + getRelativeTime(lastUpdate);
+            nextUpdateField.textContent = "Nächste Aktualisierung: " + getRelativeTime(nextUpdate);
+        }
+
+        setInterval(updateTimestamps, 60 * 1000);
     </script>
 </head>
 """
