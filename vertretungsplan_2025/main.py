@@ -210,6 +210,8 @@ class TimetableChange:
             return "Aufgaben"
         elif message.strip() == "AA @ home":
             return "Aufgaben (zuhause)"
+        elif message.strip() == "Desy":
+            return "DESY"
         return message
 
     @staticmethod
@@ -378,11 +380,13 @@ class VertretungsplanFormatter:
             webuntis_data["messageData"]["messages"]
         )
 
-        out = f"""<div class="{"daywrapper active" if div_active else "daywrapper"}" id="{VertretungsplanFormatter.next_div_id}"><h1>{page_title}</h1><hr>{announcements}"""
+        out = f"""<div class="{"daywrapper active" if div_active else "daywrapper"}" id="{VertretungsplanFormatter.next_div_id}"><h1>{page_title}</h1><hr>"""
         VertretungsplanFormatter.next_div_id += 1
         if webuntis_data["weekDay"] != SetupData.WEEKDAYS[date.weekday()]:
             out += """<span style="display: table; margin: 0 auto; padding: 1rem;">Keine Daten verfügbar. Das liegt an der Schule, nicht an dieser Webseite.</span></div></div>"""
             return out
+        else:
+            out += f"{announcements}"
 
         if not rows:
             out += """<span style="display: table; margin: 0 auto; padding: 1rem;">keine Daten bisher.</span></div>"""
