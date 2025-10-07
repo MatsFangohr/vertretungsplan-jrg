@@ -57,8 +57,39 @@ class WebUntisManager:
         )
 
 
+class HourInfo:
+    data: str
+    needs_suffix: bool
+
+    def __init__(self: Self, data: str) -> None:
+        self.data = data.strip()
+        self.needs_suffix = True
+
+    def parse_data(self: Self) -> None:
+        HOUR_DATA = {
+            "0 - 11": "Ganztägig",
+            "1 - 11": "Ganztägig",
+            "1 - 2": "1. Block",
+            "3 - 4": "2. Block",
+            "5 - 6": "3. Block",
+            "8 - 9": "4. Block",
+            "10 - 11": "5. Block",
+        }
+
+        if self.data in HOUR_DATA:
+            self.data = HOUR_DATA[self.data]
+            self.needs_suffix = False
+
+    def to_string(self: Self) -> str:
+        self.parse_data()
+        if self.needs_suffix:
+            return self.data + ". Stunde"
+        else:
+            return self.data
+
+
 class TimetableChange:
-    hours: str
+    hours: HourInfo
     lessonname: str
     teacher: str
     message: str
@@ -70,7 +101,7 @@ class TimetableChange:
 
     def __init__(  # noqa: PLR0913
         self: Self,
-        hours: str,
+        hours: HourInfo,
         klasse: str,
         lessonname: str,
         teacher: str,
@@ -80,7 +111,7 @@ class TimetableChange:
     ) -> None:
         self.canceled = canceled
 
-        self.hours = hours.strip()
+        self.hours = hours
         self.klasse = klasse.strip()
 
         # teachers should be uppercase
@@ -105,7 +136,9 @@ class TimetableChange:
         # grab class
         klasse = rowdata["group"]
 
-        hours, lessonname, teacherinfo, status, message = rowdata["data"]
+        hours_str, lessonname, teacherinfo, status, message = rowdata["data"]
+
+        hours = HourInfo(hours_str)
 
         if klasse == "Verw":
             newteacher = ", ".join(
@@ -124,28 +157,19 @@ class TimetableChange:
             )
             originalteacher = ""
         else:
-            # teacherinfo is either 'AB' or 'AB, CD, EF'or 'AB (CD)' or 'AB, CD (EF)'
-            split_info = teacherinfo.split("(")
-            match split_info:
-                # case 'AB' or 'AB, CD, EF'
-                case [teacher]:
-                    newteacher = teacher
-                    originalteacher = ""
-
-                # case 'AB (CD)' or 'AB, CD (EF)'
-                case [new, original]:
-                    newteacher = new
-                    originalteacher = original.strip(")")
-
-                case _:
-                    raise ValueError(f"invalid teacherinfo: {split_info}!")
+            newteacher = re.sub("\\(.*\\)", "", teacherinfo)
+            originalteacher = re.sub(
+                "^[^\\(]*\\(|\\)[^\\(]*$",
+                "",
+                re.sub("\\).*?\\(", ", ", teacherinfo) if "(" in teacherinfo else "",
+            )
 
         # marker for ausfall
         if status.strip() == "Entfall":
             entfall = True
         else:
             entfall = False
-            # if status isn't "ausfall" then add it to the end of the message string
+            # if status isn't "Entfall" then add it to the end of the message string
             if status.strip() and message.strip():
                 message += f" / {status}"
             elif status.strip() and not message.strip():
@@ -169,36 +193,37 @@ class TimetableChange:
 
     def repr_html(self: Self) -> str:  # noqa: C901, PLR0912
         out = ""
+        hours = self.hours.to_string()
         if self.canceled:
             if self.teacher:
                 if self.lessonname:
-                    out += f"{self.hours}. Stunde: {self.lessonname} bei {self.teacher} <b>fällt aus</b>"
+                    out += f"{hours}: {self.lessonname} bei {self.teacher} <b>fällt aus</b>"
                 else:
-                    out += f"{self.hours}. Stunde bei {self.teacher} fällt aus"
+                    out += f"{hours} bei {self.teacher} fällt aus"
             else:  # noqa: PLR5501
                 if self.lessonname:
-                    out += f"{self.hours}. Stunde ({self.lessonname}) fällt aus"
+                    out += f"{hours} ({self.lessonname}) fällt aus"
                 else:
-                    out += f"{self.hours}. Stunde fällt aus"
+                    out += f"{hours} fällt aus"
             if self.message:
                 out += f": {self.message}"
         else:
             if self.teacher:
                 if self.lessonname:
                     if self.originalteacher:
-                        out += f"{self.hours}. Stunde: {self.lessonname} bei {self.teacher} <span style='color: {SetupData.get_color(self.year, 'dark')}'>statt {self.originalteacher}</span>"
+                        out += f"{hours}: {self.lessonname} bei {self.teacher} <span style='color: {SetupData.get_color(self.year, 'dark')}'>statt {self.originalteacher}</span>"
                     else:
-                        out += f"{self.hours}. Stunde: {self.lessonname} bei {self.teacher}"
+                        out += f"{hours}: {self.lessonname} bei {self.teacher}"
                 else:  # noqa: PLR5501
                     if self.originalteacher:
-                        out += f"{self.hours}. Stunde bei {self.teacher} <span style='color: {SetupData.get_color(self.year, 'dark')}'>statt {self.originalteacher}</span>"
+                        out += f"{hours} bei {self.teacher} <span style='color: {SetupData.get_color(self.year, 'dark')}'>statt {self.originalteacher}</span>"
                     else:
-                        out += f"{self.hours}. Stunde bei {self.teacher}"
+                        out += f"{hours} bei {self.teacher}"
             else:  # noqa: PLR5501
                 if self.lessonname:
-                    out += f"{self.hours}. Stunde ({self.lessonname})"
+                    out += f"{hours} ({self.lessonname})"
                 else:
-                    out += f"{self.hours}. Stunde"
+                    out += f"{hours}"
             if self.message:
                 out += f": {self.message}"
         return out
@@ -212,7 +237,11 @@ class TimetableChange:
             return "Aufgaben (zuhause)"
         elif message.strip() == "Desy":
             return "DESY"
-        return message
+        else:
+            REPLACEMENTS = {"f.a.": "fällt aus"}
+            for keyword, replacement in REPLACEMENTS.items():
+                message = message.replace(keyword, replacement)
+            return message
 
     @staticmethod
     def parse_lesson_name(name: str) -> str:
@@ -349,25 +378,30 @@ class VertretungsplanFormatter:
         color = SetupData.get_color(year, "pale")
         return f"""<div class="colorblock" style="background-color: {color}">"""
 
+    def generate_icon_block(self: Self, icon: str, subject: str, body: str):
+        html = f"""<div class="announcement">{icon}<div class="announce-text">"""
+        if subject and body:
+            html += f"<h3>{subject}</h3><p>{body}</p>"
+        elif subject:
+            html += f"<h3>Ankündigung:</h3><p>{subject}</p>"
+        elif body:
+            html += f"<h3>Ankündigung:</h3><p>{body}</p>"
+        else:
+            html += ""
+
+        html += "</div></div>"
+
+        return html
+
     def generate_announcements(self: Self, data: list[AnnouncementData]) -> str:
         if data:
             html = self.create_background_color_div(0)
             for message in data:
-                html += f"""<div class="announcement">{HTMLElements.ANNOUNCE_ICON}<div class="announce-text">"""
-                subject = message["subject"].strip()
-                body = message["body"].strip()
-
-                if subject and body:
-                    html += f"<h3>{subject}</h3><p>{body}</p>"
-                elif subject:
-                    html += f"<h3>Ankündigung:</h3><p>{subject}</p>"
-                elif body:
-                    html += f"<h3>Ankündigung:</h3><p>{body}</p>"
-                else:
-                    html += ""
-
-                html += "</div></div>"
-
+                html += self.generate_icon_block(
+                    HTMLElements.ANNOUNCE_ICON,
+                    message["subject"].strip(),
+                    message["body"].strip(),
+                )
             return html + "</div><hr>"
         else:
             return ""
@@ -377,10 +411,12 @@ class VertretungsplanFormatter:
     ) -> str:
         rows: list[TimetableChange] = []
 
+        encountered_error = False
         for row in webuntis_data["rows"]:
             try:
                 tt_change = TimetableChange.from_row(row)
             except ValueError as e:
+                encountered_error = True
                 warn(str(e))
             else:
                 rows.append(tt_change)
@@ -396,13 +432,22 @@ class VertretungsplanFormatter:
         out = f"""<div class="{"daywrapper active" if div_active else "daywrapper"}" id="{VertretungsplanFormatter.next_div_id}"><h1>{page_title}</h1><hr>"""
         VertretungsplanFormatter.next_div_id += 1
         if webuntis_data["weekDay"] != SetupData.WEEKDAYS[date.weekday()]:
-            out += """<span style="display: table; margin: 0 auto; padding: 1rem;">Keine Daten verfügbar. Das liegt an der Schule, nicht an dieser Webseite.</span></div></div>"""
+            out += """<span style="display: table; margin: 0 auto; padding: 1rem;">Keine Daten verfügbar.</span></div></div>"""
             return out
         else:
-            out += f"{announcements}"
+            out += announcements
+            if encountered_error:
+                error_warning = self.create_background_color_div(0)
+                error_warning += self.generate_icon_block(
+                    HTMLElements.WARN_ICON,
+                    "Fehler bei der Datenverarbeitung!",
+                    """Es kann sein, dass manche Einträge fehlen. Schaut sicherheitshalber bei <a style="color: unset; padding: unset;" href="https://samos.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a> nach. Schreibt Mats gerne, dann ist der Fehler bald weg. Wahrscheinlich hat WebUntis wieder das Format geändert.""",
+                )
+                error_warning += "</div><hr>"
+                out += error_warning
 
         if not rows:
-            out += """<span style="display: table; margin: 0 auto; padding: 1rem;">keine Daten bisher.</span></div>"""
+            out += """<span style="display: table; margin: 0 auto; padding: 1rem;">Keine Vertretungen bisher.</span></div>"""
             return out
 
         year_group = rows[0].year
