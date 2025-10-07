@@ -538,7 +538,7 @@ class VertretungsplanFormatter:
 
         next_update_time = croniter.croniter(
             SetupData.CRON_SPEC, dt.datetime.now()
-        ).get_next(dt.datetime)
+        ).get_next(dt.datetime) + dt.timedelta(seconds=8)
 
         main_element = "<main>" + "".join(day_divs) + "</main>"
 
@@ -567,7 +567,7 @@ class VertretungsplanFormatter:
 
         next_update_time = croniter.croniter(
             SetupData.CRON_SPEC, dt.datetime.now()
-        ).get_next(dt.datetime)
+        ).get_next(dt.datetime) + dt.timedelta(seconds=8)
 
         return (
             self.generate_header(

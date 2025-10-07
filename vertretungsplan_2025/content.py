@@ -382,6 +382,7 @@ class HTMLElements:
 
     </style>
     <script>
+        let pageLoadDate = Date.now();
         let currentPage = {{startpage}};
         const pages = document.getElementsByClassName('daywrapper');
         document.addEventListener("DOMContentLoaded", function() {
@@ -467,7 +468,16 @@ class HTMLElements:
             nextUpdateField.textContent = "Nächste Aktualisierung: " + getRelativeTime(nextUpdate);
         }
 
-        setInterval(updateTimestamps, 60 * 1000);
+        function reloadIfRequired() {
+            secondsSincePageLoad = (Date.now() - pageLoadDate) / 1000;
+            secondsSinceNextUpdate = (Date.now() - nextUpdate) / 1000;
+            if (secondsSincePageLoad > (60 * 5) && secondsSinceNextUpdate > 0) {
+                location.reload();
+            }
+        }
+
+        setInterval(updateTimestamps, 30 * 1000);
+        setTimeout(() => {setInterval(reloadIfRequired, 5 * 1000);}, 298 * 1000)
     </script>
 </head>
 """
