@@ -88,6 +88,7 @@ class SetupData:
         "FuP": "Forschen und Präsentieren",
         "Spa": "Spanisch",
         "SoRMS": "Schule ohne Rassismus",
+        "kRe": "Katholische Religion",
         "": "",
     }
 
