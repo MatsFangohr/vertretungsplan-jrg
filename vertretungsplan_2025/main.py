@@ -378,7 +378,7 @@ class VertretungsplanFormatter:
         color = SetupData.get_color(year, "pale")
         return f"""<div class="colorblock" style="background-color: {color}">"""
 
-    def generate_icon_block(self: Self, icon: str, subject: str, body: str):
+    def generate_icon_block(self: Self, icon: str, subject: str, body: str) -> str:
         html = f"""<div class="announcement">{icon}<div class="announce-text">"""
         if subject and body:
             html += f"<h3>{subject}</h3><p>{body}</p>"
