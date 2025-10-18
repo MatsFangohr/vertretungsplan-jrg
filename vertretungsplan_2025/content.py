@@ -1,4 +1,5 @@
 # ruff: noqa: E501
+import datetime as dt
 from collections import defaultdict
 from collections.abc import Mapping
 from typing import Literal, TypedDict, cast
@@ -89,7 +90,8 @@ class SetupData:
         "Spa": "Spanisch",
         "SoRMS": "Schule ohne Rassismus",
         "kRe": "katholische Religion",
-        "": "",
+        "Rob": "Roberta",
+        "ImpThea WPU": "Improtheater",
     }
 
     CRON_SPEC = "*/7 6-23 * * 0-5"
@@ -504,3 +506,41 @@ Computerprogramme machen extrem selten Fehler; ich mache beim Programmieren aber
     ANNOUNCE_ICON = f"""<svg class="announce-icon" fill="{SetupData.TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M525.2 82.9C536.7 88 544 99.4 544 112L544 528C544 540.6 536.7 552 525.2 557.1C513.7 562.2 500.4 560.3 490.9 552L444.3 511.3C400.7 473.2 345.6 451 287.9 448.3L287.9 544C287.9 561.7 273.6 576 255.9 576L223.9 576C206.2 576 191.9 561.7 191.9 544L191.9 448C121.3 448 64 390.7 64 320C64 249.3 121.3 192 192 192L276.5 192C338.3 191.8 397.9 169.3 444.4 128.7L491 88C500.4 79.7 513.9 77.8 525.3 82.9zM288 384L288 384.2C358.3 386.9 425.8 412.7 480 457.6L480 182.3C425.8 227.2 358.3 253 288 255.7L288 384z"/></svg>"""
 
     WARN_ICON = f"""<svg class="warn-icon" fill="{SetupData.TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M320 64C334.7 64 348.2 72.1 355.2 85L571.2 485C577.9 497.4 577.6 512.4 570.4 524.5C563.2 536.6 550.1 544 536 544L104 544C89.9 544 76.8 536.6 69.6 524.5C62.4 512.4 62.1 497.4 68.8 485L284.8 85C291.8 72.1 305.3 64 320 64zM320 416C302.3 416 288 430.3 288 448C288 465.7 302.3 480 320 480C337.7 480 352 465.7 352 448C352 430.3 337.7 416 320 416zM320 224C301.8 224 287.3 239.5 288.6 257.7L296 361.7C296.9 374.2 307.4 384 319.9 384C332.5 384 342.9 374.3 343.8 361.7L351.2 257.7C352.5 239.5 338.1 224 319.8 224z"/></svg>"""
+
+
+class SchoolHoliday(TypedDict):
+    name: str
+    start: dt.date  # first date at which the message should be shown
+    end: dt.date  # final date at which the message should be shown
+    first_day_after: dt.date  # first day of school after the holidays
+
+
+SCHOOL_HOLIDAYS: list[SchoolHoliday] = [
+    {
+        "name": "Herbstferien",
+        "start": dt.date(2025, 10, 18),
+        "end": dt.date(2025, 10, 31),
+        "first_day_after": dt.date(2025, 11, 3),
+    }
+]
+
+HOLIDAY_DAYS: dict[dt.date, SchoolHoliday] = {}
+
+for holiday in SCHOOL_HOLIDAYS:
+    assert holiday["end"] >= holiday["start"], "holiday must end after it begins!"
+    current_date = holiday["start"]
+    while current_date != holiday["end"]:
+        assert current_date not in HOLIDAY_DAYS, (
+            f"date {current_date} is part of two holidays!"
+        )
+        HOLIDAY_DAYS[current_date] = holiday
+        current_date += dt.timedelta(days=1)
+
+
+def is_in_holiday(date: dt.date) -> bool:
+    return date in HOLIDAY_DAYS
+
+
+def get_holiday(date: dt.date) -> SchoolHoliday:
+    """only call if is_in_holiday(date) returns true, will return none otherwise"""
+    return HOLIDAY_DAYS.get(date)  # type: ignore

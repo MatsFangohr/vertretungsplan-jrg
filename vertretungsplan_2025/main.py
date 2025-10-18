@@ -14,7 +14,7 @@ import minify_html
 import requests
 import requests_cache
 
-from content import HTMLElements, SetupData
+from content import HTMLElements, SetupData, get_holiday, is_in_holiday
 
 start_time = time.time()
 
@@ -34,6 +34,18 @@ def warn(message: str) -> None:
 
 def info(message: str) -> None:
     general_log(message, logger.info)
+
+
+def get_soonest_weekday() -> dt.date:
+    return {
+        0: dt.date.today(),
+        1: dt.date.today(),
+        2: dt.date.today(),
+        3: dt.date.today(),
+        4: dt.date.today(),
+        5: dt.date.today() + dt.timedelta(days=2),
+        6: dt.date.today() + dt.timedelta(days=1),
+    }[dt.date.today().weekday()]
 
 
 info("dependencies loaded.")
@@ -431,8 +443,14 @@ class VertretungsplanFormatter:
 
         out = f"""<div class="{"daywrapper active" if div_active else "daywrapper"}" id="{VertretungsplanFormatter.next_div_id}"><h1>{page_title}</h1><hr>"""
         VertretungsplanFormatter.next_div_id += 1
-        if webuntis_data["weekDay"] != SetupData.WEEKDAYS[date.weekday()]:
-            out += """<span style="display: table; margin: 0 auto; padding: 1rem;">Keine Daten verfügbar.</span></div></div>"""
+        if webuntis_data["weekDay"] != SetupData.WEEKDAYS[date.weekday()] or str(
+            webuntis_data["date"]
+        ) != date.strftime("%Y%m%d"):
+            if is_in_holiday(date):
+                holiday = get_holiday(date)
+                out += f"""<span style="display: table; margin: 0 auto; padding: 1rem;">Es sind {holiday["name"]}! Die Schule beginnt am {SetupData.WEEKDAYS[holiday["first_day_after"].weekday()]}, dem {holiday["first_day_after"].strftime("%d.%m.%Y")} wieder. Wahrscheinlich kann man den Vertretungsplan mit dem Knopf unten schon einsehen.</span></div></div>"""
+            else:
+                out += """<span style="display: table; margin: 0 auto; padding: 1rem;">Keine Daten verfügbar.</span></div></div>"""
             return out
         else:
             out += announcements
@@ -597,10 +615,15 @@ class VertretungsplanFormatter:
         }
 
 
+def select_dates() -> list[dt.date]:
+    if is_in_holiday(dt.date.today()):
+        return [get_soonest_weekday(), get_holiday(dt.date.today())["first_day_after"]]
+    else:
+        return [dt.date.today() + dt.timedelta(days=i) for i in range(7)]
+
+
 def main() -> None:
-    files = VertretungsplanFormatter.generate_html_files(
-        [dt.date.today() + dt.timedelta(days=i) for i in range(7)]
-    )
+    files = VertretungsplanFormatter.generate_html_files(select_dates())
 
     out, about = files["main"], files["about"]
 
