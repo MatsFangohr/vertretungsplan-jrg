@@ -250,7 +250,10 @@ class TimetableChange:
         elif message.strip() == "Desy":
             return "DESY"
         else:
-            REPLACEMENTS = {"f.a.": "fällt aus"}
+            REPLACEMENTS = {
+                "f.a.": "fällt aus",
+                "LaaO": "Lernen am anderen Ort",
+            }
             for keyword, replacement in REPLACEMENTS.items():
                 message = message.replace(keyword, replacement)
             return message

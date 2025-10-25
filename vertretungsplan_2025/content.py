@@ -521,7 +521,31 @@ SCHOOL_HOLIDAYS: list[SchoolHoliday] = [
         "start": dt.date(2025, 10, 18),
         "end": dt.date(2025, 10, 31),
         "first_day_after": dt.date(2025, 11, 3),
-    }
+    },
+    {
+        "name": "Winterferien",
+        "start": dt.date(2025, 12, 19),
+        "end": dt.date(2026, 1, 6),
+        "first_day_after": dt.date(2026, 1, 7),
+    },
+    {
+        "name": "Osterferien",
+        "start": dt.date(2026, 3, 26),
+        "end": dt.date(2026, 4, 10),
+        "first_day_after": dt.date(2026, 4, 13),
+    },
+    {
+        "name": "Pfingstferien",
+        "start": dt.date(2026, 5, 13),
+        "end": dt.date(2026, 5, 15),
+        "first_day_after": dt.date(2026, 5, 18),
+    },
+    {
+        "name": "Sommerferien",
+        "start": dt.date(2026, 7, 5),
+        "end": dt.date(2026, 8, 15),
+        "first_day_after": dt.date(2026, 8, 17),
+    },
 ]
 
 HOLIDAY_DAYS: dict[dt.date, SchoolHoliday] = {}
@@ -530,9 +554,9 @@ for holiday in SCHOOL_HOLIDAYS:
     assert holiday["end"] >= holiday["start"], "holiday must end after it begins!"
     current_date = holiday["start"]
     while current_date != holiday["end"]:
-        assert current_date not in HOLIDAY_DAYS, (
-            f"date {current_date} is part of two holidays!"
-        )
+        assert (
+            current_date not in HOLIDAY_DAYS
+        ), f"date {current_date} is part of two holidays!"
         HOLIDAY_DAYS[current_date] = holiday
         current_date += dt.timedelta(days=1)
 
