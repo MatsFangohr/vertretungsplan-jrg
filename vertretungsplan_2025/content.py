@@ -92,6 +92,7 @@ class SetupData:
         "kRe": "katholische Religion",
         "Rob": "Roberta",
         "ImpThea WPU": "Improtheater",
+        "DaZDEU 5": "DAZ Deutsch",
     }
 
     CRON_SPEC = "*/7 6-23 * * 0-5"
@@ -233,7 +234,7 @@ class HTMLElements:
 <span id="letzteAktualisierung">Letzte Aktualisierung: {{letzteakt}}</span><br>
 <span id="naechsteAktualisierung">Nächste Aktualisierung: {{nächsteakt}}</span>
 </div><div class="centered-box-div cbd-horizontal">
-<a href="/jrg/about">About</a><br>
+<a href="/jrg/about.html">About</a><br>
 <a href="/jrg">Home</a>
 <a href="https://samos.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a>
 <a href='https://ko-fi.com/K3K71KYTMX' target='_blank'>Kaffee kaufen</a>
@@ -245,8 +246,10 @@ class HTMLElements:
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Einen besseren Vertretungsplan für das Johann-Rist-Gymnasium.">
+    <meta name="author" content="Mats Fangohr">
     <title>{{title}}</title>
-    <link rel="canonical" href="https://vertretungsplan.fangohr.org/jrg" />
+    <link rel="canonical" href="https://vertretungsplan.fangohr.org/jrg"/>
     <link rel="icon" href="/jrg/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
