@@ -234,7 +234,7 @@ class HTMLElements:
 <span id="letzteAktualisierung">Letzte Aktualisierung: {{letzteakt}}</span><br>
 <span id="naechsteAktualisierung">Nächste Aktualisierung: {{nächsteakt}}</span>
 </div><div class="centered-box-div cbd-horizontal">
-<a href="/jrg/about.html">About</a><br>
+<a href="/jrg/about">About</a><br>
 <a href="/jrg">Home</a>
 <a href="https://samos.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a>
 <a href='https://ko-fi.com/K3K71KYTMX' target='_blank'>Kaffee kaufen</a>
