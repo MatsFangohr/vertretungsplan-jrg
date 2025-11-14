@@ -93,6 +93,14 @@ class SetupData:
         "Rob": "Roberta",
         "ImpThea WPU": "Improtheater",
         "DaZDEU 5": "DAZ Deutsch",
+        "AmM": "Art meets Music",
+        "UuG": "Unternehmen und Gesellschaft",
+        "ELZmo": "Eigenlernzeit",
+        "ELZdi": "Eigenlernzeit",
+        "ELZmi": "Eigenlernzeit",
+        "ELZdo": "Eigenlernzeit",
+        "ELZfr": "Eigenlernzeit",
+        "": "",
     }
 
     CRON_SPEC = "*/7 6-23 * * 0-5"
