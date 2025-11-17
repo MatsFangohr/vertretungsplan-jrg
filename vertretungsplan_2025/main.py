@@ -73,31 +73,61 @@ class HourInfo:
     data: str
     needs_suffix: bool
 
-    def __init__(self: Self, data: str) -> None:
+    def __init__(self: Self, data: str, needs_suffix=True) -> None:
         self.data = data.strip()
-        self.needs_suffix = True
+        try:
+            if mat := re.match(r"^(\d+) - (\d+)$", self.data):
+                self.start = int(mat.group(1))
+                self.end = int(mat.group(2))
+                assert self.start < self.end
+            elif re.match(r"^\d+$", self.data):
+                self.start = self.end = int(self.data)
+            else:
+                self.start = self.end = 0
+                warn(f"unrecognized time format: '{data}'!")
+        except ValueError:
+            warn(f"invalid time format: '{data}'!")
 
-    def parse_data(self: Self) -> None:
+        self.needs_suffix = needs_suffix
+
+    @classmethod
+    def from_data(cls, data: str, needs_suffix: bool, start: int, end: int) -> HourInfo:
+        hourinfo = HourInfo("1", needs_suffix)
+        hourinfo.data = data
+        hourinfo.start = start
+        hourinfo.end = end
+
+        return hourinfo
+
+    def parse_data(self: Self) -> HourInfo:
         HOUR_DATA = {
-            "0 - 11": "Ganztägig",
-            "1 - 11": "Ganztägig",
-            "1 - 2": "1. Block",
-            "3 - 4": "2. Block",
-            "5 - 6": "3. Block",
-            "8 - 9": "4. Block",
-            "10 - 11": "5. Block",
+            "0 - 11": ("Ganztägig", 0, 0),
+            "1 - 11": ("Ganztägig", 0, 0),
+            "1 - 2": ("1. Block", 1, 2),
+            "3 - 4": ("2. Block", 3, 4),
+            "5 - 6": ("3. Block", 5, 6),
+            "8 - 9": ("4. Block", 8, 9),
+            "10 - 11": ("5. Block", 10, 11),
         }
 
         if self.data in HOUR_DATA:
-            self.data = HOUR_DATA[self.data]
-            self.needs_suffix = False
+            return HourInfo.from_data(
+                HOUR_DATA[self.data][0],
+                False,
+                HOUR_DATA[self.data][1],
+                HOUR_DATA[self.data][2],
+            )
+
+        return self
 
     def to_string(self: Self) -> str:
-        self.parse_data()
         if self.needs_suffix:
             return self.data + ". Stunde"
         else:
             return self.data
+
+    def to_sorttuple(self: Self) -> tuple[int, int]:
+        return (self.start, self.end)
 
 
 class TimetableChange:
@@ -150,7 +180,7 @@ class TimetableChange:
 
         hours_str, lessonname, teacherinfo, status, message = rowdata["data"]
 
-        hours = HourInfo(hours_str)
+        hours = HourInfo(hours_str).parse_data()
 
         if klasse == "Verw":
             newteacher = ", ".join(
@@ -288,7 +318,7 @@ class TimetableChange:
             case ["V", "e", "r", "w"]:
                 return (99, "a")
             case _:
-                raise ValueError(f"invalid klasse: {klasse}!")
+                raise ValueError(f"invalid klasse: '{klasse}'!")
         return (year, klasse[-1])
 
 
@@ -436,7 +466,7 @@ class VertretungsplanFormatter:
             else:
                 rows.append(tt_change)
 
-        rows.sort(key=lambda r: (r.year, r.classletter))
+        rows.sort(key=lambda r: (r.year, r.classletter, r.hours.to_sorttuple()))
 
         page_title = f"""Vertretungsplan für {SetupData.WEEKDAYS[date.weekday()]}, den {date.strftime("%d.%m.%Y")}"""
 
