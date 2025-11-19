@@ -507,6 +507,26 @@ class VertretungsplanFormatter:
             out += """<span style="display: table; margin: 0 auto; padding: 1rem;">Keine Vertretungen bisher.</span></div>"""
             return out
 
+        affected_classes = set(row.klasse for row in rows)
+        unaffected_classes = [
+            c for c in SetupData.ALL_CLASSES if c not in affected_classes
+        ]
+
+        if unaffected_classes and div_active:
+            out += (
+                self.create_background_color_div(13)
+                + "<h2>Klassen ohne Veränderung"
+                + "".join(
+                    map(
+                        lambda cls: f"""<span id="klasse-{cls}"></span>""",
+                        unaffected_classes,
+                    )
+                )
+                + "</h2><p>"
+                + ", ".join(unaffected_classes)
+                + "</p></div><hr>"
+            )
+
         year_group = rows[0].year
         out += self.create_background_color_div(year_group)
         while len(rows) > 0:

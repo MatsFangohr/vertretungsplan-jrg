@@ -134,6 +134,15 @@ class SetupData:
             },
             [
                 (
+                    -1,
+                    {
+                        "pale": "#E5C7FF",
+                        "dark": "NONE",
+                        "normal": "NONE",
+                        "strong": "NONE",
+                    },
+                ),
+                (
                     0,
                     {
                         "pale": "#F5F4F6",
@@ -235,6 +244,52 @@ class SetupData:
             ],
         ),
     )
+
+    ALL_CLASSES = [
+        "DAZ",
+        "5a",
+        "5b",
+        "5c",
+        "5d",
+        "5e",
+        "6a",
+        "6b",
+        "6c",
+        "6d",
+        "6e",
+        "6f",
+        "7a",
+        "7b",
+        "7c",
+        "7d",
+        "7e",
+        "8a",
+        "8b",
+        "8c",
+        "8d",
+        "8e",
+        "9a",
+        "9b",
+        "9c",
+        "9d",
+        "9e",
+        "10a",
+        "10b",
+        "10c",
+        "10d",
+        "10e",
+        "10f",
+        "Eja",
+        "Ejb",
+        "Ejc",
+        "Ejd",
+        "Eje",
+        "Q1a",
+        "Q1b",
+        "Q1c",
+        "Q1d",
+        "Q1e",
+    ]
 
 
 class HTMLElements:
