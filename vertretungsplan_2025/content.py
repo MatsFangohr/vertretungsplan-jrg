@@ -526,7 +526,6 @@ class HTMLElements:
             }
         }
 
-        // let lastChange = new Date({{letzteänderungTimestamp}} * 1000); 
         let lastUpdate = new Date({{letzteaktTimestamp}} * 1000); 
         let nextUpdate = new Date({{nächsteaktTimestamp}} * 1000);
 
@@ -623,9 +622,9 @@ for holiday in SCHOOL_HOLIDAYS:
     assert holiday["end"] >= holiday["start"], "holiday must end after it begins!"
     current_date = holiday["start"]
     while current_date != holiday["end"]:
-        assert (
-            current_date not in HOLIDAY_DAYS
-        ), f"date {current_date} is part of two holidays!"
+        assert current_date not in HOLIDAY_DAYS, (
+            f"date {current_date} is part of two holidays!"
+        )
         HOLIDAY_DAYS[current_date] = holiday
         current_date += dt.timedelta(days=1)
 

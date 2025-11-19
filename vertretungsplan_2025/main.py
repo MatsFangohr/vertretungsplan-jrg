@@ -73,7 +73,7 @@ class HourInfo:
     data: str
     needs_suffix: bool
 
-    def __init__(self: Self, data: str, needs_suffix=True) -> None:
+    def __init__(self: Self, data: str, needs_suffix: bool = True) -> None:
         self.data = data.strip()
         try:
             if mat := re.match(r"^(\d+) - (\d+)$", self.data):
