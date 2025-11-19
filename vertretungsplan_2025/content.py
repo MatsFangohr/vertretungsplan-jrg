@@ -339,10 +339,19 @@ class HTMLElements:
         .cbd-horizontal {
             display: flex;
         }
+
+        .title-block {
+            background-color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 15px;
+        }
         
         h1 {
             text-align: center;
-            margin-top: 1rem;
+            margin: 0.67rem;
+            font-size: 32px;
         }
 
         h2 {
@@ -372,6 +381,10 @@ class HTMLElements:
 
         hr {
             margin: 0;
+            color: #666;
+            background-color: #666;
+            border: none;
+            height: 1px;
         }
 
         .colorblock {

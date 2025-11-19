@@ -480,7 +480,7 @@ class VertretungsplanFormatter:
             webuntis_data["messageData"]["messages"]
         )
 
-        out = f"""<div class="{"daywrapper active" if div_active else "daywrapper"}" id="{VertretungsplanFormatter.next_div_id}"><h1>{page_title}</h1><hr>"""
+        out = f"""<div class="{"daywrapper active" if div_active else "daywrapper"}" id="{VertretungsplanFormatter.next_div_id}"><div class="title-block colorblock"><h1>{page_title}</h1></div><hr>"""
         VertretungsplanFormatter.next_div_id += 1
         if webuntis_data["weekDay"] != SetupData.WEEKDAYS[date.weekday()] or str(
             webuntis_data["date"]
