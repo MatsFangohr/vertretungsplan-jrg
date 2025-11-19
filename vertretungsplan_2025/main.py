@@ -401,6 +401,12 @@ class VertretungsplanFormatter:
                 if platform.system() == "Linux"
                 else "[DEBUG] Vertretungsplan",
             ),
+            (
+                "reloadIfRequired",
+                HTMLElements.RELOAD_IF_REQUIRED_FUNCTION
+                if platform.system() == "Linux"
+                else "",
+            ),
         ]:
             header = header.replace("{{" + placeholder + "}}", replacement)
         return header
