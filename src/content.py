@@ -101,6 +101,7 @@ class SetupData:
         "ELZmi": "Eigenlernzeit",
         "ELZdo": "Eigenlernzeit",
         "ELZfr": "Eigenlernzeit",
+        "Textil": "Textiles Werken",
         "": "",
     }
 
@@ -136,7 +137,7 @@ class SetupData:
                 (
                     -1,
                     {
-                        "pale": "#E1DBFF",
+                        "pale": "#E5E0FF",
                         "dark": "NONE",
                         "normal": "NONE",
                         "strong": "NONE",
@@ -468,7 +469,7 @@ class HTMLElements:
             height: 1.2rem;
             padding: 0 8px 0 8px;
             fill: #000;
-            opacity: 40%;
+            opacity: .3;
         }
 
     </style>
