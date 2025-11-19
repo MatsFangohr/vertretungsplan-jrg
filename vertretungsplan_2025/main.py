@@ -547,7 +547,13 @@ class VertretungsplanFormatter:
                     break
 
             # then format them accordingly
-            out += f"<h2>{current_class}</h2>\n<p>"
+            out += "<h2"
+            if div_active:
+                out += f" id=klasse-{current_class}"
+            out += f""">{current_class}"""
+            if div_active:
+                out += f"""<a href="#{current_class}" style="padding: unset;"><svg viewBox="0 0 576 512" class="link-icon-svg"><use href="#link-icon"/></svg></a>"""
+            out += """</h2><p>"""
             if "Klassenfahrt" in firstrow.message:
                 out += f"Klassenfahrt mit {firstrow.teacher}</p>"
                 continue
@@ -626,6 +632,7 @@ class VertretungsplanFormatter:
                 last_change=last_update_global,
                 next_update=next_update_time,
             )
+            + HTMLElements.LINK_ICON_DEF
             + HTMLElements.BUTTONS
             + main_element
             + self.generate_footer(
