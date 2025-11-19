@@ -273,11 +273,12 @@ class TimetableChange:
     @staticmethod
     def parse_message(message: str) -> str:
         """only replaces 'AA' with 'Aufgaben'"""
-        if message.strip() == "AA":
+        stripped_message = message.replace(" ", "").strip()
+        if stripped_message == "AA":
             return "Aufgaben"
-        elif message.strip() == "AA @ home":
+        elif stripped_message == "AA@home":
             return "Aufgaben (zuhause)"
-        elif message.strip() == "Desy":
+        elif stripped_message == "Desy":
             return "DESY"
         else:
             REPLACEMENTS = {
