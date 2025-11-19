@@ -1,4 +1,4 @@
-# ruff: noqa: E501
+# ruff: noqa: E501, RUF012
 import datetime as dt
 from collections import defaultdict
 from collections.abc import Mapping
@@ -136,7 +136,7 @@ class SetupData:
                 (
                     -1,
                     {
-                        "pale": "#E5E0FF",
+                        "pale": "#E1DBFF",
                         "dark": "NONE",
                         "normal": "NONE",
                         "strong": "NONE",
@@ -310,7 +310,7 @@ class HTMLElements:
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Einen besseren Vertretungsplan für das Johann-Rist-Gymnasium.">
+    <meta name="description" content="Ein besserer Vertretungsplan für das Johann-Rist-Gymnasium.">
     <meta name="author" content="Mats Fangohr">
     <title>{{title}}</title>
     <link rel="canonical" href="https://vertretungsplan.fangohr.org/jrg"/>
@@ -347,7 +347,7 @@ class HTMLElements:
             justify-content: center;
             border-radius: 15px;
         }
-        
+
         h1 {
             text-align: center;
             margin: 0.67rem;
@@ -509,8 +509,8 @@ class HTMLElements:
             if (pages.length == 0) {
                 return;
             }
-            const leftButton = document.getElementById("leftarrow"); 
-            const rightButton = document.getElementById("rightarrow"); 
+            const leftButton = document.getElementById("leftarrow");
+            const rightButton = document.getElementById("rightarrow");
 
             if (currentPage < pages.length - 1) {
                 rightButton.style.opacity = 1;
@@ -570,7 +570,7 @@ class HTMLElements:
             }
         }
 
-        let lastUpdate = new Date({{letzteaktTimestamp}} * 1000); 
+        let lastUpdate = new Date({{letzteaktTimestamp}} * 1000);
         let nextUpdate = new Date({{nächsteaktTimestamp}} * 1000);
 
         function updateTimestamps() {

@@ -379,7 +379,7 @@ class VertretungsplanFormatter:
     footer_data: FormattingData | None
     next_div_id = 0
 
-    def __init__(self: Self):
+    def __init__(self: Self) -> None:
         pass
 
     def generate_header(
@@ -410,6 +410,7 @@ class VertretungsplanFormatter:
             ),
         ]:
             header = header.replace("{{" + placeholder + "}}", replacement)
+            header = header.replace("\n        ", "\n")
         return header
 
     def generate_footer(
@@ -515,7 +516,7 @@ class VertretungsplanFormatter:
 
         if unaffected_classes and div_active:
             out += (
-                self.create_background_color_div(13)
+                self.create_background_color_div(-1)
                 + "<h2>Klassen ohne Veränderung"
                 + "".join(
                     map(
