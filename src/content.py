@@ -490,7 +490,7 @@ class HTMLElements:
         function showAlerts() {
             if (Date.now() < new Date(1763636400 * 1000).valueOf()) {
                 setTimeout(() => {
-                alert("Neben den Klassen sind jetzt Knöpfe - wenn ihr die drückt und euch dann den Link speichert (oder als App auf den Homebildschirm tut), scrollt die Seite beim öffnen direkt zu eurer Klasse :)\\n\\nDieser Hinweis wird noch bis Donnerstag, 12:00 angezeigt.");}, 1000)
+                alert("Neben den Klassen sind jetzt Knöpfe - wenn ihr die drückt und euch dann den Link speichert (oder als App auf den Homebildschirm tut), scrollt die Seite beim öffnen direkt zu eurer Klasse :)\\n\\nWenn Fehler dabei auftauchen, schreibt mir gern, Kontaktdaten sind unten bei 'About' angegeben.\\n\\nDieser Hinweis wird noch bis Donnerstag, 12:00 angezeigt.");}, 1000)
             }
         }
 
@@ -615,7 +615,7 @@ class HTMLElements:
     <p style="font-size: 1.2rem; padding-bottom: 1rem; padding-top: 0.5rem;">
         Die Vertretungsplanseite von WebUntis ist suboptimal. Ich hoffe diese Seite ist besser - schneller, farbenfroher und (hoffentlich) angenehmer zu benutzen.<br><br>
 
-Wenn euch irgendwas komisch vorkommt, nicht richtig funktioniert oder ihr sonstiges Feedback habt: Meldet euch gerne! Entweder direkt bei mir oder über jemanden, der weiß, wie man mich erreicht.<br><br>
+Wenn euch irgendwas komisch vorkommt, nicht richtig funktioniert oder ihr sonstiges Feedback habt: Meldet euch gerne! Entweder bei mir persönlich, über einen Kontakt oder unter <a href="mailto:vertretungsplan@fangohr.org" style="padding: 0; color: blue;">vertretungsplan@fangohr.org</a>.<br><br>
 
 Gelegentlich gibt mir WebUntis komische Daten, die zu Verarbeitungsfehlern führen - wenn etwas komisch erscheint, schaut lieber nochmal auf den offiziellen Plan (unten verlinkt) vorbei.
         <span style="float: right;">~Mats</span>
