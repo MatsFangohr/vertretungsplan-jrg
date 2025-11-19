@@ -136,7 +136,7 @@ class SetupData:
                 (
                     -1,
                     {
-                        "pale": "#E5C7FF",
+                        "pale": "#E5E0FF",
                         "dark": "NONE",
                         "normal": "NONE",
                         "strong": "NONE",
@@ -606,11 +606,11 @@ class HTMLElements:
 <hr>
 <div class="colorblock">
     <p style="font-size: 1.2rem; padding-bottom: 1rem; padding-top: 0.5rem;">
-        Die Vertretungsplanseite von WebUntis ist… na ja, sagen wir: gewöhnungsbedürftig. Das Scrollen nervt, die Farben sind etwas langweilig und bis man endlich seine Klasse findet, ist die Pause schon fast vorbei. Deshalb gibt's diese kleine Alternative - schneller, farbenfroher und (hoffentlich) angenehmer zu benutzen.<br><br>
+        Die Vertretungsplanseite von WebUntis ist suboptimal. Ich hoffe diese Seite ist besser - schneller, farbenfroher und (hoffentlich) angenehmer zu benutzen.<br><br>
 
 Wenn euch irgendwas komisch vorkommt, nicht richtig funktioniert oder ihr sonstiges Feedback habt: Meldet euch gerne! Entweder direkt bei mir oder über jemanden, der weiß, wie man mich erreicht.<br><br>
 
-Computerprogramme machen extrem selten Fehler; ich mache beim Programmieren aber durchaus mal welche. Ich kann nicht immer garantieren, dass alle Inhalte der Seite stimmen - auch wenn sie direkt von der offiziellen Seite stammen. Schaut bei Unsicherheit lieber nochmal auf den offiziellen Plan (unten verlinkt).
+Gelegentlich gibt mir WebUntis komische Daten, die zu Verarbeitungsfehlern führen - wenn etwas komisch erscheint, schaut lieber nochmal auf den offiziellen Plan (unten verlinkt) vorbei.
         <span style="float: right;">~Mats</span>
     </p>
 </div></div></footer>"""
