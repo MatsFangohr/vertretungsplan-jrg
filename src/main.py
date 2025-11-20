@@ -700,7 +700,7 @@ def main() -> None:
 
     out, about = files["main"], files["about"]
 
-    minified_out = minify_html.minify(out, minify_css=True)
+    minified_out = minify_html.minify(out, minify_css=True, minify_js=True)
 
     write_out_and_copy(minified_out, about)
 

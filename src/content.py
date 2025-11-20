@@ -483,8 +483,8 @@ class HTMLElements:
             showAlerts();
         });
         document.addEventListener("load", scrollToClass);
-        window.addEventListener("pageshow", () => {setTimeout(pageShow, 250)});
-        window.addEventListener("hashchange", hashChanged);
+        window.addEventListener("pageshow", () => {setTimeout(scrollToClass, 250)});
+        window.addEventListener("hashchange", scrollToClass);
         updateButtons();
 
         function showAlerts() {
@@ -492,15 +492,6 @@ class HTMLElements:
                 setTimeout(() => {
                 alert("Neben den Klassen sind jetzt Knöpfe - wenn ihr die drückt und euch dann den Link speichert (oder als App auf den Homebildschirm tut), scrollt die Seite beim öffnen direkt zu eurer Klasse :)\\n\\nWenn Fehler dabei auftauchen, schreibt mir gern, Kontaktdaten sind unten bei 'About' angegeben.\\n\\nDieser Hinweis wird noch bis Donnerstag, 12:00 angezeigt.");}, 1000)
             }
-        }
-
-        function pageShow() {
-            scrollToClass();
-            console.log("pageshow", event.persisted);
-        }
-
-        function hashChanged() {
-            scrollToClass();
         }
 
         function scrollToClass() {
