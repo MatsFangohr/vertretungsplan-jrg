@@ -412,7 +412,6 @@ class VertretungsplanFormatter:
             ),
         ]:
             header = header.replace("{{" + placeholder + "}}", replacement)
-            header = header.replace("\n        ", "\n")
         return header
 
     def generate_footer(
