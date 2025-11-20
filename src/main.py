@@ -1,18 +1,19 @@
 # ruff: noqa: E501
 from __future__ import annotations
 
+import asyncio
 import datetime as dt
 import logging
 import platform
 import re
 import subprocess
 import time
-from typing import Callable, Self, TypedDict
+from collections.abc import Callable
+from typing import Literal, Self, TypedDict
 
+import aiohttp
 import croniter
 import minify_html
-import requests
-import requests_cache
 
 from content import HTMLElements, SetupData, get_holiday, is_in_holiday
 
@@ -51,22 +52,22 @@ def get_soonest_weekday() -> dt.date:
 info("dependencies loaded.")
 
 
-class WebUntisManager:
-    session: requests_cache.CachedSession
+class WebUntisManagerAsync:
+    url: str
 
-    def __init__(self: Self):
-        self.session = requests_cache.CachedSession(
-            "/home/ubuntu/vertretungsplan/vertretungsplan_2025/webcache",
-            expire_after=300,
-            backend="filesystem",
-        )
+    def __init__(self):
+        self.url = "https://samos.webuntis.com/WebUntis/monitor/substitution/data?school=rist2024"
 
-    def get_data(self: Self, date: dt.date) -> requests.Response:
+    async def get_data(self, session: aiohttp.ClientSession, date: dt.date):
         payload = {"date": int(date.strftime("%Y%m%d"))} | SetupData.BASE_PAYLOAD
-        return self.session.post(
-            "https://samos.webuntis.com/WebUntis/monitor/substitution/data?school=rist2024",
-            json=payload,
-        )
+        async with session.post(self.url, json=payload) as r:
+            return await r.json()
+
+    async def get_multiple(self, dates) -> dict[dt.date, WebUntisData]:
+        async with aiohttp.ClientSession() as session:
+            tasks = [self.get_data(session, d) for d in dates]
+            results = await asyncio.gather(*tasks)
+        return dict(zip(dates, results, strict=True))
 
 
 class HourInfo:
@@ -342,6 +343,7 @@ class WebUntisData(TypedDict):
     rows: list[WebUntisRow]
     messageData: AnnouncementsData
     weekDay: str
+    lastUpdate: str
 
 
 def write_out_and_copy(index_html: str, about_html: str) -> None:
@@ -602,10 +604,14 @@ class VertretungsplanFormatter:
 
         last_update_global = dt.datetime(1970, 1, 1)
 
-        untis = WebUntisManager()
+        untis = WebUntisManagerAsync()
+
+        untis_data: dict[dt.date, dict[Literal["payload"], WebUntisData]] = asyncio.run(
+            untis.get_multiple(dates)  # type: ignore
+        )
 
         for date in dates:
-            webuntis_data = untis.get_data(date).json()["payload"]
+            webuntis_data = untis_data[date]["payload"]
             new_div = self.generate_day_div(
                 date, webuntis_data, div_active=active.pop(0)
             )
