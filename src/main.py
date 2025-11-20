@@ -7,6 +7,7 @@ import logging
 import platform
 import re
 import subprocess
+import sys
 import time
 from collections.abc import Callable
 from typing import Literal, Self, TypedDict
@@ -349,7 +350,11 @@ class WebUntisData(TypedDict):
 def write_out_and_copy(index_html: str, about_html: str) -> None:
     info("writing out...")
     if platform.system() == "Linux":
-        with open("/var/www/html/index.html", "w+", encoding="utf-8") as f:
+        if "--test" in sys.argv:
+            path = "/var/www/html/test.html"
+        else:
+            path = "/var/www/html/index.html"
+        with open(path, "w+", encoding="utf-8") as f:
             f.write(index_html)
 
         with open("/var/www/html/about.html", "w+", encoding="utf-8") as f:
