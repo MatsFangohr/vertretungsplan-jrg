@@ -1,4 +1,4 @@
-# ruff: noqa: E501, RUF012
+# ruff: noqa: E501
 import datetime as dt
 from collections import defaultdict
 from collections.abc import Mapping
@@ -105,10 +105,14 @@ class SetupData:
         "": "",
     }
 
-    CRON_SPEC = "*/7 6-23 * * 0-5"
+    CRON_SPECS = [
+        "*/3 6-8 * * 1-5",
+        "*/7 8-14 * * 1-5",
+        "*/10 14-23 * * 0-4",
+        "0 8-22/2 * * 6",
+    ]
 
     TEXT_COLOR = "#000000"
-    # TEXT_COLOR = "#111827"
 
     WEEKDAYS = {
         0: "Montag",
@@ -385,7 +389,7 @@ class HTMLElements:
             color: #666;
             background-color: #666;
             border: none;
-            height: 1px;
+            height: 2px;
         }
 
         .colorblock {
@@ -584,6 +588,8 @@ class HTMLElements:
 </head>
 """
 
+    ERROR_MESSAGE = """Es kann sein, dass manche Einträge fehlen. Schaut sicherheitshalber bei <a style="color: unset; padding: unset;" href="https://samos.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a> nach. Schreibt mir gerne, dann ist der Fehler bald weg. Wahrscheinlich hat WebUntis wieder das Format geändert."""
+
     RELOAD_IF_REQUIRED_FUNCTION = """function reloadIfRequired() {
             secondsSincePageLoad = (Date.now() - pageLoadDate) / 1000;
             secondsSinceNextUpdate = (Date.now() - nextUpdate) / 1000;
@@ -657,6 +663,7 @@ SCHOOL_HOLIDAYS: list[SchoolHoliday] = [
     },
 ]
 
+
 HOLIDAY_DAYS: dict[dt.date, SchoolHoliday] = {}
 
 for holiday in SCHOOL_HOLIDAYS:
@@ -668,12 +675,3 @@ for holiday in SCHOOL_HOLIDAYS:
         )
         HOLIDAY_DAYS[current_date] = holiday
         current_date += dt.timedelta(days=1)
-
-
-def is_in_holiday(date: dt.date) -> bool:
-    return date in HOLIDAY_DAYS
-
-
-def get_holiday(date: dt.date) -> SchoolHoliday:
-    """only call if is_in_holiday(date) returns true, will return none otherwise"""
-    return HOLIDAY_DAYS.get(date)  # type: ignore

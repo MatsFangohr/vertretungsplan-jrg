@@ -1,0 +1,414 @@
+from __future__ import annotations
+
+import asyncio
+import datetime as dt
+import re
+from typing import Self, TypedDict
+
+import aiohttp
+
+from content import SetupData
+from logger import warn
+
+
+class WebUntisManager:
+    url: str
+
+    def __init__(self):
+        self.url = "https://samos.webuntis.com/WebUntis/monitor/substitution/data?school=rist2024"
+
+    async def get_data(self, session: aiohttp.ClientSession, date: dt.date):
+        payload = {"date": int(date.strftime("%Y%m%d"))} | SetupData.BASE_PAYLOAD
+        async with session.post(self.url, json=payload) as r:
+            return (await r.json())["payload"]
+
+    async def get_multiple(self, dates) -> dict[dt.date, RawWebUntisData]:
+        async with aiohttp.ClientSession() as session:
+            tasks = [self.get_data(session, d) for d in dates]
+            results = await asyncio.gather(*tasks)
+        return dict(zip(dates, results, strict=True))
+
+
+class HourInfo:
+    data: str
+    start: int
+    end: int
+    needs_suffix: bool
+
+    def __init__(self: Self, data: str, needs_suffix: bool = True) -> None:
+        self.needs_suffix = needs_suffix
+
+        self.data = data.strip()
+        try:
+            match list(self.data.split(" ")):
+                case [start, "-", end]:
+                    self.start = int(start)
+                    self.end = int(end)
+                    if start >= end:
+                        raise ValueError()
+                case [single_digit]:
+                    self.start = self.end = int(single_digit)
+                case _:
+                    self.start = self.end = 0
+                    warn(f"unrecognized time format: '{data}'!")
+        except ValueError:
+            warn(f"invalid time format: '{data}'!")
+
+    @classmethod
+    def from_data(cls, data: str, needs_suffix: bool, start: int, end: int) -> HourInfo:
+        hourinfo = HourInfo("1", needs_suffix)
+        hourinfo.data = data
+        hourinfo.start = start
+        hourinfo.end = end
+
+        return hourinfo
+
+    def parse_data(self: Self) -> HourInfo:
+        HOUR_DATA = {
+            "0 - 11": ("Ganztägig", 0, 0),
+            "1 - 11": ("Ganztägig", 0, 0),
+            "1 - 2": ("1. Block", 1, 2),
+            "3 - 4": ("2. Block", 3, 4),
+            "5 - 6": ("3. Block", 5, 6),
+            "8 - 9": ("4. Block", 8, 9),
+            "10 - 11": ("5. Block", 10, 11),
+        }
+
+        if self.data in HOUR_DATA:
+            return HourInfo.from_data(
+                HOUR_DATA[self.data][0],
+                False,
+                HOUR_DATA[self.data][1],
+                HOUR_DATA[self.data][2],
+            )
+
+        return self
+
+    def to_string(self: Self) -> str:
+        if self.needs_suffix:
+            return self.data + ". Stunde"
+        else:
+            return self.data
+
+    def to_sorttuple(self: Self) -> tuple[int, int]:
+        return (self.start, self.end)
+
+    def __repr__(self) -> str:
+        return f"{self.start}-{self.end}"
+
+
+class SchoolClass:
+    year: int
+    letter: str
+
+    letters_to_year = {"Q2": 13, "Q1": 12, "Ej": 11, "DAZ": 1, "Verw": 99}
+    year_to_letters: dict[int, str] = dict(
+        reversed(item)
+        for item in letters_to_year.items()  # type: ignore
+    )
+
+    def __init__(self: Self, year: int, letter: str) -> None:
+        self.year = year
+        self.letter = letter
+
+    @classmethod
+    def from_string(cls, data: str) -> SchoolClass:
+        match list(data.strip()):
+            case ["Q", "2", _]:
+                year = SchoolClass.letters_to_year["Q2"]
+            case ["Q", "1", _]:
+                year = SchoolClass.letters_to_year["Q1"]
+            case ["E", "j", _]:
+                year = SchoolClass.letters_to_year["Ej"]
+            case ["1", "0", _]:
+                year = 10
+            case [yr, letter]:
+                return cls(int(yr), letter)
+            case ["D", "A", "Z"]:
+                return cls(SchoolClass.letters_to_year["DAZ"], "")
+            case ["V", "e", "r", "w"]:
+                return cls(SchoolClass.letters_to_year["Verw"], "")
+            case _:
+                raise ValueError(f"invalid klasse: '{data}'!")
+        return cls(year, data[-1])
+
+    def to_string(self) -> str:
+        return repr(self)
+
+    def __repr__(self) -> str:
+        if self.year in SchoolClass.year_to_letters:
+            return SchoolClass.year_to_letters[self.year] + self.letter
+        else:
+            return str(self.year) + self.letter
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, SchoolClass):
+            return self.year == other.year and self.letter == other.letter
+        return False
+
+    def __hash__(self) -> int:
+        return hash(self.letter) ^ hash(str(self.year))
+
+
+class TimetableChange:
+    hours: HourInfo
+    lessonname: str
+    teacher: str
+    message: str
+    # year: int
+    # classletter: str
+    klasse: SchoolClass
+    canceled: bool
+    originalteacher: str
+
+    def __init__(  # noqa: PLR0913
+        self: Self,
+        hours: HourInfo,
+        klasse: SchoolClass,
+        lessonname: str,
+        teacher: str,
+        originalteacher: str,
+        message: str,
+        canceled: bool,
+    ) -> None:
+        self.canceled = canceled
+
+        self.hours = hours
+        self.klasse = klasse
+
+        self.teacher = TimetableChange.strip_html(teacher.upper().strip())
+        self.originalteacher = TimetableChange.strip_html(
+            originalteacher.upper().strip()
+        )
+
+        self.message = TimetableChange.parse_message(message)
+        self.lessonname = TimetableChange.parse_lesson_name(lessonname)
+
+        if not self.hours:
+            raise ValueError("no hours!")
+        if not self.teacher and not self.message:
+            raise ValueError("needs either teacher or message!")
+
+    @classmethod
+    def from_row(cls, rowdata: RawTTChange) -> TimetableChange:
+        klasse = SchoolClass.from_string(rowdata["group"])
+
+        hours_str, lessonname, teacherinfo, status, message = rowdata["data"]
+
+        hours = HourInfo(hours_str).parse_data()
+
+        if klasse == "Verw":
+            newteacher = ", ".join(
+                filter(
+                    lambda teacher: teacher != "",
+                    re.sub(
+                        "\\([^)]+\\)",
+                        "",
+                        (
+                            TimetableChange.strip_html(teacherinfo)
+                            .replace("-", "")
+                            .replace(",", "")
+                        ),
+                    ).split(" "),
+                )
+            )
+            originalteacher = ""
+        else:
+            newteacher = re.sub("\\(.*\\)", "", teacherinfo)
+            originalteacher = re.sub(
+                "^[^\\(]*\\(|\\)[^\\(]*$",
+                "",
+                re.sub("\\).*?\\(", ", ", teacherinfo) if "(" in teacherinfo else "",
+            )
+
+        # marker for ausfall
+        if status.strip() == "Entfall":
+            entfall = True
+        else:
+            entfall = False
+            # if status isn't "Entfall" then add it to the end of the message string
+            if status.strip() and message.strip():
+                message += f" / {status}"
+            elif status.strip() and not message.strip():
+                message = status
+
+        return cls(
+            hours, klasse, lessonname, newteacher, originalteacher, message, entfall
+        )
+
+    def __repr__(self: Self) -> str:
+        base = "[c] " if self.canceled else ""
+        return base + f"{self.klasse} | {self.repr_stripped()}"
+
+    # quite crude but does the job
+    @staticmethod
+    def strip_html(data: str) -> str:
+        return re.sub("<[^>]+>", "", data)
+
+    def repr_stripped(self: Self) -> str:
+        return TimetableChange.strip_html(self.repr_html())
+
+    def repr_html(self: Self) -> str:  # noqa: C901, PLR0912
+        out = ""
+        hours = self.hours.to_string()
+        if self.canceled:
+            if self.teacher:
+                if self.lessonname:
+                    out += f"{hours}: {self.lessonname} bei {self.teacher} <b>fällt aus</b>"
+                else:
+                    out += f"{hours} bei {self.teacher} fällt aus"
+            else:  # noqa: PLR5501
+                if self.lessonname:
+                    out += f"{hours} ({self.lessonname}) fällt aus"
+                else:
+                    out += f"{hours} fällt aus"
+            if self.message:
+                out += f": {self.message}"
+        else:
+            if self.teacher:
+                if self.lessonname:
+                    if self.originalteacher:
+                        out += f"{hours}: {self.lessonname} bei {self.teacher} <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"
+                    else:
+                        out += f"{hours}: {self.lessonname} bei {self.teacher}"
+                else:  # noqa: PLR5501
+                    if self.originalteacher:
+                        out += f"{hours} bei {self.teacher} <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"
+                    else:
+                        out += f"{hours} bei {self.teacher}"
+            else:  # noqa: PLR5501
+                if self.lessonname:
+                    out += f"{hours} ({self.lessonname})"
+                else:
+                    out += f"{hours}"
+            if self.message:
+                out += f": {self.message}"
+        return out
+
+    @staticmethod
+    def parse_message(message: str) -> str:
+        """basic replacements to improve message legibility'"""
+        stripped_message = message.replace(" ", "").strip()
+        if stripped_message == "AA":
+            return "Aufgaben"
+        elif stripped_message == "AA@home":
+            return "Aufgaben (zuhause)"
+        elif stripped_message == "Desy":
+            return "DESY"
+        else:
+            REPLACEMENTS = {
+                "f.a.": "fällt aus",
+                "LaaO": "Lernen am anderen Ort",
+            }
+            for keyword, replacement in REPLACEMENTS.items():
+                message = message.replace(keyword, replacement)
+            return message
+
+    @staticmethod
+    def parse_lesson_name(name: str) -> str:
+        """expands lesson names and returns the short version if not found"""
+        stripname = name.strip()
+        if stripname in SetupData.LESSON_NAMES:
+            return SetupData.LESSON_NAMES[stripname]
+        else:
+            warn(f"can't find lesson name: {name}")
+            return stripname
+
+    @staticmethod
+    def parse_klasse(klasse: str) -> tuple[int, str]:
+        """grabs year number and class letter from class name where possible"""
+        year = 0
+        match list(klasse.strip()):
+            case ["Q", "2", _]:
+                year = 13
+            case ["Q", "1", _]:
+                year = 12
+            case ["E", "j", _]:
+                year = 11
+            case ["1", "0", _]:
+                year = 10
+            case [yr, letter]:
+                return (int(yr), letter)
+            case ["D", "A", "Z"]:
+                return (1, "a")
+            case ["V", "e", "r", "w"]:
+                return (99, "a")
+            case _:
+                raise ValueError(f"invalid klasse: '{klasse}'!")
+        return (year, klasse[-1])
+
+
+class RawAnnouncementData(TypedDict):
+    subject: str
+    body: str
+
+
+class RawAnnouncementsData(TypedDict):
+    messages: list[RawAnnouncementData]
+
+
+class RawTTChange(TypedDict):
+    data: tuple[str, str, str, str, str]
+    group: str
+
+
+class RawWebUntisData(TypedDict):
+    date: str
+    rows: list[RawTTChange]
+    messageData: RawAnnouncementsData
+    weekDay: str
+    lastUpdate: str
+
+
+class Announcement:
+    subject: str
+    body: str
+
+    def __init__(self: Self, subject: str, body: str) -> None:
+        self.subject = subject
+        self.body = body
+
+    @classmethod
+    def from_dict(cls, data: RawAnnouncementData) -> Self:
+        return cls(data["subject"], data["body"])
+
+
+class WebUntisData:
+    date: dt.date
+    changes: list[TimetableChange]
+    announcements: list[Announcement]
+    weekday: str
+    last_update: dt.datetime
+    created_with_error: bool
+
+    def __init__(
+        self: Self,
+        date: dt.date,
+        changes: list[TimetableChange],
+        announcements: list[Announcement],
+        weekday: str,
+        lastUpdate: dt.datetime,
+        created_with_error: bool,
+    ):
+        self.date = date
+        self.changes = changes
+        self.announcements = announcements
+        self.weekday = weekday
+        self.last_update = lastUpdate
+        self.created_with_error = created_with_error
+
+    @classmethod
+    def from_raw_data(cls, data: RawWebUntisData) -> WebUntisData:
+        ttchanges = list(map(TimetableChange.from_row, data["rows"]))
+        announcements = list(
+            map(Announcement.from_dict, data["messageData"]["messages"])
+        )
+
+        return WebUntisData(
+            date=dt.datetime.strptime(str(data["date"]), "%Y%m%d").date(),
+            changes=ttchanges,
+            announcements=announcements,
+            weekday=data["weekDay"],
+            lastUpdate=dt.datetime.strptime(data["lastUpdate"], "%d.%m.%Y %H:%M:%S"),
+            created_with_error=False,
+        )
