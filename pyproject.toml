@@ -35,3 +35,7 @@ dev = [
     "pyrefly>=0.42.2",
     "ruff>=0.14.5",
 ]
+
+[tool.pyrefly.errors]
+implicit-any = true
+implicitly-defined-attribute = true
