@@ -2,7 +2,7 @@
 import datetime as dt
 import platform
 
-from content import HTMLElements, SchoolHoliday, SetupData
+from content import HTMLElements, SchoolClass, SchoolHoliday, SetupData
 from untis import Announcement
 
 
@@ -99,7 +99,7 @@ def generate_holiday_div(holiday: SchoolHoliday) -> str:
     return f"""<span style="display: table; margin: 0 auto; padding: 1rem;">Es sind {holiday["name"]}! Die Schule beginnt am {SetupData.WEEKDAYS[holiday["first_day_after"].weekday()]}, dem {holiday["first_day_after"].strftime("%d.%m.%Y")} wieder. Wahrscheinlich kann man den Vertretungsplan mit dem Knopf unten schon einsehen.</span>"""
 
 
-def generate_unaffected_classes_div(unaffected_classes: list[str]) -> str:
+def generate_unaffected_classes_div(unaffected_classes: list[SchoolClass]) -> str:
     return (
         create_background_color_div(-1)
         + "<h2>Klassen ohne Veränderung"
@@ -110,6 +110,6 @@ def generate_unaffected_classes_div(unaffected_classes: list[str]) -> str:
             )
         )
         + "</h2><p>"
-        + ", ".join(unaffected_classes)
+        + ", ".join([cls.to_string() for cls in unaffected_classes])
         + "</p></div>"
     )

@@ -1,8 +1,63 @@
 # ruff: noqa: E501
+from __future__ import annotations
+
 import datetime as dt
 from collections import defaultdict
 from collections.abc import Mapping
 from typing import Literal, TypedDict, cast
+
+
+class SchoolClass:
+    year: int
+    letter: str
+
+    letters_to_year = {"Q2": 13, "Q1": 12, "Ej": 11, "DAZ": 1, "Verw": 99}
+    year_to_letters: dict[int, str] = dict(
+        reversed(item)
+        for item in letters_to_year.items()  # type: ignore
+    )
+
+    def __init__(self, year: int, letter: str) -> None:
+        self.year = year
+        self.letter = letter
+
+    @classmethod
+    def from_string(cls, data: str) -> SchoolClass:
+        match list(data.strip()):
+            case ["Q", "2", _]:
+                year = SchoolClass.letters_to_year["Q2"]
+            case ["Q", "1", _]:
+                year = SchoolClass.letters_to_year["Q1"]
+            case ["E", "j", _]:
+                year = SchoolClass.letters_to_year["Ej"]
+            case ["1", "0", _]:
+                year = 10
+            case [yr, letter]:
+                return cls(int(yr), letter)
+            case ["D", "A", "Z"]:
+                return cls(SchoolClass.letters_to_year["DAZ"], "")
+            case ["V", "e", "r", "w"]:
+                return cls(SchoolClass.letters_to_year["Verw"], "")
+            case _:
+                raise ValueError(f"invalid klasse: '{data}'!")
+        return cls(year, data[-1])
+
+    def to_string(self) -> str:
+        return repr(self)
+
+    def __repr__(self) -> str:
+        if self.year in SchoolClass.year_to_letters:
+            return SchoolClass.year_to_letters[self.year] + self.letter
+        else:
+            return str(self.year) + self.letter
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, SchoolClass):
+            return self.year == other.year and self.letter == other.letter
+        return False
+
+    def __hash__(self) -> int:
+        return hash(self.letter) ^ hash(str(self.year))
 
 
 class ColorDict(TypedDict):
@@ -251,49 +306,52 @@ class SetupData:
     )
 
     ALL_CLASSES = [
-        "DAZ",
-        "5a",
-        "5b",
-        "5c",
-        "5d",
-        "5e",
-        "6a",
-        "6b",
-        "6c",
-        "6d",
-        "6e",
-        "6f",
-        "7a",
-        "7b",
-        "7c",
-        "7d",
-        "7e",
-        "8a",
-        "8b",
-        "8c",
-        "8d",
-        "8e",
-        "9a",
-        "9b",
-        "9c",
-        "9d",
-        "9e",
-        "10a",
-        "10b",
-        "10c",
-        "10d",
-        "10e",
-        "10f",
-        "Eja",
-        "Ejb",
-        "Ejc",
-        "Ejd",
-        "Eje",
-        "Q1a",
-        "Q1b",
-        "Q1c",
-        "Q1d",
-        "Q1e",
+        SchoolClass(year, letter)
+        for year, letter in [
+            (1, ""),
+            (5, "a"),
+            (5, "b"),
+            (5, "c"),
+            (5, "d"),
+            (5, "e"),
+            (6, "a"),
+            (6, "b"),
+            (6, "c"),
+            (6, "d"),
+            (6, "e"),
+            (6, "f"),
+            (7, "a"),
+            (7, "b"),
+            (7, "c"),
+            (7, "d"),
+            (7, "e"),
+            (8, "a"),
+            (8, "b"),
+            (8, "c"),
+            (8, "d"),
+            (8, "e"),
+            (9, "a"),
+            (9, "b"),
+            (9, "c"),
+            (9, "d"),
+            (9, "e"),
+            (10, "a"),
+            (10, "b"),
+            (10, "c"),
+            (10, "d"),
+            (10, "e"),
+            (10, "f"),
+            (11, "a"),
+            (11, "b"),
+            (11, "c"),
+            (11, "d"),
+            (11, "e"),
+            (12, "a"),
+            (12, "b"),
+            (12, "c"),
+            (12, "d"),
+            (12, "e"),
+        ]
     ]
 
 
