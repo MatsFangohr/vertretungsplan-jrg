@@ -23,19 +23,13 @@ version = "1.1.0"
 description = "Ein besserer Vertretungsplan für das JRG."
 readme = "README.md"
 requires-python = ">=3.13"
-dependencies = [
-    "aiohttp>=3.13.2",
-    "croniter>=6.0.0",
-    "minify-html>=0.18.1",
-]
+dependencies = ["aiohttp>=3.13.2", "croniter>=6.0.0", "minify-html>=0.18.1"]
 
 [dependency-groups]
-dev = [
-    "line-profiler>=5.0.0",
-    "pyrefly>=0.42.2",
-    "ruff>=0.14.5",
-]
+dev = ["line-profiler>=5.0.0", "pyrefly>=0.42.2", "ruff>=0.14.5"]
+
+[tool.pyrefly]
+untyped-def-behavior = "check-and-infer-return-any"
 
 [tool.pyrefly.errors]
-implicit-any = true
-implicitly-defined-attribute = true
+implicit-any = "error"
