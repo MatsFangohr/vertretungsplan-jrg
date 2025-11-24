@@ -7,7 +7,7 @@ import itertools
 import platform
 import subprocess
 import sys
-from typing import Self, TypedDict
+from typing import TypedDict
 
 import minify_html
 
@@ -65,7 +65,7 @@ class VertretungsplanFormatter:
     next_div_id = 0
 
     def generate_day_div(
-        self: Self,
+        self,
         date: dt.date,
         webuntis_data: WebUntisData,
         div_active: bool,
@@ -138,14 +138,14 @@ class VertretungsplanFormatter:
         return out
 
     def get_raw_untis_data(
-        self: Self, dates: list[dt.date]
+        self, dates: list[dt.date]
     ) -> dict[dt.date, RawWebUntisData]:
         return asyncio.run(
             WebUntisManager().get_multiple(dates)  # type: ignore
         )
 
     def process_untis_data(
-        self: Self, raw_untis_data: dict[dt.date, RawWebUntisData]
+        self, raw_untis_data: dict[dt.date, RawWebUntisData]
     ) -> dict[dt.date, WebUntisData]:
         untis_data: dict[dt.date, WebUntisData] = {}
 
@@ -160,7 +160,7 @@ class VertretungsplanFormatter:
 
         return untis_data
 
-    def find_active_day(self: Self, dates: list[dt.date]) -> dict[str, int]:
+    def find_active_day(self, dates: list[dt.date]) -> dict[str, int]:
         today = dt.date.today()
         tomorrow = today + dt.timedelta(days=1)
 
@@ -174,10 +174,10 @@ class VertretungsplanFormatter:
         else:
             return {"active_page": 0, "start_page": 0}
 
-    def get_last_update_time(self: Self, untis_data: list[WebUntisData]):
+    def get_last_update_time(self, untis_data: list[WebUntisData]) -> dt.datetime:
         return max(map(lambda data: data.last_update, untis_data))
 
-    def generate_index_file(self: Self, dates: list[dt.date]) -> str:
+    def generate_index_file(self, dates: list[dt.date]) -> str:
         """Generates the main website file.
 
         @param dates May not be empty."""
@@ -235,7 +235,7 @@ class VertretungsplanFormatter:
             )
         )
 
-    def generate_about_page(self: Self) -> str:
+    def generate_about_page(self) -> str:
         "Can only run successfully if generate_index_file has already been called with a non-empty"
         "dates list. Throws ValueError otherwise."
         if self.footer_data is None:

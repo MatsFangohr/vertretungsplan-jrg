@@ -7,22 +7,26 @@ from typing import Self, TypedDict
 
 import aiohttp
 
-from content import SetupData
+from content import SchoolClass, SetupData
 from logger import warn
 
 
 class WebUntisManager:
     url: str
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.url = "https://samos.webuntis.com/WebUntis/monitor/substitution/data?school=rist2024"
 
-    async def get_data(self, session: aiohttp.ClientSession, date: dt.date):
+    async def get_data(
+        self, session: aiohttp.ClientSession, date: dt.date
+    ) -> RawWebUntisData:
         payload = {"date": int(date.strftime("%Y%m%d"))} | SetupData.BASE_PAYLOAD
         async with session.post(self.url, json=payload) as r:
             return (await r.json())["payload"]
 
-    async def get_multiple(self, dates) -> dict[dt.date, RawWebUntisData]:
+    async def get_multiple(
+        self, dates: list[dt.date]
+    ) -> dict[dt.date, RawWebUntisData]:
         async with aiohttp.ClientSession() as session:
             tasks = [self.get_data(session, d) for d in dates]
             results = await asyncio.gather(*tasks)
@@ -35,7 +39,7 @@ class HourInfo:
     end: int
     needs_suffix: bool
 
-    def __init__(self: Self, data: str, needs_suffix: bool = True) -> None:
+    def __init__(self, data: str, needs_suffix: bool = True) -> None:
         self.needs_suffix = needs_suffix
 
         self.data = data.strip()
@@ -63,7 +67,7 @@ class HourInfo:
 
         return hourinfo
 
-    def parse_data(self: Self) -> HourInfo:
+    def parse_data(self) -> HourInfo:
         HOUR_DATA = {
             "0 - 11": ("Ganztägig", 0, 0),
             "1 - 11": ("Ganztägig", 0, 0),
@@ -84,13 +88,13 @@ class HourInfo:
 
         return self
 
-    def to_string(self: Self) -> str:
+    def to_string(self) -> str:
         if self.needs_suffix:
             return self.data + ". Stunde"
         else:
             return self.data
 
-    def to_sorttuple(self: Self) -> tuple[int, int]:
+    def to_sorttuple(self) -> tuple[int, int]:
         return (self.start, self.end)
 
     def __repr__(self) -> str:
@@ -162,7 +166,7 @@ class TimetableChange:
     originalteacher: str
 
     def __init__(  # noqa: PLR0913
-        self: Self,
+        self,
         hours: HourInfo,
         klasse: SchoolClass,
         lessonname: str,
@@ -236,7 +240,7 @@ class TimetableChange:
             hours, klasse, lessonname, newteacher, originalteacher, message, entfall
         )
 
-    def __repr__(self: Self) -> str:
+    def __repr__(self) -> str:
         base = "[c] " if self.canceled else ""
         return base + f"{self.klasse} | {self.repr_stripped()}"
 
@@ -245,10 +249,10 @@ class TimetableChange:
     def strip_html(data: str) -> str:
         return re.sub("<[^>]+>", "", data)
 
-    def repr_stripped(self: Self) -> str:
+    def repr_stripped(self) -> str:
         return TimetableChange.strip_html(self.repr_html())
 
-    def repr_html(self: Self) -> str:  # noqa: C901, PLR0912
+    def repr_html(self) -> str:  # noqa: C901, PLR0912
         out = ""
         hours = self.hours.to_string()
         if self.canceled:
@@ -364,7 +368,7 @@ class Announcement:
     subject: str
     body: str
 
-    def __init__(self: Self, subject: str, body: str) -> None:
+    def __init__(self, subject: str, body: str) -> None:
         self.subject = subject
         self.body = body
 
@@ -382,14 +386,14 @@ class WebUntisData:
     created_with_error: bool
 
     def __init__(
-        self: Self,
+        self,
         date: dt.date,
         changes: list[TimetableChange],
         announcements: list[Announcement],
         weekday: str,
         lastUpdate: dt.datetime,
         created_with_error: bool,
-    ):
+    ) -> None:
         self.date = date
         self.changes = changes
         self.announcements = announcements
