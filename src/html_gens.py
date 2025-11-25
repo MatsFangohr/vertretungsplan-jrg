@@ -2,7 +2,8 @@
 import datetime as dt
 import platform
 
-from content import HTMLElements, SchoolClass, SchoolHoliday, SetupData
+from base_types import HTML, SchoolClass, SchoolHoliday
+from content import HTMLElements, SetupData
 from untis import Announcement
 
 
@@ -11,7 +12,7 @@ def generate_header(
     text_color: str,
     last_change: dt.datetime,
     next_update: dt.datetime,
-) -> str:
+) -> HTML:
     header = HTMLElements.HEAD_TEMPLATE
     for placeholder, replacement in [
         ("letzteänderungTimestamp", str(last_change.timestamp())),
@@ -36,7 +37,7 @@ def generate_header(
     return header
 
 
-def generate_footer(last_change: dt.datetime, next_update: dt.datetime) -> str:
+def generate_footer(last_change: dt.datetime, next_update: dt.datetime) -> HTML:
     dt_format = "%d.%m.%Y, %H:%M"
 
     footer = HTMLElements.FOOTER_TEMPLATE
@@ -49,12 +50,12 @@ def generate_footer(last_change: dt.datetime, next_update: dt.datetime) -> str:
     return footer
 
 
-def create_background_color_div(year: int) -> str:
+def create_background_color_div(year: int) -> HTML:
     color = SetupData.get_color(year, "pale")
     return f"""<div class="colorblock" style="background-color: {color}">"""
 
 
-def generate_icon_block(icon: str, subject: str, body: str) -> str:
+def generate_icon_block(icon: HTML, subject: str, body: str) -> HTML:
     html = f"""<div class="announcement">{icon}<div class="announce-text">"""
     if subject and body:
         html += f"<h3>{subject}</h3><p>{body}</p>"
@@ -70,7 +71,7 @@ def generate_icon_block(icon: str, subject: str, body: str) -> str:
     return html
 
 
-def generate_announcement_html(data: list[Announcement]) -> str:
+def generate_announcement_html(data: list[Announcement]) -> HTML:
     if data:
         html = "<hr>" + create_background_color_div(0)
         for message in data:
@@ -84,7 +85,7 @@ def generate_announcement_html(data: list[Announcement]) -> str:
         return ""
 
 
-def generate_error_message() -> str:
+def generate_error_message() -> HTML:
     error_warning = create_background_color_div(0)
     error_warning += generate_icon_block(
         HTMLElements.WARN_ICON,
@@ -95,19 +96,26 @@ def generate_error_message() -> str:
     return error_warning
 
 
-def generate_holiday_div(holiday: SchoolHoliday) -> str:
+def generate_holiday_div(holiday: SchoolHoliday) -> HTML:
     return f"""<span style="display: table; margin: 0 auto; padding: 1rem;">Es sind {holiday["name"]}! Die Schule beginnt am {SetupData.WEEKDAYS[holiday["first_day_after"].weekday()]}, dem {holiday["first_day_after"].strftime("%d.%m.%Y")} wieder. Wahrscheinlich kann man den Vertretungsplan mit dem Knopf unten schon einsehen.</span>"""
 
 
-def generate_unaffected_classes_div(unaffected_classes: list[SchoolClass]) -> str:
+def generate_unaffected_classes_div(
+    unaffected_classes: list[SchoolClass], is_active: bool
+) -> HTML:
+    def classes_to_string(cls: SchoolClass) -> str:
+        return f"""<span id="klasse-{cls.to_string()}"></span>"""
+
     return (
         create_background_color_div(-1)
         + "<h2>Klassen ohne Veränderung"
         + "".join(
             map(
-                lambda cls: f"""<span id="klasse-{repr(cls)}"></span>""",
+                classes_to_string,
                 unaffected_classes,
             )
+            if is_active
+            else ""
         )
         + "</h2><p>"
         + ", ".join([cls.to_string() for cls in unaffected_classes])

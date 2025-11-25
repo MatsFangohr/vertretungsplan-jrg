@@ -2,7 +2,8 @@ import datetime as dt
 
 import croniter
 
-from content import HOLIDAY_DAYS, SchoolHoliday
+from base_types import SchoolHoliday
+from content import HOLIDAY_DAYS
 
 
 def is_in_holiday(date: dt.date) -> bool:

@@ -4,11 +4,18 @@ from __future__ import annotations
 import asyncio
 import datetime as dt
 import re
-from typing import Self, TypedDict
+from typing import Self
 
 import aiohttp
 
-from content import SchoolClass, SetupData
+from base_types import (
+    HTML,
+    RawAnnouncementData,
+    RawTTChange,
+    RawWebUntisData,
+    SchoolClass,
+)
+from content import SetupData
 from logger import warn
 
 
@@ -107,8 +114,6 @@ class TimetableChange:
     lessonname: str
     teacher: str
     message: str
-    # year: int
-    # classletter: str
     klasse: SchoolClass
     canceled: bool
     originalteacher: str
@@ -200,7 +205,7 @@ class TimetableChange:
     def repr_stripped(self) -> str:
         return TimetableChange.strip_html(self.repr_html())
 
-    def repr_html(self) -> str:  # noqa: C901, PLR0912
+    def repr_html(self) -> HTML:  # noqa: C901, PLR0912
         out = ""
         hours = self.hours.to_string()
         if self.canceled:
@@ -288,28 +293,6 @@ class TimetableChange:
             case _:
                 raise ValueError(f"invalid klasse: '{klasse}'!")
         return (year, klasse[-1])
-
-
-class RawAnnouncementData(TypedDict):
-    subject: str
-    body: str
-
-
-class RawAnnouncementsData(TypedDict):
-    messages: list[RawAnnouncementData]
-
-
-class RawTTChange(TypedDict):
-    data: tuple[str, str, str, str, str]
-    group: str
-
-
-class RawWebUntisData(TypedDict):
-    date: str
-    rows: list[RawTTChange]
-    messageData: RawAnnouncementsData
-    weekDay: str
-    lastUpdate: str
 
 
 class Announcement:

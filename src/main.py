@@ -7,10 +7,11 @@ import itertools
 import platform
 import subprocess
 import sys
-from typing import TypedDict
+from collections.abc import Iterable
 
 import minify_html
 
+from base_types import HTML, HTMLFiles, RawWebUntisData
 from content import HTMLElements, SetupData
 from html_gens import (
     create_background_color_div,
@@ -22,11 +23,16 @@ from html_gens import (
     generate_unaffected_classes_div,
 )
 from logger import info, warn
-from untis import RawWebUntisData, WebUntisData, WebUntisManager
-from utils import get_holiday, get_next_update_time, get_soonest_weekday, is_in_holiday
+from untis import WebUntisData, WebUntisManager
+from utils import (
+    get_holiday,
+    get_next_update_time,
+    get_soonest_weekday,
+    is_in_holiday,
+)
 
 
-def write_out_and_copy(index_html: str, about_html: str) -> None:
+def write_out_and_copy(index_html: HTML, about_html: HTML) -> None:
     info("writing out...")
     if platform.system() == "Linux":
         if "--test" in sys.argv:
@@ -50,18 +56,9 @@ def write_out_and_copy(index_html: str, about_html: str) -> None:
             f.write(index_html)
 
 
-class FormattingData(TypedDict):
-    last_change: dt.datetime
-
-
 class VertretungsplanFormatter:
     """Do not instantiate outside of the class. Only call via `generate_html_files`."""
 
-    class HTMLFiles(TypedDict):
-        main: str
-        about: str
-
-    footer_data: FormattingData | None
     next_div_id = 0
 
     def generate_day_div(
@@ -69,8 +66,9 @@ class VertretungsplanFormatter:
         date: dt.date,
         webuntis_data: WebUntisData,
         div_active: bool,
+        show_unaffected_classes: bool,
         include_error_message: bool,
-    ) -> str:
+    ) -> HTML:
         changes = sorted(
             webuntis_data.changes,
             key=lambda r: (r.klasse.year, r.klasse.letter, r.hours.to_sorttuple()),
@@ -107,8 +105,10 @@ class VertretungsplanFormatter:
             c for c in SetupData.ALL_CLASSES if c not in affected_classes
         ]
 
-        if unaffected_classes and div_active:
-            out += "<hr>" + generate_unaffected_classes_div(unaffected_classes)
+        if unaffected_classes and show_unaffected_classes:
+            out += "<hr>" + generate_unaffected_classes_div(
+                unaffected_classes, is_active=div_active
+            )
 
         for year, year_changes in itertools.groupby(changes, lambda x: x.klasse.year):
             out += f"""<hr>{create_background_color_div(year)}"""
@@ -140,9 +140,8 @@ class VertretungsplanFormatter:
     def get_raw_untis_data(
         self, dates: list[dt.date]
     ) -> dict[dt.date, RawWebUntisData]:
-        return asyncio.run(
-            WebUntisManager().get_multiple(dates)  # type: ignore
-        )
+        info("contacting webuntis...")
+        return asyncio.run(WebUntisManager().get_multiple(dates))
 
     def process_untis_data(
         self, raw_untis_data: dict[dt.date, RawWebUntisData]
@@ -174,19 +173,22 @@ class VertretungsplanFormatter:
         else:
             return {"active_page": 0, "start_page": 0}
 
-    def get_last_update_time(self, untis_data: list[WebUntisData]) -> dt.datetime:
+    def get_last_update_time(self, untis_data: Iterable[WebUntisData]) -> dt.datetime:
         return max(map(lambda data: data.last_update, untis_data))
 
-    def generate_index_file(self, dates: list[dt.date]) -> str:
+    def generate_index_file(
+        self,
+        dates: list[dt.date],
+        untis_data: dict[dt.date, WebUntisData],
+        last_update: dt.datetime,
+    ) -> HTML:
         """Generates the main website file.
 
         @param dates May not be empty."""
-        if dates == []:
+        if not dates:
             raise ValueError("dates may not be empty!")
 
-        info("contacting webuntis...")
-
-        day_divs: list[str] = []
+        day_divs: list[HTML] = []
         """Contains the html <divs>, one for each day."""
 
         # strip weekends
@@ -195,23 +197,18 @@ class VertretungsplanFormatter:
         # determine active page
         active_data = self.find_active_day(dates)
 
-        untis_data = self.process_untis_data(self.get_raw_untis_data(dates))
-
-        last_update = self.get_last_update_time(list(untis_data.values()))
-
         for n, date in enumerate(dates):
             new_div = self.generate_day_div(
                 date,
                 untis_data[date],
                 div_active=active_data["active_page"] == n,
+                show_unaffected_classes=active_data["active_page"] >= n,
                 include_error_message=untis_data[date].created_with_error,
             )
 
             day_divs.append(new_div)
 
             info(f"generated {len(day_divs)} of {len(dates)} days")
-
-        self.footer_data = {"last_change": last_update}
 
         next_update_time = get_next_update_time(
             SetupData.CRON_SPECS, dt.datetime.now()
@@ -235,14 +232,7 @@ class VertretungsplanFormatter:
             )
         )
 
-    def generate_about_page(self) -> str:
-        "Can only run successfully if generate_index_file has already been called with a non-empty"
-        "dates list. Throws ValueError otherwise."
-        if self.footer_data is None:
-            raise ValueError(
-                "Can only call `generate_about_page` after calling `generate_index_file` with a nontrivial date list!"
-            )
-
+    def generate_about_page(self, last_update: dt.datetime) -> HTML:
         next_update_time = get_next_update_time(
             SetupData.CRON_SPECS, dt.datetime.now()
         ) + dt.timedelta(seconds=8)
@@ -251,12 +241,12 @@ class VertretungsplanFormatter:
             generate_header(
                 startpage=0,
                 text_color=SetupData.TEXT_COLOR,
-                last_change=self.footer_data["last_change"],
+                last_change=last_update,
                 next_update=next_update_time,
             )
             + HTMLElements.ABOUT_TEXT
             + generate_footer(
-                last_change=self.footer_data["last_change"],
+                last_change=last_update,
                 next_update=next_update_time,
             )
         )
@@ -269,9 +259,13 @@ class VertretungsplanFormatter:
         """
         formatter = cls()
 
+        untis_data = formatter.process_untis_data(formatter.get_raw_untis_data(dates))
+
+        last_update = formatter.get_last_update_time(untis_data.values())
+
         return {
-            "main": formatter.generate_index_file(dates),
-            "about": formatter.generate_about_page(),
+            "main": formatter.generate_index_file(dates, untis_data, last_update),
+            "about": formatter.generate_about_page(last_update),
         }
 
 
