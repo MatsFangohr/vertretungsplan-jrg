@@ -94,6 +94,7 @@ class SetupData:
         "DaZDEU 5": "DAZ Deutsch",
         "DaZMAT 6": "DAZ Mathe",
         "DaZ": "DAZ",
+        "Leg": "LRS",
         "AmM": "Art meets Music",
         "UuG": "Unternehmen und Gesellschaft",
         "ELZmo": "Eigenlernzeit",
