@@ -309,7 +309,7 @@ class HTMLElements:
 </div><div class="centered-box-div cbd-horizontal">
 <a href="/about">About</a><br>
 <a href="/">Home</a>
-<a href="https://samos.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a>
+<a href="https://rist2024.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a>
 <a href='https://ko-fi.com/K3K71KYTMX' target='_blank'>Kaffee kaufen</a>
 </div></footer>"""
 
@@ -592,7 +592,7 @@ class HTMLElements:
 </head>
 """
 
-    ERROR_MESSAGE: HTML = """Es kann sein, dass manche Einträge fehlen. Schaut sicherheitshalber bei <a style="color: unset; padding: unset;" href="https://samos.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a> nach. Schreibt mir gerne, dann ist der Fehler bald weg. Wahrscheinlich hat WebUntis wieder das Format geändert."""
+    ERROR_MESSAGE: HTML = """Es kann sein, dass manche Einträge fehlen. Schaut sicherheitshalber bei <a style="color: unset; padding: unset;" href="https://rist2024.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a> nach. Schreibt mir gerne, dann ist der Fehler bald weg. Wahrscheinlich hat WebUntis wieder das Format geändert."""
 
     RELOAD_IF_REQUIRED_FUNCTION: HTML = """function reloadIfRequired() {
             secondsSincePageLoad = (Date.now() - pageLoadDate) / 1000;

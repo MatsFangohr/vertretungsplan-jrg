@@ -23,7 +23,7 @@ class WebUntisManager:
     url: str
 
     def __init__(self) -> None:
-        self.url = "https://samos.webuntis.com/WebUntis/monitor/substitution/data?school=rist2024"
+        self.url = "https://rist2024.webuntis.com/WebUntis/monitor/substitution/data?school=rist2024"
 
     async def get_data(
         self, session: aiohttp.ClientSession, date: dt.date
