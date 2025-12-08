@@ -84,6 +84,13 @@ class HourInfo:
             "5 - 6": ("3. Block", 5, 6),
             "8 - 9": ("4. Block", 8, 9),
             "10 - 11": ("5. Block", 10, 11),
+            "2 - 11": ("Ab 2. Stunde", 2, 11),
+            "3 - 11": ("Ab 2. Block", 3, 11),
+            "4 - 11": ("Ab 4. Stunde", 4, 11),
+            "5 - 11": ("Ab 3. Block", 5, 11),
+            "6 - 11": ("Ab 6. Stunde", 6, 11),
+            "8 - 11": ("Ab 4. Block", 8, 11),
+            "9 - 11": ("Ab 9. Stunde", 9, 11),
         }
 
         if self.data in HOUR_DATA:
