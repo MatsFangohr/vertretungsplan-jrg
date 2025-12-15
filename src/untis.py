@@ -56,7 +56,7 @@ class HourInfo:
                 case [start, "-", end]:
                     self.start = int(start)
                     self.end = int(end)
-                    if start >= end:
+                    if self.start >= self.end:
                         raise ValueError()
                 case [single_digit]:
                     self.start = self.end = int(single_digit)
