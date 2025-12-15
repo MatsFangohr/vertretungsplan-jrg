@@ -2,6 +2,8 @@
 import datetime as dt
 import platform
 
+import git
+
 from base_types import HTML, SchoolClass, SchoolHoliday
 from content import HTMLElements, SetupData
 from untis import Announcement
@@ -40,11 +42,20 @@ def generate_header(
 def generate_footer(last_change: dt.datetime, next_update: dt.datetime) -> HTML:
     dt_format = "%d.%m.%Y, %H:%M"
 
+    repo_location = (
+        "/home/ubuntu/vertretungsplan"
+        if platform.system() == "Linux"
+        else "C:\\Users\\matsf\\github\\vertretungsplan"
+    )
+    repo = git.Repo(repo_location)
+    ts = dt.datetime.fromtimestamp(repo.head.commit.committed_date)
+
     footer = HTMLElements.FOOTER_TEMPLATE
     for keyword, replacement in [
         ("letzteänderung", last_change.strftime(dt_format)),
         ("letzteakt", dt.datetime.now().strftime(dt_format)),
         ("nächsteakt", next_update.strftime(dt_format)),
+        ("gitHash", f"{repo.head.object.hexsha[:7]} ({ts.strftime('%d.%m.%Y')})"),
     ]:
         footer = footer.replace("{{" + keyword + "}}", replacement)
     return footer

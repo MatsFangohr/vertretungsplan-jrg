@@ -305,10 +305,13 @@ class SetupData:
 
 
 class HTMLElements:
-    FOOTER_TEMPLATE: HTML = """<footer><div class="centered-box-div cbd-vertical">
+    FOOTER_TEMPLATE: HTML = """<footer><div class="centered-box-div cbd-vertical" style="padding-top: 0;">
+<span id="gitInfo">running {{gitHash}}</span>
+</div>
+<div class="centered-box-div cbd-vertical">
 <span id="letzteAenderung">Stand: {{letzteänderung}}</span><br>
 <span id="letzteAktualisierung">Letzte Aktualisierung: {{letzteakt}}</span><br>
-<span id="naechsteAktualisierung">Nächste Aktualisierung: {{nächsteakt}}</span>
+<span id="naechsteAktualisierung">Nächste Aktualisierung: {{nächsteakt}}</span><br>
 </div><div class="centered-box-div cbd-horizontal">
 <a href="/about">About</a><br>
 <a href="/">Home</a>
@@ -335,6 +338,10 @@ class HTMLElements:
         rel="stylesheet">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="02acc140-c615-419c-b909-07dd0e7a36d7"></script>
     <style>
+        #gitInfo {
+            color: #999;
+            font-size: 8pt;
+        }
         .centered-box-div:last-of-type {
             margin-bottom: 4.5rem;
         }
