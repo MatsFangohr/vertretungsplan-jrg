@@ -218,21 +218,25 @@ class TimetableChange:
         if self.canceled:
             if self.teacher:
                 if self.lessonname:
-                    out += f"{hours}: {self.lessonname} bei {self.teacher} <b>fällt aus</b>"
+                    out += f"{hours}: {self.lessonname} bei {self.teacher}"
                 else:
-                    out += f"{hours} bei {self.teacher} fällt aus"
+                    out += f"{hours} bei {self.teacher}"
             else:  # noqa: PLR5501
                 if self.lessonname:
-                    out += f"{hours} ({self.lessonname}) fällt aus"
+                    out += f"{hours} ({self.lessonname})"
                 else:
-                    out += f"{hours} fällt aus"
+                    out += f"{hours}"
+            out += " <b>fällt aus</b>"
             if self.message:
                 out += f": {self.message}"
         else:
             if self.teacher:
                 if self.lessonname:
                     if self.originalteacher:
-                        out += f"{hours}: {self.lessonname} bei {self.teacher} <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"
+                        if "---" in self.teacher:
+                            out += f"{hours}: {self.lessonname} bei {self.teacher.replace('--- , ', '')} findet <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>ohne {self.originalteacher}</span> statt"
+                        else:
+                            out += f"{hours}: {self.lessonname} bei {self.teacher} <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"
                     else:
                         out += f"{hours}: {self.lessonname} bei {self.teacher}"
                 else:  # noqa: PLR5501
