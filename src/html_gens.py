@@ -57,9 +57,7 @@ def generate_header(
     return header
 
 
-def generate_footer(last_change: dt.datetime, next_update: dt.datetime) -> HTML:
-    dt_format = "%d.%m.%Y, %H:%M"
-
+def generate_footer() -> HTML:
     repo_location = (
         "/home/ubuntu/vertretungsplan"
         if platform.system() == "Linux"
@@ -71,9 +69,6 @@ def generate_footer(last_change: dt.datetime, next_update: dt.datetime) -> HTML:
 
     footer = HTMLElements.FOOTER_TEMPLATE
     for keyword, replacement in [
-        ("letzteänderung", last_change.strftime(dt_format)),
-        ("letzteakt", dt.datetime.now().strftime(dt_format)),
-        ("nächsteakt", next_update.strftime(dt_format)),
         ("gitHash", f"{version_information} ({ts.strftime('%d.%m.%Y')})"),
     ]:
         footer = footer.replace("{{" + keyword + "}}", replacement)

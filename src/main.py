@@ -232,10 +232,7 @@ class VertretungsplanFormatter:
             + HTMLElements.LINK_ICON_DEF
             + HTMLElements.BUTTONS
             + main_element
-            + generate_footer(
-                last_change=last_update,
-                next_update=next_update_time,
-            )
+            + generate_footer()
         )
 
     def generate_about_page(self, last_update: dt.datetime) -> HTML:
@@ -251,10 +248,7 @@ class VertretungsplanFormatter:
                 next_update=next_update_time,
             )
             + HTMLElements.ABOUT_TEXT
-            + generate_footer(
-                last_change=last_update,
-                next_update=next_update_time,
-            )
+            + generate_footer()
         )
 
     @classmethod
