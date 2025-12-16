@@ -271,7 +271,11 @@ def select_dates() -> list[dt.date]:
     if is_in_holiday(dt.date.today()):
         return [get_soonest_weekday(), get_holiday(dt.date.today())["first_day_after"]]
     else:
-        return [dt.date.today() + dt.timedelta(days=i) for i in range(7)]
+        candidates = [dt.date.today() + dt.timedelta(days=i) for i in range(7)]
+        for i, date in enumerate(candidates):
+            if is_in_holiday(date):
+                return candidates[: i + 1] + [get_holiday(date)["first_day_after"]]
+        return candidates
 
 
 def main() -> None:
