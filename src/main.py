@@ -95,7 +95,7 @@ class VertretungsplanFormatter:
                 out += generate_error_message()
 
         if not changes:
-            out += """<span style="display: table; margin: 0 auto; padding: 1rem;">Keine Vertretungen bisher.</span></div>"""
+            out += """<hr><span style="display: table; margin: 0 auto; padding: 1rem;">Keine Vertretungen bisher.</span></div>"""
             return out
 
         affected_classes = set(row.klasse for row in changes)

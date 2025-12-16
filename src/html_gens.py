@@ -108,7 +108,7 @@ def generate_error_message() -> HTML:
 
 
 def generate_holiday_div(holiday: SchoolHoliday) -> HTML:
-    return f"""<span style="display: table; margin: 0 auto; padding: 1rem;">Es sind {holiday["name"]}! Die Schule beginnt am {SetupData.WEEKDAYS[holiday["first_day_after"].weekday()]}, dem {holiday["first_day_after"].strftime("%d.%m.%Y")} wieder. Wahrscheinlich kann man den Vertretungsplan mit dem Knopf unten schon einsehen.</span>"""
+    return f"""<hr><span style="display: table; margin: 0 auto; padding: 1rem;">Es sind {holiday["name"]}! Die Schule beginnt am {SetupData.WEEKDAYS[holiday["first_day_after"].weekday()]}, dem {holiday["first_day_after"].strftime("%d.%m.%Y")} wieder. Wahrscheinlich kann man den Vertretungsplan mit dem Knopf unten schon einsehen.</span>"""
 
 
 def generate_unaffected_classes_div(
