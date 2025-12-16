@@ -69,7 +69,7 @@ class VertretungsplanFormatter:
     ) -> HTML:
         changes = sorted(
             webuntis_data.changes,
-            key=lambda r: (r.klasse.year, r.klasse.letter, r.hours.to_sorttuple()),
+            key=lambda r: (-1 * r.klasse.year, r.klasse.letter, r.hours.to_sorttuple()),
         )
 
         page_title = f"""Vertretungsplan für {SetupData.WEEKDAYS[date.weekday()]}, den {date.strftime("%d.%m.%Y")}"""
