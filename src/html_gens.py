@@ -49,13 +49,14 @@ def generate_footer(last_change: dt.datetime, next_update: dt.datetime) -> HTML:
     )
     repo = git.Repo(repo_location)
     ts = dt.datetime.fromtimestamp(repo.head.commit.committed_date)
+    version_information = repo.git.describe("HEAD", tags=True, long=True)
 
     footer = HTMLElements.FOOTER_TEMPLATE
     for keyword, replacement in [
         ("letzteänderung", last_change.strftime(dt_format)),
         ("letzteakt", dt.datetime.now().strftime(dt_format)),
         ("nächsteakt", next_update.strftime(dt_format)),
-        ("gitHash", f"{repo.head.object.hexsha[:7]} ({ts.strftime('%d.%m.%Y')})"),
+        ("gitHash", f"{version_information} ({ts.strftime('%d.%m.%Y')})"),
     ]:
         footer = footer.replace("{{" + keyword + "}}", replacement)
     return footer
