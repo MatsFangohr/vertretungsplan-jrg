@@ -18,6 +18,7 @@ from html_gens import (
     generate_footer,
     generate_header,
     generate_holiday_div,
+    generate_title,
     generate_unaffected_classes_div,
 )
 from logger import info, warn
@@ -66,6 +67,7 @@ class VertretungsplanFormatter:
         div_active: bool,
         show_unaffected_classes: bool,
         include_error_message: bool,
+        last_update: dt.datetime,
     ) -> HTML:
         changes = sorted(
             webuntis_data.changes,
@@ -76,7 +78,10 @@ class VertretungsplanFormatter:
 
         announcements = generate_announcement_html(webuntis_data.announcements)
 
-        out = f"""<div class="{"daywrapper active" if div_active else "daywrapper"}" id="{VertretungsplanFormatter.next_div_id}"><div class="title-block colorblock"><h1>{page_title}</h1></div>"""
+        out = f"""<div class="{"daywrapper active" if div_active else "daywrapper"}" id="{VertretungsplanFormatter.next_div_id}">"""
+
+        out += generate_title(page_title, last_update)
+
         VertretungsplanFormatter.next_div_id += 1
 
         if webuntis_data.weekday != SetupData.WEEKDAYS[
@@ -202,6 +207,7 @@ class VertretungsplanFormatter:
                 div_active=active_data["active_page"] == n,
                 show_unaffected_classes=active_data["active_page"] >= n,
                 include_error_message=untis_data[date].created_with_error,
+                last_update=last_update,
             )
 
             day_divs.append(new_div)

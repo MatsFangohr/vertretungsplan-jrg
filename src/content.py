@@ -305,15 +305,11 @@ class SetupData:
 
 
 class HTMLElements:
-    FOOTER_TEMPLATE: HTML = """<footer><div class="centered-box-div cbd-vertical" style="padding-top: 0;">
+    FOOTER_TEMPLATE: HTML = """<footer><div class="centered-box-div" style="padding-top: 0;">
 <span id="gitInfo">running {{gitHash}}</span>
 </div>
-<div class="centered-box-div cbd-vertical">
-<span id="letzteAenderung">Stand: {{letzteänderung}}</span><br>
-<span id="letzteAktualisierung">Letzte Aktualisierung: {{letzteakt}}</span><br>
-<span id="naechsteAktualisierung">Nächste Aktualisierung: {{nächsteakt}}</span><br>
-</div><div class="centered-box-div cbd-horizontal">
-<a href="/about">About</a><br>
+<div class="centered-box-div cbd-flex">
+<a href="/about">About</a>
 <a href="/">Home</a>
 <a href="https://rist2024.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a>
 <a href='https://ko-fi.com/K3K71KYTMX' target='_blank'>Kaffee kaufen</a>
@@ -352,11 +348,22 @@ class HTMLElements:
             padding: 5px;
         }
 
-        .cbd-vertical {
+        .cbd-flex {
+            display: flex;
+            flex-direction: row;
+            max-width: 800px;
+            margin-inline: auto;    
         }
 
-        .cbd-horizontal {
-            display: flex;
+        @container (width < 600px) {
+            .cbd-flex-dynamic {
+                flex-direction: column;
+            }
+        }
+
+        .cbd-flex-item {
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
         }
 
         .title-block {
@@ -590,8 +597,8 @@ class HTMLElements:
             let lastUpdateField = document.getElementById("letzteAktualisierung");
             let nextUpdateField = document.getElementById("naechsteAktualisierung");
 
-            lastUpdateField.textContent = "Letzte Aktualisierung: " + getRelativeTime(lastUpdate);
-            nextUpdateField.textContent = "Nächste Aktualisierung: " + getRelativeTime(nextUpdate);
+            lastUpdateField.textContent = "Letzte Akt.: " + getRelativeTime(lastUpdate);
+            nextUpdateField.textContent = "Nächste Akt.: " + getRelativeTime(nextUpdate);
         }
 
         {{reloadIfRequired}}
@@ -616,7 +623,7 @@ class HTMLElements:
     <span id="leftarrow" class="arrow" style="opacity: 0.3;" onclick="prevPage()"><svg width="2.5rem" fill="{SetupData.TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M73.4 297.4C60.9 309.9 60.9 330.2 73.4 342.7L233.4 502.7C245.9 515.2 266.2 515.2 278.7 502.7C291.2 490.2 291.2 469.9 278.7 457.4L173.3 352L544 352C561.7 352 576 337.7 576 320C576 302.3 561.7 288 544 288L173.3 288L278.7 182.6C291.2 170.1 291.2 149.8 278.7 137.3C266.2 124.8 245.9 124.8 233.4 137.3L73.4 297.3z"/></svg></span>
     <span id="rightarrow" class="arrow" style="opacity: 1;" onclick="nextPage()"><svg width="2.5rem" fill="{SetupData.TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M566.6 342.6C579.1 330.1 579.1 309.8 566.6 297.3L406.6 137.3C394.1 124.8 373.8 124.8 361.3 137.3C348.8 149.8 348.8 170.1 361.3 182.6L466.7 288L96 288C78.3 288 64 302.3 64 320C64 337.7 78.3 352 96 352L466.7 352L361.3 457.4C348.8 469.9 348.8 490.2 361.3 502.7C373.8 515.2 394.1 515.2 406.6 502.7L566.6 342.7z"/></svg></span></div>"""
 
-    ABOUT_TEXT: HTML = """<footer><div class="daywrapper active">
+    ABOUT_TEXT: HTML = """<div class="daywrapper active">
 <h1>About</h1>
 <hr>
 <div class="colorblock">
@@ -628,7 +635,7 @@ Wenn euch irgendwas komisch vorkommt, nicht richtig funktioniert oder ihr sonsti
 Gelegentlich gibt mir WebUntis komische Daten, die zu Verarbeitungsfehlern führen - wenn etwas komisch erscheint, schaut lieber nochmal auf den offiziellen Plan (unten verlinkt).
         <span style="float: right;">~Mats</span>
     </p>
-</div></div></footer>"""
+</div></div>"""
 
     ANNOUNCE_ICON: HTML = f"""<svg class="announce-icon" fill="{SetupData.TEXT_COLOR}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 640"><path d="M525.2 82.9C536.7 88 544 99.4 544 112L544 528C544 540.6 536.7 552 525.2 557.1C513.7 562.2 500.4 560.3 490.9 552L444.3 511.3C400.7 473.2 345.6 451 287.9 448.3L287.9 544C287.9 561.7 273.6 576 255.9 576L223.9 576C206.2 576 191.9 561.7 191.9 544L191.9 448C121.3 448 64 390.7 64 320C64 249.3 121.3 192 192 192L276.5 192C338.3 191.8 397.9 169.3 444.4 128.7L491 88C500.4 79.7 513.9 77.8 525.3 82.9zM288 384L288 384.2C358.3 386.9 425.8 412.7 480 457.6L480 182.3C425.8 227.2 358.3 253 288 255.7L288 384z"/></svg>"""
 

@@ -9,6 +9,22 @@ from content import HTMLElements, SetupData
 from untis import Announcement
 
 
+def generate_title(title: str, letzteaenderung: dt.datetime) -> HTML:
+    dt_format = "%d.%m.%Y, %H:%M"
+
+    return f"""<div class="title-block colorblock">
+    <div>
+        <h1 style="margin-bottom: 0;">{title}</h1>
+        <div style="container-type: inline-size;">
+        <div class="centered-box-div cbd-flex cbd-flex-dynamic" style="margin-bottom: 0;">
+            <span id="letzteAenderung" class="cbd-flex-item">Stand: {letzteaenderung.strftime(dt_format)}</span>
+            <span id="letzteAktualisierung" class="cbd-flex-item">Letzte Akt.: {{letzteakt}}</span>
+            <span id="naechsteAktualisierung" class="cbd-flex-item">Nächste Akt.: {{nächsteakt}}</span>
+        </div></div>
+    </div>
+</div>"""
+
+
 def generate_header(
     startpage: int,
     text_color: str,
