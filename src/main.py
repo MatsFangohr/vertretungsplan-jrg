@@ -68,6 +68,7 @@ class VertretungsplanFormatter:
         show_unaffected_classes: bool,
         include_error_message: bool,
         last_update: dt.datetime,
+        next_update: dt.datetime,
     ) -> HTML:
         changes = sorted(
             webuntis_data.changes,
@@ -80,7 +81,7 @@ class VertretungsplanFormatter:
 
         out = f"""<div class="{"daywrapper active" if div_active else "daywrapper"}" id="{VertretungsplanFormatter.next_div_id}">"""
 
-        out += generate_title(page_title, last_update)
+        out += generate_title(page_title, last_update, next_update)
 
         VertretungsplanFormatter.next_div_id += 1
 
@@ -200,6 +201,10 @@ class VertretungsplanFormatter:
         # determine active page
         active_data = self.find_active_day(dates)
 
+        next_update_time = get_next_update_time(
+            SetupData.CRON_SPECS, dt.datetime.now()
+        ) + dt.timedelta(seconds=8)
+
         for n, date in enumerate(dates):
             new_div = self.generate_day_div(
                 date,
@@ -208,15 +213,12 @@ class VertretungsplanFormatter:
                 show_unaffected_classes=active_data["active_page"] >= n,
                 include_error_message=untis_data[date].created_with_error,
                 last_update=last_update,
+                next_update=next_update_time,
             )
 
             day_divs.append(new_div)
 
             info(f"generated {len(day_divs)} of {len(dates)} days")
-
-        next_update_time = get_next_update_time(
-            SetupData.CRON_SPECS, dt.datetime.now()
-        ) + dt.timedelta(seconds=8)
 
         main_element = "<main>" + "".join(day_divs) + "</main>"
 

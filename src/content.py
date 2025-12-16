@@ -594,11 +594,16 @@ class HTMLElements:
         let nextUpdate = new Date({{nächsteaktTimestamp}} * 1000);
 
         function updateTimestamps() {
-            let lastUpdateField = document.getElementById("letzteAktualisierung");
-            let nextUpdateField = document.getElementById("naechsteAktualisierung");
+            const lastUpdateFields = document.querySelectorAll(".letzte-aktualisierung");
+            const nextUpdateFields = document.querySelectorAll(".naechste-aktualisierung");
 
-            lastUpdateField.textContent = "Letzte Akt.: " + getRelativeTime(lastUpdate);
-            nextUpdateField.textContent = "Nächste Akt.: " + getRelativeTime(nextUpdate);
+            lastUpdateFields.forEach(el => {
+                el.textContent = "Letzte Akt.: " + getRelativeTime(lastUpdate);
+            });
+
+            nextUpdateFields.forEach(el => {
+                el.textContent = "Nächste Akt.: " + getRelativeTime(nextUpdate);
+            });
         }
 
         {{reloadIfRequired}}
