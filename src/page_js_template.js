@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateTimestamps();
     showAlerts();
     updateLastChangeTime();
+    changeTextColors();
 });
 
 document.addEventListener("load", scrollToClass);
@@ -133,8 +134,55 @@ function scrollToClass() {
     }
 }
 
+// Color changes
+
+function interpolateColors(c1, c2, ratio) {
+    const r1 = parseInt(c1.substring(1, 3), 16);
+    const g1 = parseInt(c1.substring(3, 5), 16);
+    const b1 = parseInt(c1.substring(5, 7), 16);
+
+    const r2 = parseInt(c2.substring(1, 3), 16);
+    const g2 = parseInt(c2.substring(3, 5), 16);
+    const b2 = parseInt(c2.substring(5, 7), 16);
+
+    const r = Math.round(r1 + (r2 - r1) * ratio);
+    const g = Math.round(g1 + (g2 - g1) * ratio);
+    const b = Math.round(b1 + (b2 - b1) * ratio);
+
+    return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
+}
+
+function changeTextColorsSingle(tolerance, duration, cssClass, targetColor) {
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - nextUpdate) / 1000);
+    if (diffInSeconds > tolerance) {
+        const ratio = Math.min(1, (diffInSeconds - tolerance) / duration);
+        const newColor = interpolateColors("#000000", targetColor, ratio);
+
+        const nextUpdateFields = document.querySelectorAll("." + cssClass);
+        nextUpdateFields.forEach(el => {
+            el.style.color = newColor;
+        });
+    }
+}
+
+setInterval(changeTextColors, 30 * 1000);
+
+function changeTextColors() {
+    // seconds after which red begins
+    const updateTolerance = 5 * 60;
+    const lastChangeTolerance = 48 * 60 * 60;
+    // seconds after which red is max
+    const updateToleranceDuration = 10 * 60;
+    const lastChangeToleranceDuration = 48 * 60 * 60;
+
+
+    changeTextColorsSingle(updateTolerance, updateToleranceDuration, "naechste-aktualisierung", "#ff0000")
+    changeTextColorsSingle(lastChangeTolerance, lastChangeToleranceDuration, "letzte-aenderung", "#ff0000")
+}
+
 // Reload logic
 
-{ { reloadIfRequired } }
+// {{ reloadIfRequired }}
 
 setTimeout(() => { setInterval(reloadIfRequired, 5 * 1000); }, 298 * 1000)

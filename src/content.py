@@ -522,7 +522,8 @@ class HTMLElements:
 
     ERROR_MESSAGE: HTML = """Es kann sein, dass manche Einträge fehlen. Schaut sicherheitshalber bei <a style="color: unset; padding: unset;" href="https://rist2024.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a> nach. Schreibt mir gerne, dann ist der Fehler bald weg. Wahrscheinlich hat WebUntis wieder das Format geändert."""
 
-    RELOAD_IF_REQUIRED_FUNCTION: HTML = """function reloadIfRequired() {
+    RELOAD_IF_REQUIRED_FUNCTION: HTML = """
+    function reloadIfRequired() {
             secondsSincePageLoad = (Date.now() - pageLoadDate) / 1000;
             secondsSinceNextUpdate = (Date.now() - nextUpdate) / 1000;
             if (secondsSincePageLoad > (60 * 5) && secondsSinceNextUpdate > 0) {
