@@ -78,6 +78,8 @@ class HourInfo:
     def parse_data(self) -> HourInfo:
         HOUR_DATA = {
             "0 - 11": ("Ganztägig", 0, 0),
+            "1 - 6": ("1. bis 3. Block", 1, 6),
+            "1 - 9": ("1. bis 4. Block", 1, 9),
             "1 - 11": ("Ganztägig", 0, 0),
             "1 - 2": ("1. Block", 1, 2),
             "3 - 4": ("2. Block", 3, 4),
