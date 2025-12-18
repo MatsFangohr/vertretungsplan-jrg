@@ -5,7 +5,7 @@ import platform
 import git
 
 from base_types import HTML, SchoolClass, SchoolHoliday
-from content import HTMLElements, SetupData
+from content import BASE_PATH, HTMLElements, SetupData
 from untis import Announcement
 
 
@@ -58,11 +58,7 @@ def generate_header(
 
 
 def generate_footer() -> HTML:
-    repo_location = (
-        "/home/ubuntu/vertretungsplan"
-        if platform.system() == "Linux"
-        else "C:\\Users\\matsf\\github\\vertretungsplan"
-    )
+    repo_location = BASE_PATH
     repo = git.Repo(repo_location)
     ts = dt.datetime.fromtimestamp(repo.head.commit.committed_date)
     version_information = repo.git.describe("HEAD", tags=True, long=True)
