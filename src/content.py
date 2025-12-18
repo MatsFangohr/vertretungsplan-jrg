@@ -324,8 +324,8 @@ class HTMLElements:
     <meta name="description" content="Ein besserer Vertretungsplan für das Johann-Rist-Gymnasium.">
     <meta name="author" content="Mats Fangohr">
     <title>{{title}}</title>
-    <link rel="canonical" href="https://vertretungsplan.fangohr.org/jrg"/>
-    <link rel="icon" href="/jrg/favicon.svg" type="image/svg+xml">
+    <link rel="canonical" href="https://vertretungsplan.fangohr.org"/>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32" type="image/png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -338,6 +338,7 @@ class HTMLElements:
             color: #999;
             font-size: 8pt;
         }
+        
         .centered-box-div:last-of-type {
             margin-bottom: 4.5rem;
         }
