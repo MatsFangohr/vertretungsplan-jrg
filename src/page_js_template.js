@@ -4,6 +4,7 @@ document.addEventListener("DOMContentLoaded", function () {
     updateButtons();
     updateTimestamps();
     showAlerts();
+    updateLastChangeTime();
 });
 
 document.addEventListener("load", scrollToClass);
@@ -29,6 +30,14 @@ function showAlerts() {
 const lastChange = new Date({{ letzteänderungTimestamp }} * 1000);
 const lastUpdate = new Date({{ letzteaktTimestamp }} * 1000);
 const nextUpdate = new Date({{ nächsteaktTimestamp }} * 1000);
+
+function updateLastChangeTime() {
+    const lastChangeFields = document.querySelectorAll(".letzte-aenderung");
+
+    lastChangeFields.forEach(el => {
+        el.textContent = "Letzte Änderung: " + getRelativeTime(lastChange);
+    });
+}
 
 function getRelativeTime(date) {
     const now = new Date();
