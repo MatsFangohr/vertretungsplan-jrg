@@ -430,6 +430,7 @@ class HTMLElements:
 
         .daywrapper {
             display: none;
+            overflow: hidden;
             max-width: 800px;
             margin: 0 auto 0.5rem auto;
             padding: 5px 0 0 0;

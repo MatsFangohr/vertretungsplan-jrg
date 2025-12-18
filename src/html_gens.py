@@ -15,11 +15,11 @@ def generate_title(
     dt_format = "%d.%m.%Y, %H:%M"
 
     return f"""<div class="title-block colorblock">
-    <div>
+    <div style="flex-grow: 1;">
         <h1 style="margin-bottom: 0;">{title}</h1>
         <div style="container-type: inline-size;">
         <div class="centered-box-div cbd-flex cbd-flex-dynamic" style="margin-bottom: 0;">
-            <span class="letzte-aenderung" class="cbd-flex-item">Stand: {letzteaenderung.strftime(dt_format)}</span>
+            <span class="cbd-flex-item letzte-aenderung">Stand: {letzteaenderung.strftime(dt_format)}</span>
             <span class="cbd-flex-item letzte-aktualisierung">Letzte Akt.: {dt.datetime.now().strftime(dt_format)}</span>
             <span class="cbd-flex-item naechste-aktualisierung">Nächste Akt.: {next_update.strftime(dt_format)}</span>
         </div></div>
