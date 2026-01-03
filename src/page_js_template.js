@@ -152,15 +152,15 @@ function interpolateColors(c1, c2, ratio) {
     return "#" + ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1);
 }
 
-function changeTextColorsSingle(tolerance, duration, cssClass, targetColor) {
+function changeTextColorsSingle(tolerance, duration, targetTime, cssClass, targetColor) {
     const now = new Date();
-    const diffInSeconds = Math.floor((now - nextUpdate) / 1000);
+    const diffInSeconds = Math.floor((now - targetTime) / 1000);
     if (diffInSeconds > tolerance) {
         const ratio = Math.min(1, (diffInSeconds - tolerance) / duration);
         const newColor = interpolateColors("#000000", targetColor, ratio);
 
-        const nextUpdateFields = document.querySelectorAll("." + cssClass);
-        nextUpdateFields.forEach(el => {
+        const fieldsToChange = document.querySelectorAll("." + cssClass);
+        fieldsToChange.forEach(el => {
             el.style.color = newColor;
         });
     }
@@ -177,8 +177,8 @@ function changeTextColors() {
     const lastChangeToleranceDuration = 48 * 60 * 60;
 
 
-    changeTextColorsSingle(updateTolerance, updateToleranceDuration, "naechste-aktualisierung", "#ff0000")
-    changeTextColorsSingle(lastChangeTolerance, lastChangeToleranceDuration, "letzte-aenderung", "#ff0000")
+    changeTextColorsSingle(updateTolerance, updateToleranceDuration, lastUpdate, "naechste-aktualisierung", "#ff0000")
+    changeTextColorsSingle(lastChangeTolerance, lastChangeToleranceDuration, lastChange, "letzte-aenderung", "#ff0000")
 }
 
 // Reload logic
