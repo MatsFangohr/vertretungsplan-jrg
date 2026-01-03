@@ -170,11 +170,11 @@ setInterval(changeTextColors, 30 * 1000);
 
 function changeTextColors() {
     // seconds after which red begins
-    const updateTolerance = 5 * 60;
-    const lastChangeTolerance = 48 * 60 * 60;
+    const updateTolerance = 5 * 60; // 5m
+    const lastChangeTolerance = 12 * 60; // 12m
     // seconds after which red is max
-    const updateToleranceDuration = 10 * 60;
-    const lastChangeToleranceDuration = 48 * 60 * 60;
+    const updateToleranceDuration = 10 * 60 * 60; // 10h
+    const lastChangeToleranceDuration = 62 * 60 * 60; // 62h
 
 
     changeTextColorsSingle(updateTolerance, updateToleranceDuration, lastUpdate, "naechste-aktualisierung", "#ff0000")
