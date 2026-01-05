@@ -316,6 +316,11 @@ def load_js():
         return f.read()
 
 
+def load_css():
+    with open(BASE_PATH + "/src/page_css.css", encoding="utf-8") as f:
+        return f.read()
+
+
 class HTMLElements:
     FOOTER_TEMPLATE: HTML = """<footer><div class="centered-box-div" style="padding-top: 0;">
 <span id="gitInfo">running {{gitHash}}</span>
@@ -346,173 +351,9 @@ class HTMLElements:
         href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap"
         rel="stylesheet">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="02acc140-c615-419c-b909-07dd0e7a36d7"></script>
-    <style>
-        #gitInfo {
-            color: #999;
-            font-size: 8pt;
-        }
-
-        .centered-box-div:last-of-type {
-            margin-bottom: 4.5rem;
-        }
-
-        .centered-box-div {
-            justify-content: center;
-            text-align: center;
-            padding: 5px;
-        }
-
-        .cbd-flex {
-            display: flex;
-            flex-direction: row;
-            max-width: 800px;
-            margin-inline: auto;    
-        }
-
-        @container (width < 600px) {
-            .cbd-flex-dynamic {
-                flex-direction: column;
-            }
-        }
-
-        .cbd-flex-item {
-            padding-left: 0.5rem;
-            padding-right: 0.5rem;
-        }
-
-        .title-block {
-            background-color: #fff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 15px;
-        }
-
-        h1 {
-            text-align: center;
-            margin: 0.67rem;
-            font-size: 32px;
-        }
-
-        h2 {
-            margin-bottom: 0;
-        }
-
-        h2:first-child {
-            padding-top: 0.25rem;
-            margin-top: 0;
-        }
-
-        p {
-            margin-top: 3px;
-        }
-
-        a {
-            text-decoration: none;
-            color: {{textcolor}};
-            padding-left: 0.7rem;
-            padding-right: 0.7rem;
-        }
-
-        p:last-child {
-            padding-bottom: 0.5rem;
-            margin-bottom: 0;
-        }
-
-        hr {
-            margin: 0;
-            color: #666;
-            background-color: #666;
-            border: none;
-            height: 2px;
-        }
-
-        .colorblock {
-            padding-left: 12px;
-            padding-right: 12px;
-        }
-
-        .daywrapper > .colorblock:last-child {
-            border-radius: 0 0 15px 15px;
-            padding-bottom: 12px;
-        }
-
-        .daywrapper > .colorblock:last-child > p:last-child {
-            padding-bottom: 0;
-        }
-
-        .daywrapper {
-            display: none;
-            overflow: hidden;
-            max-width: 800px;
-            margin: 0 auto 0.5rem auto;
-            padding: 5px 0 0 0;
-            background-color: #FFFFFF;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-            border-radius: 15px;
-        }
-
-        .daywrapper.active {
-            display: block;
-        }
-
-        .navigation {
-            background-color: #FFFFFF;
-            width: 100%;
-            bottom: -2rem;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            display: flex;
-            justify-content: center;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-            height: 4rem;
-        }
-
-        .arrow {
-            font-size: 2rem;
-            cursor: pointer;
-            margin: 0 20px;
-            user-select: none;
-            display: flex;
-        }
-
-        body {
-            font-family: 'Rubik', sans-serif;
-            color: {{textcolor}};
-            background-color: #f8f8f8;
-        }
-
-        .announcement {
-            display: flex;
-            align-items: center;
-        }
-
-        .announce-icon, .warn-icon {
-            min-width: 4rem;
-            min-height: 4rem;
-            width: 4rem;
-            height: 4rem;
-            padding: 1rem 1rem 1rem 0;
-        }
-
-        h3 {
-            padding: 0.5rem 0 0 0;
-            margin: 0;
-        }
-
-        main {
-            margin: 8px;
-        }
-
-        svg.link-icon-svg {
-            width: 1.2rem;
-            height: 1.2rem;
-            padding: 0 8px 0 8px;
-            fill: #000;
-            opacity: .3;
-        }
-
-    </style>
+    <style>"""
+        + load_css()
+        + """</style>
     <script>"""
         + load_js().replace("{{ ", "{{").replace(" }}", "}}")
         + """</script>
