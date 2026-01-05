@@ -225,7 +225,6 @@ class VertretungsplanFormatter:
         return (
             generate_header(
                 startpage=active_data["start_page"],
-                text_color=SetupData.TEXT_COLOR,
                 last_change=last_update,
                 next_update=next_update_time,
             )
@@ -243,7 +242,6 @@ class VertretungsplanFormatter:
         return (
             generate_header(
                 startpage=0,
-                text_color=SetupData.TEXT_COLOR,
                 last_change=last_update,
                 next_update=next_update_time,
             )

@@ -29,7 +29,6 @@ def generate_title(
 
 def generate_header(
     startpage: int,
-    text_color: str,
     last_change: dt.datetime,
     next_update: dt.datetime,
 ) -> HTML:
@@ -39,7 +38,6 @@ def generate_header(
         ("letzteaktTimestamp", str(dt.datetime.now().timestamp())),
         ("nächsteaktTimestamp", str(next_update.timestamp())),
         ("startpage", str(startpage)),
-        ("textcolor", text_color),
         (
             "title",
             "JRG Vertretungsplan"
@@ -128,7 +126,7 @@ def generate_unaffected_classes_div(
         return f"""<span id="klasse-{cls.to_string()}"></span>"""
 
     return (
-        create_background_color_div(-1)
+        """<div class="colorblock" style="background-color: var(--unaffected-color)">"""
         + "<h2>Klassen ohne Veränderung"
         + "".join(
             map(
