@@ -24,7 +24,7 @@ from html_gens import (
 from logger import info, warn
 from untis import WebUntisData, WebUntisManager
 from utils import (
-    get_holiday,
+    get_holiday_data_from_date,
     get_next_update_time,
     get_soonest_weekday,
     is_in_holiday,
@@ -89,7 +89,7 @@ class VertretungsplanFormatter:
             date.weekday()
         ] or webuntis_data.date.strftime("%Y%m%d") != date.strftime("%Y%m%d"):
             if is_in_holiday(date):
-                holiday = get_holiday(date)
+                holiday = get_holiday_data_from_date(date)
                 out += generate_holiday_div(holiday)
                 out += """</div></div>"""
             else:
@@ -271,12 +271,20 @@ class VertretungsplanFormatter:
 
 def select_dates() -> list[dt.date]:
     if is_in_holiday(dt.date.today()):
-        return [get_soonest_weekday(), get_holiday(dt.date.today())["first_day_after"]]
+        tomorrow = dt.date.today() + dt.timedelta(days=1)
+        first_day_after_holidays = get_holiday_data_from_date(dt.date.today())[
+            "first_day_after"
+        ]
+        if not is_in_holiday(tomorrow):
+            return [max(tomorrow, first_day_after_holidays)]
+        return [get_soonest_weekday(), first_day_after_holidays]
     else:
         candidates = [dt.date.today() + dt.timedelta(days=i) for i in range(7)]
         for i, date in enumerate(candidates):
             if is_in_holiday(date):
-                return candidates[: i + 1] + [get_holiday(date)["first_day_after"]]
+                return candidates[: i + 1] + [
+                    get_holiday_data_from_date(date)["first_day_after"]
+                ]
         return candidates
 
 

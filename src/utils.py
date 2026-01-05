@@ -10,7 +10,7 @@ def is_in_holiday(date: dt.date) -> bool:
     return date in HOLIDAY_DAYS
 
 
-def get_holiday(date: dt.date) -> SchoolHoliday:
+def get_holiday_data_from_date(date: dt.date) -> SchoolHoliday:
     """only call if is_in_holiday(date) returns true, will return none otherwise"""
     return HOLIDAY_DAYS.get(date)  # type: ignore
 
