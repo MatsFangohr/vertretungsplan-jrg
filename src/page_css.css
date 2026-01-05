@@ -1,22 +1,36 @@
-
+/* colors and animations */
 :root {
+    --ui-transitions:
+        background-color 0.3s ease,
+        color 0.3s ease,
+        border-color 0.3s ease,
+        fill 0.3s ease,
+        font-weight 0.3s ease,
+        transform 0.3s ease,
+        width 0.3s ease,
+        min-width 0.3s ease,
+        height 0.3s ease,
+        min-height 0.3s ease,
+        margin 0.3s ease,
+        border-width 0.3s steps(2, jump-none),
+        border-top-width 0.3s steps(2, jump-none);
     --bg-color: #f8f8f8;
-    --header-color: #ffffff;
+    --header-color: #fff;
     --text-color: #000000;
-    --hr-color: #666666;
+    --hr-color: #444444;
     --announcement-color: #f5f5f5;
-    --version-text-color: #999999;
-    --unaffected-color: rgb(242, 237, 269);
-    --year-color-4: rgb(270, 229, 246);
-    --year-color-5: rgb(272, 230, 230);
-    --year-color-6: rgb(257, 239, 216);
-    --year-color-7: rgb(244, 245, 205);
-    --year-color-8: rgb(219, 253, 212);
-    --year-color-9: rgb(215, 252, 238);
-    --year-color-10: rgb(212, 250, 253);
-    --year-color-11: rgb(220, 247, 261);
-    --year-color-12: rgb(227, 243, 268);
-    --year-color-13: rgb(242, 236, 278);
+    --version-text-color: #999;
+    --unaffected-color: oklch(96.00% 0.046 292.95);
+    --year-color-4: oklch(96.00% 0.054 351.28);
+    --year-color-5: oklch(96.00% 0.050 18.03);
+    --year-color-6: oklch(96.00% 0.040 74.07);
+    --year-color-7: oklch(96.00% 0.056 108.48);
+    --year-color-8: oklch(96.00% 0.068 140.31);
+    --year-color-9: oklch(96.00% 0.046 170.55);
+    --year-color-10: oklch(96.00% 0.043 202.38);
+    --year-color-11: oklch(96.00% 0.038 230.21);
+    --year-color-12: oklch(96.00% 0.042 259.29);
+    --year-color-13: oklch(96.00% 0.060 291.93);
     --year-color-4-intense: #990040;
     --year-color-5-intense: #990000;
     --year-color-6-intense: #995700;
@@ -27,12 +41,53 @@
     --year-color-11-intense: #006699;
     --year-color-12-intense: #003b99;
     --year-color-13-intense: #170099;
+    --theme-toggle-color: #222;
+    --link-color: blue;
+    --font-weight: 400;
+    --bold-weight: 700;
+    --icon-size: 4rem;
 }
 
-#gitInfo {
-    color: var(--version-text-color);
-    font-size: 8pt;
+html[data-theme="dark"] {
+    --bg-color: #171717;
+    --header-color: #222222;
+    --text-color: #d6d6d6;
+    --hr-color: #666666;
+    --announcement-color: #262626;
+    --version-text-color: #777777;
+    --unaffected-color: oklch(32.00% 0.062 292.95);
+    --year-color-4: oklch(32.00% 0.070 351.28);
+    --year-color-5: oklch(32.00% 0.066 18.03);
+    --year-color-6: oklch(32.50% 0.058 74.07);
+    --year-color-7: oklch(34.00% 0.072 108.48);
+    --year-color-8: oklch(32.00% 0.072 140.31);
+    --year-color-9: oklch(31.75% 0.062 170.55);
+    --year-color-10: oklch(32.00% 0.059 202.38);
+    --year-color-11: oklch(31.50% 0.058 230.21);
+    --year-color-12: oklch(31.50% 0.058 265.29);
+    --year-color-13: oklch(31.50% 0.068 291.93);
+    --year-color-4-intense: oklch(77.00% 0.050 351.28);
+    --year-color-5-intense: oklch(77.00% 0.046 18.03);
+    --year-color-6-intense: oklch(77.00% 0.036 74.07);
+    --year-color-7-intense: oklch(77.00% 0.052 108.48);
+    --year-color-8-intense: oklch(77.00% 0.064 140.31);
+    --year-color-9-intense: oklch(77.00% 0.042 170.55);
+    --year-color-10-intense: oklch(77.00% 0.039 202.38);
+    --year-color-11-intense: oklch(77.00% 0.034 230.21);
+    --year-color-12-intense: oklch(77.00% 0.038 259.29);
+    --year-color-13-intense: oklch(77.00% 0.056 291.93);
+    --theme-toggle-color: #d6d6d6;
+    --link-color: oklch(70% 0.16 265);
+    --font-weight: 375;
+    --bold-weight: 525;
+    --icon-size: 3.75rem;
 }
+
+* {
+    transition: var(--ui-transitions);
+}
+
+/* flex and spacing */
 
 .centered-box-div:last-of-type {
     margin-bottom: 4.5rem;
@@ -62,6 +117,11 @@
     padding-right: 0.5rem;
 }
 
+#gitInfo {
+    color: var(--version-text-color);
+    font-size: 8pt;
+}
+
 .title-block {
     background-color: var(--header-color);
     display: flex;
@@ -70,19 +130,58 @@
     border-radius: 15px;
 }
 
+.bluelink {
+    padding: 0;
+    color: var(--link-color);
+}
+
+
+html[data-theme="dark"] .bluelink:hover {
+    color: oklch(78% 0.18 265);
+}
+
+.status-bar {
+    margin-bottom: 0 !important;
+}
+
+html[data-theme="dark"] .status-bar {
+    margin-bottom: 5px !important;
+}
+
+/* titles */
+
 h1 {
     text-align: center;
     margin: 0.67rem;
     font-size: 32px;
+    font-weight: var(--bold-weight);
 }
 
 h2 {
     margin-bottom: 0;
+    font-weight: var(--bold-weight);
 }
+
 
 h2:first-child {
     padding-top: 0.25rem;
     margin-top: 0;
+}
+
+h3 {
+    font-weight: var(--bold-weight);
+    padding: 0.5rem 0 0 0;
+    margin: 0;
+}
+
+/* text */
+
+body {
+    font-family: 'Rubik', sans-serif;
+
+    color: var(--text-color);
+    background-color: var(--bg-color);
+    font-weight: var(--font-weight);
 }
 
 p {
@@ -102,12 +201,26 @@ p:last-child {
     margin-bottom: 0;
 }
 
+html[data-theme="dark"] p:last-child {
+    padding-bottom: 0.6rem;
+}
+
+.daywrapper>.colorblock:last-child>p:last-child {
+    padding-bottom: 0;
+}
+
+/* structure elements */
+
 hr {
     margin: 0;
     color: var(--hr-color);
     background-color: var(--hr-color);
     border: none;
     height: 2px;
+}
+
+html[data-theme="dark"] hr {
+    height: 1px;
 }
 
 .colorblock {
@@ -120,35 +233,53 @@ hr {
     padding-bottom: 12px;
 }
 
-.daywrapper>.colorblock:last-child>p:last-child {
-    padding-bottom: 0;
-}
-
 .daywrapper {
     display: none;
     overflow: hidden;
+    border-radius: 15px;
     max-width: 800px;
     margin: 0 auto 0.5rem auto;
     padding: 5px 0 0 0;
     background-color: var(--header-color);
+    border-width: 0px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
-    border-radius: 15px;
+}
+
+html[data-theme="dark"] .daywrapper {
+    border-width: 1px;
+    border-color: #333;
+    border-style: solid;
+    box-shadow: none;
 }
 
 .daywrapper.active {
     display: block;
 }
 
+main {
+    margin: 8px;
+}
+
+/* nav */
+
 .navigation {
     background-color: var(--header-color);
     width: 100%;
-    bottom: -2rem;
+    bottom: -2.1rem;
     left: 50%;
     transform: translate(-50%, -50%);
     display: flex;
     justify-content: center;
     box-shadow: 0 0 15px rgba(0, 0, 0, 0.2);
-    height: 4rem;
+    height: 4.1rem;
+    border-top-width: 0px;
+}
+
+html[data-theme="dark"] .navigation {
+    box-shadow: none;
+    border-top-color: #333;
+    border-top-width: 1px;
+    border-top-style: solid;
 }
 
 .arrow {
@@ -159,12 +290,7 @@ hr {
     display: flex;
 }
 
-body {
-    font-family: 'Rubik', sans-serif;
-
-    color: var(--text-color);
-    background-color: var(--bg-color);
-}
+/* announcements */
 
 .announcement {
     display: flex;
@@ -173,20 +299,11 @@ body {
 
 .announce-icon,
 .warn-icon {
-    min-width: 4rem;
-    min-height: 4rem;
-    width: 4rem;
-    height: 4rem;
+    min-width: var(--icon-size);
+    min-height: var(--icon-size);
+    width: var(--icon-size);
+    height: var(--icon-size);
     padding: 1rem 1rem 1rem 0;
-}
-
-h3 {
-    padding: 0.5rem 0 0 0;
-    margin: 0;
-}
-
-main {
-    margin: 8px;
 }
 
 svg.link-icon-svg {
@@ -195,4 +312,69 @@ svg.link-icon-svg {
     padding: 0 8px 0 8px;
     fill: var(--text-color);
     opacity: .3;
+}
+
+/* theme toggle */
+
+.theme-toggle-inner {
+    width: 2.75rem;
+    height: 2.75rem;
+}
+
+.theme-toggle .theme-toggle-inner {
+    transform: scale(-1, 1)
+}
+
+.theme-toggle {
+    --theme-toggle-inner--duration: 300ms;
+    margin-top: auto;
+    margin-bottom: auto;
+}
+
+.theme-toggle-inner * {
+    transform-origin: center;
+    transition: transform calc(var(--theme-toggle-inner--duration)) cubic-bezier(0, 0, 0, 1.25)
+}
+
+.theme-toggle input[type=checkbox]:checked~.theme-toggle-inner .theme-toggle-inner-circle,
+.theme-toggle--toggled:not(label).theme-toggle .theme-toggle-inner .theme-toggle-inner-circle {
+    transform: scale(1.5)
+}
+
+.theme-toggle input[type=checkbox]:checked~.theme-toggle-inner .theme-toggle-inner__inner,
+.theme-toggle--toggled:not(label).theme-toggle .theme-toggle-inner .theme-toggle-inner__inner {
+    transform: translate3d(3px, -3px, 0) scale(1.2)
+}
+
+.theme-toggle input[type=checkbox]:checked~.theme-toggle-inner g path,
+.theme-toggle--toggled:not(label).theme-toggle .theme-toggle-inner g path {
+    transform: scale(.65)
+}
+
+.theme-toggle {
+    border: none;
+    background: 0 0;
+    cursor: pointer
+}
+
+.theme-toggle input[type=checkbox] {
+    display: none
+}
+
+.theme-toggle .theme-toggle-sr {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0
+}
+
+@media (prefers-reduced-motion:reduce) {
+    .theme-toggle:not(.theme-toggle--force-motion) * {
+        transition: none !important
+    }
 }

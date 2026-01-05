@@ -53,6 +53,8 @@ def write_out_and_copy(index_html: HTML, about_html: HTML) -> None:
     else:
         with open("index.html", "w+", encoding="utf-8") as f:
             f.write(index_html)
+        with open("about.html", "w+", encoding="utf-8") as f:
+            f.write(about_html)
 
 
 class VertretungsplanFormatter:
@@ -229,7 +231,7 @@ class VertretungsplanFormatter:
                 next_update=next_update_time,
             )
             + HTMLElements.LINK_ICON_DEF
-            + HTMLElements.BUTTONS
+            + HTMLElements.NAVIGATION
             + main_element
             + generate_footer()
         )
@@ -274,7 +276,11 @@ def select_dates() -> list[dt.date]:
             "first_day_after"
         ]
         if not is_in_holiday(tomorrow):
-            return [max(tomorrow, first_day_after_holidays)]
+            first_day = max(tomorrow, first_day_after_holidays)
+            return [
+                first_day,
+                first_day + dt.timedelta(days=1),
+            ]
         return [get_soonest_weekday(), first_day_after_holidays]
     else:
         candidates = [dt.date.today() + dt.timedelta(days=i) for i in range(7)]

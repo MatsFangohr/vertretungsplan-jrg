@@ -2,10 +2,11 @@
 
 document.addEventListener("DOMContentLoaded", function () {
     updateButtons();
+    setupThemeButton();
     updateTimestamps();
-    showAlerts();
     updateLastChangeTime();
     changeTextColors();
+    showAlerts();
 });
 
 document.addEventListener("load", scrollToClass);
@@ -157,7 +158,8 @@ function changeTextColorsSingle(tolerance, duration, targetTime, cssClass, targe
     const diffInSeconds = Math.floor((now - targetTime) / 1000);
     if (diffInSeconds > tolerance) {
         const ratio = Math.min(1, (diffInSeconds - tolerance) / duration);
-        const newColor = interpolateColors("#000000", targetColor, ratio);
+        const isDark = root.getAttribute("data-theme") === "dark";
+        const newColor = interpolateColors(isDark ? "#d6d6d6" : "#000000", targetColor, ratio);
 
         const fieldsToChange = document.querySelectorAll("." + cssClass);
         fieldsToChange.forEach(el => {
@@ -186,3 +188,36 @@ function changeTextColors() {
 // {{ reloadIfRequired }}
 
 setTimeout(() => { setInterval(reloadIfRequired, 5 * 1000); }, 298 * 1000)
+
+// Theme
+
+function setupThemeButton() {
+    const toggle = document.getElementById("theme-toggle");
+    const root = document.documentElement;
+
+    toggle.addEventListener("click", () => {
+        const isDark = root.getAttribute("data-theme") === "dark";
+        root.setAttribute("data-theme", isDark ? "light" : "dark");
+        localStorage.setItem("theme", isDark ? "light" : "dark");
+        changeTextColors();
+    });
+}
+
+const root = document.documentElement;
+const storedTheme = localStorage.getItem("theme");
+
+if (storedTheme) {
+    root.setAttribute("data-theme", storedTheme);
+} else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    root.setAttribute("data-theme", "dark");
+} else {
+    root.setAttribute("data-theme", "light");
+}
+
+const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+
+mediaQuery.addEventListener("change", e => {
+    root.setAttribute("data-theme", e.matches ? "dark" : "light");
+    localStorage.setItem("theme", e.matches ? "dark" : "light");
+    changeTextColors();
+});
