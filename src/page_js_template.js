@@ -88,15 +88,17 @@ function updateButtons() {
     const leftButton = document.getElementById("leftarrow");
     const rightButton = document.getElementById("rightarrow");
 
-    if (currentPage < pages.length - 1) {
-        rightButton.style.opacity = 1;
-    } else {
-        rightButton.style.opacity = 0.3;
-    }
-    if (currentPage > 0) {
-        leftButton.style.opacity = 1;
-    } else {
-        leftButton.style.opacity = 0.3;
+    if (leftButton && rightButton) {
+        if (currentPage < pages.length - 1) {
+            rightButton.style.opacity = 1;
+        } else {
+            rightButton.style.opacity = 0.3;
+        }
+        if (currentPage > 0) {
+            leftButton.style.opacity = 1;
+        } else {
+            leftButton.style.opacity = 0.3;
+        }
     }
 }
 

@@ -232,6 +232,7 @@ class VertretungsplanFormatter:
             )
             + HTMLElements.LINK_ICON_DEF
             + HTMLElements.NAVIGATION
+            + HTMLElements.THEME_SWITCH_BUTTON
             + main_element
             + generate_footer()
         )
@@ -247,6 +248,7 @@ class VertretungsplanFormatter:
                 last_change=last_update,
                 next_update=next_update_time,
             )
+            + HTMLElements.THEME_SWITCH_BUTTON
             + HTMLElements.ABOUT_TEXT
             + generate_footer()
         )

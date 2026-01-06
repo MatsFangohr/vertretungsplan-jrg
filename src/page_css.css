@@ -327,8 +327,10 @@ svg.link-icon-svg {
 
 .theme-toggle {
     --theme-toggle-inner--duration: 300ms;
-    margin-top: auto;
-    margin-bottom: auto;
+    position: fixed;
+    right: 0.5rem;
+    bottom: 0.5rem;
+    z-index: 100;
 }
 
 .theme-toggle-inner * {
