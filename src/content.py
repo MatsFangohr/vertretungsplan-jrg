@@ -431,12 +431,6 @@ class HTMLElements:
 
 SCHOOL_HOLIDAYS: list[SchoolHoliday] = [
     {
-        "name": "Herbstferien",
-        "start": dt.date(2025, 10, 18),
-        "end": dt.date(2025, 10, 31),
-        "first_day_after": dt.date(2025, 11, 3),
-    },
-    {
         "name": "Winterferien",
         "start": dt.date(2025, 12, 19),
         "end": dt.date(2026, 1, 6),
@@ -468,7 +462,7 @@ HOLIDAY_DAYS: dict[dt.date, SchoolHoliday] = {}
 for holiday in SCHOOL_HOLIDAYS:
     assert holiday["end"] >= holiday["start"], "holiday must end after it begins!"
     current_date = holiday["start"]
-    while current_date != holiday["end"]:
+    while current_date <= holiday["end"]:
         assert current_date not in HOLIDAY_DAYS, (
             f"date {current_date} is part of two holidays!"
         )
