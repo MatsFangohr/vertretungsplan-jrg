@@ -414,7 +414,7 @@ class HTMLElements:
             <p style="font-size: 1.2rem; padding-bottom: 1rem; padding-top: 0.5rem;">
             Die Vertretungsplanseite von WebUntis ist suboptimal. Ich hoffe diese Seite ist besser - schneller, farbenfroher und (hoffentlich) angenehmer zu benutzen.<br><br>
 
-            Wenn euch irgendwas komisch vorkommt, nicht richtig funktioniert oder ihr sonstiges Feedback habt: Meldet euch gerne! Entweder bei mir persönlich, über einen Kontakt oder unter <a href="mailto:vertretungsplan@fangohr.org" style="padding: 0; color: blue;">vertretungsplan@fangohr.org</a>.<br><br>
+            Wenn euch irgendwas komisch vorkommt, nicht richtig funktioniert oder ihr sonstiges Feedback habt: Meldet euch gerne! Entweder bei mir persönlich, über einen Kontakt oder unter <a href="mailto:vertretungsplan@fangohr.org" class="bluelink">vertretungsplan@fangohr.org</a>.<br><br>
 
             Gelegentlich gibt mir WebUntis komische Daten, die zu Verarbeitungsfehlern führen - wenn etwas komisch erscheint, schaut lieber nochmal auf den offiziellen Plan (unten verlinkt).
             <span style="float: right;">~Mats</span>
