@@ -27,6 +27,53 @@ HOUR_DATA = {
 }
 
 
+def hour_to_name(hour: int) -> str:
+    LUT = {
+        1: "1. Block",
+        3: "2. Block",
+        5: "3. Block",
+        8: "4. Block",
+        10: "5. Block",
+        2: "2. Stunde",
+        4: "4. Stunde",
+        6: "6. Stunde",
+        7: "Mittagspause",
+        9: "9. Stunde",
+        11: "11. Stunde",
+        12: "12. Stunde",
+    }
+
+    if hour in LUT:
+        return LUT[hour]
+    else:
+        return f"{hour}. Stunde"
+
+
+def is_start_of_block(hour: int) -> bool:
+    return hour in [1, 3, 5, 8, 10]
+
+
+def time_to_hour(time: dt.datetime) -> int | None:
+    LUT = {
+        "07:50": 1,
+        "08:35": 2,
+        "09:50": 3,
+        "10:35": 4,
+        "11:50": 5,
+        "12:35": 6,
+        "13:20": 7,
+        "13:35": 7,
+        "14:20": 8,
+        "15:05": 9,
+        "15:50": 10,
+        "16:05": 11,
+        "16:50": 12,
+    }
+
+    time_str = time.strftime("%H:%M")
+    return LUT.get(time_str)
+
+
 def get_weekday_str(day: int | dt.date | dt.datetime) -> str:
     if isinstance(day, (dt.date, dt.datetime)):
         day = day.weekday()

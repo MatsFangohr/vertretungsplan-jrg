@@ -17,7 +17,7 @@ from base_types import (
 )
 from content import SetupData
 from logger import warn
-from utils import tz
+from utils import get_weekday_str, hour_to_name, is_start_of_block, time_to_hour, tz
 
 
 class WebUntisManager:
@@ -109,6 +109,7 @@ class TimetableChange:
 
     def __init__(
         self,
+        date: dt.date,
         hours: HourInfo,
         klasse: SchoolClass,
         lessonname: str,
@@ -117,15 +118,17 @@ class TimetableChange:
         message: str,
         canceled: bool,
     ) -> None:
-        self.canceled = canceled
-
+        self.date = date
         self.hours = hours
         self.klasse = klasse
+        self.message = message
+        self.canceled = canceled
+
+        self.parse_message()
 
         self.teacher = TimetableChange.strip_html(teacher.upper().strip())
         self.originalteacher = TimetableChange.strip_html(originalteacher.upper().strip())
 
-        self.message = TimetableChange.parse_message(message)
         self.lessonname = TimetableChange.parse_lesson_name(lessonname)
 
         if not self.hours:
@@ -134,7 +137,7 @@ class TimetableChange:
             raise ValueError("needs either teacher or message!")
 
     @classmethod
-    def from_row(cls, rowdata: RawTTChange) -> TimetableChange:
+    def from_row(cls, rowdata: RawTTChange, date: dt.date) -> TimetableChange:
         klasse = SchoolClass.from_string(rowdata["group"])
 
         hours_str, lessonname, teacherinfo, status, message = rowdata["data"]
@@ -172,7 +175,7 @@ class TimetableChange:
             elif status.strip() and not message.strip():
                 message = status
 
-        return cls(hours, klasse, lessonname, newteacher, originalteacher, message, entfall)
+        return cls(date, hours, klasse, lessonname, newteacher, originalteacher, message, entfall)
 
     def __repr__(self) -> str:
         base = "[c] " if self.canceled else ""
@@ -227,24 +230,81 @@ class TimetableChange:
                 out += f": {self.message}"
         return out
 
-    @staticmethod
-    def parse_message(message: str) -> str:
+    def parse_message(self) -> None:
         """basic replacements to improve message legibility'"""
-        stripped_message = message.replace(" ", "").strip()
-        if stripped_message == "AA":
-            return "Aufgaben"
-        elif stripped_message == "AA@home":
-            return "Aufgaben (zuhause)"
-        elif stripped_message == "Desy":
-            return "DESY"
-        else:
-            replacements = {
-                "f.a.": "fällt aus",
-                "LaaO": "Lernen am anderen Ort",
-            }
-            for keyword, replacement in replacements.items():
-                message = message.replace(keyword, replacement)
-            return message
+        stripped_message = self.message.replace(" ", "").strip()
+        COMPLETE_REPLACEMENTS = {  # noqa: N806
+            "AA": "Aufgaben",
+            "AA@home": "Aufgaben (zuhause)",
+            "Desy": "DESY",
+        }
+
+        if stripped_message in COMPLETE_REPLACEMENTS:
+            self.message = COMPLETE_REPLACEMENTS[stripped_message]
+
+        PARTIAL_REPLACEMENTS = {  # noqa: N806
+            "f.a.": "fällt aus",
+            "LaaO": "Lernen am anderen Ort",
+        }
+
+        for keyword, replacement in PARTIAL_REPLACEMENTS.items():
+            self.message = self.message.replace(keyword, replacement)
+
+        if mat := re.search(r"Verlegung (nach|von) (\d?\d\.\d?\d\.) \/ (\d?\d:\d\d)", self.message):
+            date = (
+                dt.datetime.strptime(mat.group(2), "%d.%m.")
+                .astimezone(tz)
+                .date()
+                .replace(year=dt.datetime.now(tz).year)
+            )
+            if date.month == 1 and dt.datetime.now(tz).month == 12:
+                date = date.replace(year=date.year + 1)
+
+            time = dt.datetime.strptime(mat.group(3), "%H:%M").astimezone(tz)
+
+            improved = ""
+
+            if mat.group(1) == "nach":
+                if self.date == date:
+                    improved += "Verlegt in "
+                    if hour := time_to_hour(time):
+                        if is_start_of_block(hour):
+                            improved += f"den {hour_to_name(hour)}"
+                        else:
+                            improved += f"die {hour_to_name(hour)}"
+                    else:
+                        improved += f"verlegt nach {time.strftime('%H:%M')}"
+                else:
+                    improved += f"Verlegt auf {get_weekday_str(date)}, {date.strftime('%d.%m.%Y')} "
+                    if hour := time_to_hour(time):
+                        if is_start_of_block(hour):
+                            improved += f"im {hour_to_name(hour)}"
+                        else:
+                            improved += f"in der {hour_to_name(hour)}"
+                    else:
+                        improved += time.strftime("%H:%M")
+            elif mat.group(1) == "von":
+                if self.date == date:
+                    improved += "Verlegung "
+                    if hour := time_to_hour(time):
+                        if is_start_of_block(hour):
+                            improved += f"aus dem {hour_to_name(hour)}"
+                        else:
+                            improved += f"aus der {hour_to_name(hour)}"
+                    else:
+                        improved += f"von {time.strftime('%H:%M')}"
+                else:
+                    improved += "Verlegung "
+                    if hour := time_to_hour(time):
+                        if is_start_of_block(hour):
+                            improved += f"aus dem {hour_to_name(hour)} "
+                        else:
+                            improved += f"aus der {hour_to_name(hour)} "
+                    else:
+                        improved += f"von {time.strftime('%H:%M')} "
+                    improved += f"vom {get_weekday_str(date)}, {date.strftime('%d.%m.%Y')}"
+
+            self.message = self.message.replace(mat.group(0), improved)
 
     @staticmethod
     def parse_lesson_name(name: str) -> str:
@@ -319,11 +379,12 @@ class WebUntisData:
 
     @classmethod
     def from_raw_data(cls, data: RawWebUntisData) -> WebUntisData:
-        ttchanges = list(map(TimetableChange.from_row, data["rows"]))
+        date = dt.datetime.strptime(str(data["date"]), "%Y%m%d").astimezone(tz).date()
+        ttchanges = [TimetableChange.from_row(row, date) for row in data["rows"]]
         announcements = list(map(Announcement.from_dict, data["messageData"]["messages"]))
 
         return WebUntisData(
-            date=dt.datetime.strptime(str(data["date"]), "%Y%m%d").astimezone(tz).date(),
+            date=date,
             changes=ttchanges,
             announcements=announcements,
             weekday=data["weekDay"],
