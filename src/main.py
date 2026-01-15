@@ -27,6 +27,7 @@ from utils import (
     get_holiday_data_from_date,
     get_next_update_time,
     get_soonest_weekday,
+    get_weekday_str,
     is_in_holiday,
 )
 
@@ -77,7 +78,7 @@ class VertretungsplanFormatter:
             key=lambda r: (-1 * r.klasse.year, r.klasse.letter, r.hours.to_sorttuple()),
         )
 
-        page_title = f"""Vertretungsplan für {SetupData.WEEKDAYS[date.weekday()]}, den {date.strftime("%d.%m.%Y")}"""
+        page_title = f"""Vertretungsplan für {get_weekday_str(date)}, den {date.strftime("%d.%m.%Y")}"""
 
         announcements = generate_announcement_html(webuntis_data.announcements)
 
@@ -87,9 +88,9 @@ class VertretungsplanFormatter:
 
         VertretungsplanFormatter.next_div_id += 1
 
-        if webuntis_data.weekday != SetupData.WEEKDAYS[
-            date.weekday()
-        ] or webuntis_data.date.strftime("%Y%m%d") != date.strftime("%Y%m%d"):
+        if webuntis_data.weekday != get_weekday_str(
+            date
+        ) or webuntis_data.date.strftime("%Y%m%d") != date.strftime("%Y%m%d"):
             if is_in_holiday(date):
                 holiday = get_holiday_data_from_date(date)
                 out += generate_holiday_div(holiday)

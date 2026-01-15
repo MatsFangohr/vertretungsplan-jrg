@@ -128,16 +128,6 @@ class SetupData:
         "0 8-22/2 * * 6",
     ]
 
-    WEEKDAYS = {
-        0: "Montag",
-        1: "Dienstag",
-        2: "Mittwoch",
-        3: "Donnerstag",
-        4: "Freitag",
-        5: "Samstag",
-        6: "Sonntag",
-    }
-
     # target pale palette FFD6FF-FFD6E7-FFD6D6-FFEDD6-FEFFD6-DDFFD6-D8FDEF-D6FCFF-D6F1FF-D6E6FF-DCD6FF-
 
     # target dark palette 990040-990000-995700-969900-1a9900-08915d-008f99-006699-003b99-170099-D499FF

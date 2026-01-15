@@ -6,6 +6,20 @@ from base_types import SchoolHoliday
 from content import HOLIDAY_DAYS
 
 
+def get_weekday_str(day: int | dt.date | dt.datetime) -> str:
+    if isinstance(day, (dt.date, dt.datetime)):
+        day = day.weekday()
+    return {
+        0: "Montag",
+        1: "Dienstag",
+        2: "Mittwoch",
+        3: "Donnerstag",
+        4: "Freitag",
+        5: "Samstag",
+        6: "Sonntag",
+    }[day]
+
+
 def is_in_holiday(date: dt.date) -> bool:
     return date in HOLIDAY_DAYS
 
