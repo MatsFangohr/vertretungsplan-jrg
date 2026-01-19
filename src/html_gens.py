@@ -38,11 +38,11 @@ def generate_header(
         ("startpage", str(startpage)),
         (
             "title",
-            "JRG Vertretungsplan" if "--debug" in sys.argv else "[DEBUG] Vertretungsplan",
+            "[DEBUG] Vertretungsplan" if "--debug" in sys.argv else "JRG Vertretungsplan",
         ),
         (
             "reloadIfRequired",
-            HTMLElements.RELOAD_IF_REQUIRED_FUNCTION if "--debug" in sys.argv else "",
+            HTMLElements.RELOAD_IF_REQUIRED_FUNCTION if "--debug" not in sys.argv else "",
         ),
     ]:
         header = header.replace("{{" + placeholder + "}}", replacement)

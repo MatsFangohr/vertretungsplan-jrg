@@ -39,6 +39,7 @@ def write_out_and_copy(index_html: HTML, about_html: HTML) -> None:
     else:
         main_path = config.target_dir / "index.html"
     about_path = config.target_dir / "about.html"
+
     if "--debug" in sys.argv:
         with main_path.open("w+", encoding="utf-8") as f:
             f.write(index_html)
