@@ -57,8 +57,7 @@ def generate_header(
 
 
 def generate_footer() -> HTML:
-    repo_location = BASE_PATH
-    repo = git.Repo(repo_location)
+    repo = git.Repo(BASE_PATH.parent)
     ts = dt.datetime.fromtimestamp(repo.head.commit.committed_date)
     version_information = repo.git.describe("HEAD", tags=True, long=True)
 

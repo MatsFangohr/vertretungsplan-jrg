@@ -2,18 +2,14 @@
 from __future__ import annotations
 
 import datetime as dt
-import platform
+import pathlib
 from collections import defaultdict
 from collections.abc import Mapping
 from typing import Literal, cast
 
 from base_types import HTML, ColorDict, SchoolClass, SchoolHoliday
 
-BASE_PATH = (
-    "/home/ubuntu/vertretungsplan"
-    if platform.system() == "Linux"
-    else "C:\\Users\\matsf\\github\\vertretungsplan"
-)
+BASE_PATH = pathlib.Path(__file__).parent.resolve()
 
 
 class SetupData:
@@ -305,12 +301,12 @@ class SetupData:
 
 
 def load_js():
-    with open(BASE_PATH + "/src/page_js_template.js", encoding="utf-8") as f:
+    with open(BASE_PATH / "page_js_template.js", encoding="utf-8") as f:
         return f.read()
 
 
 def load_css():
-    with open(BASE_PATH + "/src/page_css.css", encoding="utf-8") as f:
+    with open(BASE_PATH / "page_css.css", encoding="utf-8") as f:
         return f.read()
 
 
