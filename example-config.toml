@@ -1,0 +1,5 @@
+# Directory to write index.html and about.html to
+target-dir = "/my/target/dir"
+
+# WARNING: This is passed directly to `subprocess.run` after writing the files. Leave as an empty string to skip.
+copy-to-server-command = ""

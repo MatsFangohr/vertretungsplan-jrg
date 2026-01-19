@@ -2,13 +2,13 @@
 import asyncio
 import datetime as dt
 import itertools
-import platform
 import subprocess
 import sys
 from collections.abc import Iterable
 
 import minify_html
 
+import config
 from base_types import HTML, HTMLFiles, RawWebUntisData
 from content import HTMLElements, SetupData
 from html_gens import (
@@ -34,28 +34,29 @@ from utils import (
 
 def write_out_and_copy(index_html: HTML, about_html: HTML) -> None:
     info("writing out...")
-    if platform.system() == "Linux":
+    if "--debug" in sys.argv:
+        with open(config.target_dir / "index.html", "w+", encoding="utf-8") as f:
+            f.write(index_html)
+        with open(config.target_dir / "about.html", "w+", encoding="utf-8") as f:
+            f.write(about_html)
+    else:
         if "--test" in sys.argv:
-            path = "/var/www/html/test.html"
+            path = config.target_dir / "test.html"
         else:
-            path = "/var/www/html/index.html"
+            path = config.target_dir / "index.html"
         with open(path, "w+", encoding="utf-8") as f:
             f.write(index_html)
 
-        with open("/var/www/html/about.html", "w+", encoding="utf-8") as f:
+        with open(config.target_dir / "about.html", "w+", encoding="utf-8") as f:
             f.write(about_html)
 
-        info("copying to wilma...")
-        subprocess.run(
-            "scp -q -i /home/ubuntu/.ssh/id_wilma_auth /var/www/html/* mats@wilma:/home/mats/www-jrg",
-            shell=True,
-            check=True,
-        )
-    else:
-        with open("index.html", "w+", encoding="utf-8") as f:
-            f.write(index_html)
-        with open("about.html", "w+", encoding="utf-8") as f:
-            f.write(about_html)
+        if config.copy_command:
+            info("copying to server...")
+            subprocess.run(
+                config.copy_command,
+                shell=True,
+                check=True,
+            )
 
 
 class VertretungsplanFormatter:
@@ -297,6 +298,7 @@ def select_dates() -> list[dt.date]:
 
 def main() -> None:
     info(f"starting processing at {dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+
     files = VertretungsplanFormatter.generate_html_files(select_dates())
 
     out, about = files["main"], files["about"]
