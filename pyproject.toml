@@ -1,20 +1,32 @@
 [tool.ruff]
-line-length = 88
+line-length = 100
 
 [tool.ruff.lint]
-select = [
-    # pycodestyle
-    "E",
-    # Pyflakes
-    "F",
-    # pyupgrade
-    "UP",
-    # flake8-bugbear
-    "B",
-    # flake8-simplify
-    "SIM",
-    # isort
-    "I",
+select = ["ALL"]
+
+ignore = [
+    "S602",
+    "RUF012",
+    "TRY003",
+    "TRY301",
+    "PLR0912",
+    "PLR0913",
+    "PLR2004",
+
+    "D",
+    "TC",
+    "ERA",
+    "FBT",
+    "COM",
+    "CPY",
+    "EM",
+    "INT",
+    "RSE",
+    "RET",
+    "SLF",
+    "FLY",
+    "C90",
+    "PGH",
 ]
 
 [project]

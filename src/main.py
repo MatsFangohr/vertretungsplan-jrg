@@ -1,4 +1,3 @@
-# ruff: noqa: E501
 import asyncio
 import datetime as dt
 import itertools
@@ -29,25 +28,27 @@ from utils import (
     get_soonest_weekday,
     get_weekday_str,
     is_in_holiday,
+    tz,
 )
 
 
 def write_out_and_copy(index_html: HTML, about_html: HTML) -> None:
     info("writing out...")
+    if "--test" in sys.argv:
+        main_path = config.target_dir / "test.html"
+    else:
+        main_path = config.target_dir / "index.html"
+    about_path = config.target_dir / "about.html"
     if "--debug" in sys.argv:
-        with open(config.target_dir / "index.html", "w+", encoding="utf-8") as f:
+        with main_path.open("w+", encoding="utf-8") as f:
             f.write(index_html)
-        with open(config.target_dir / "about.html", "w+", encoding="utf-8") as f:
+        with about_path.open("w+", encoding="utf-8") as f:
             f.write(about_html)
     else:
-        if "--test" in sys.argv:
-            path = config.target_dir / "test.html"
-        else:
-            path = config.target_dir / "index.html"
-        with open(path, "w+", encoding="utf-8") as f:
+        with main_path.open("w+", encoding="utf-8") as f:
             f.write(index_html)
 
-        with open(config.target_dir / "about.html", "w+", encoding="utf-8") as f:
+        with about_path.open("w+", encoding="utf-8") as f:
             f.write(about_html)
 
         if config.copy_command:
@@ -79,25 +80,28 @@ class VertretungsplanFormatter:
             key=lambda r: (-1 * r.klasse.year, r.klasse.letter, r.hours.to_sorttuple()),
         )
 
-        page_title = f"""Vertretungsplan für {get_weekday_str(date)}, den {date.strftime("%d.%m.%Y")}"""
+        page_title = (
+            f"""Vertretungsplan für {get_weekday_str(date)}, den {date.strftime("%d.%m.%Y")}"""
+        )
 
         announcements = generate_announcement_html(webuntis_data.announcements)
 
-        out = f"""<div class="{"daywrapper active" if div_active else "daywrapper"}" id="{VertretungsplanFormatter.next_div_id}">"""
+        daywrapper_classes = "daywrapper active" if div_active else "daywrapper"
+        element_id = VertretungsplanFormatter.next_div_id
+        VertretungsplanFormatter.next_div_id += 1
+        out = f"""<div class="{daywrapper_classes}" id="{element_id}">"""
 
         out += generate_title(page_title, last_update, next_update)
 
-        VertretungsplanFormatter.next_div_id += 1
-
-        if webuntis_data.weekday != get_weekday_str(
-            date
-        ) or webuntis_data.date.strftime("%Y%m%d") != date.strftime("%Y%m%d"):
+        if webuntis_data.weekday != get_weekday_str(date) or webuntis_data.date.strftime(
+            "%Y%m%d"
+        ) != date.strftime("%Y%m%d"):
             if is_in_holiday(date):
                 holiday = get_holiday_data_from_date(date)
                 out += generate_holiday_div(holiday)
                 out += """</div></div>"""
             else:
-                out += """<span style="display: table; margin: 0 auto; padding: 1rem;">Keine Daten verfügbar.</span></div></div>"""
+                out += """<span style="display: table; margin: 0 auto; padding: 1rem;">Keine Daten verfügbar.</span></div></div>"""  # noqa: E501
             return out
         else:
             out += announcements
@@ -105,13 +109,11 @@ class VertretungsplanFormatter:
                 out += generate_error_message()
 
         if not changes:
-            out += """<hr><span style="display: table; margin: 0 auto; padding: 1rem;">Keine Vertretungen bisher.</span></div>"""
+            out += """<hr><span style="display: table; margin: 0 auto; padding: 1rem;">Keine Vertretungen bisher.</span></div>"""  # noqa: E501
             return out
 
-        affected_classes = set(row.klasse for row in changes)
-        unaffected_classes = [
-            c for c in SetupData.ALL_CLASSES if c not in affected_classes
-        ]
+        affected_classes = {row.klasse for row in changes}
+        unaffected_classes = [c for c in SetupData.ALL_CLASSES if c not in affected_classes]
 
         if unaffected_classes and show_unaffected_classes:
             out += "<hr>" + generate_unaffected_classes_div(
@@ -121,16 +123,14 @@ class VertretungsplanFormatter:
         for year, year_changes in itertools.groupby(changes, lambda x: x.klasse.year):
             out += f"""<hr>{create_background_color_div(year)}"""
 
-            for cls, cls_change_gen in itertools.groupby(
-                year_changes, lambda x: x.klasse
-            ):
+            for cls, cls_change_gen in itertools.groupby(year_changes, lambda x: x.klasse):
                 cls_changes = list(cls_change_gen)
                 out += "<h2"
                 if div_active:
                     out += f" id=klasse-{cls.to_string()}"
                 out += f""">{cls.to_string()}"""
                 if div_active:
-                    out += f"""<a href="#{cls.to_string()}" style="padding: unset;"><svg viewBox="0 0 576 512" class="link-icon-svg"><use href="#link-icon"/></svg></a>"""
+                    out += f"""<a href="#{cls.to_string()}" style="padding: unset;"><svg viewBox="0 0 576 512" class="link-icon-svg"><use href="#link-icon"/></svg></a>"""  # noqa: E501
                 out += """</h2><p>"""
                 if "Klassenfahrt" in cls_changes[0].message:
                     out += f"Klassenfahrt mit {cls_changes[0].teacher}</p>"
@@ -145,9 +145,7 @@ class VertretungsplanFormatter:
 
         return out
 
-    def get_raw_untis_data(
-        self, dates: list[dt.date]
-    ) -> dict[dt.date, RawWebUntisData]:
+    def get_raw_untis_data(self, dates: list[dt.date]) -> dict[dt.date, RawWebUntisData]:
         info("contacting webuntis...")
         return asyncio.run(WebUntisManager().get_multiple(dates))
 
@@ -156,24 +154,22 @@ class VertretungsplanFormatter:
     ) -> dict[dt.date, WebUntisData]:
         untis_data: dict[dt.date, WebUntisData] = {}
 
-        for date in raw_untis_data:
+        for date, raw_data in raw_untis_data.items():
             try:
-                untis_data[date] = WebUntisData.from_raw_data(raw_untis_data[date])
+                untis_data[date] = WebUntisData.from_raw_data(raw_data)
             except ValueError as e:
                 warn(str(e))
-                untis_data[date] = WebUntisData(
-                    date, [], [], "Montag", dt.datetime.now(), True
-                )
+                untis_data[date] = WebUntisData(date, [], [], "Montag", dt.datetime.now(tz), True)
 
         return untis_data
 
     def find_active_day(self, dates: list[dt.date]) -> dict[str, int]:
-        today = dt.date.today()
+        today = dt.datetime.now(tz).date()
         tomorrow = today + dt.timedelta(days=1)
 
-        if today in dates and tomorrow in dates or today.weekday() == 4:
-            if dt.datetime.now() > dt.datetime.combine(
-                dt.date.today(), dt.time(14, 30)
+        if (today in dates and tomorrow in dates) or today.weekday() == 4:
+            if dt.datetime.now(tz) > dt.datetime.combine(
+                dt.datetime.now(tz).date(), dt.time(14, 30), tzinfo=tz
             ):
                 return {"active_page": 1, "start_page": 1}
             else:
@@ -182,7 +178,7 @@ class VertretungsplanFormatter:
             return {"active_page": 0, "start_page": 0}
 
     def get_last_update_time(self, untis_data: Iterable[WebUntisData]) -> dt.datetime:
-        return max(map(lambda data: data.last_update, untis_data))
+        return max(data.last_update for data in untis_data)
 
     def generate_index_file(
         self,
@@ -206,7 +202,7 @@ class VertretungsplanFormatter:
         active_data = self.find_active_day(dates)
 
         next_update_time = get_next_update_time(
-            SetupData.CRON_SPECS, dt.datetime.now()
+            SetupData.CRON_SPECS, dt.datetime.now(tz)
         ) + dt.timedelta(seconds=8)
 
         for n, date in enumerate(dates):
@@ -241,7 +237,7 @@ class VertretungsplanFormatter:
 
     def generate_about_page(self, last_update: dt.datetime) -> HTML:
         next_update_time = get_next_update_time(
-            SetupData.CRON_SPECS, dt.datetime.now()
+            SetupData.CRON_SPECS, dt.datetime.now(tz)
         ) + dt.timedelta(seconds=8)
 
         return (
@@ -274,11 +270,10 @@ class VertretungsplanFormatter:
 
 
 def select_dates() -> list[dt.date]:
-    if is_in_holiday(dt.date.today()):
-        tomorrow = dt.date.today() + dt.timedelta(days=1)
-        first_day_after_holidays = get_holiday_data_from_date(dt.date.today())[
-            "first_day_after"
-        ]
+    today = dt.datetime.now(tz).date()
+    if is_in_holiday(today):
+        tomorrow = today + dt.timedelta(days=1)
+        first_day_after_holidays = get_holiday_data_from_date(today)["first_day_after"]
         if not is_in_holiday(tomorrow):
             first_day = max(tomorrow, first_day_after_holidays)
             return [
@@ -287,17 +282,15 @@ def select_dates() -> list[dt.date]:
             ]
         return [get_soonest_weekday(), first_day_after_holidays]
     else:
-        candidates = [dt.date.today() + dt.timedelta(days=i) for i in range(7)]
+        candidates = [today + dt.timedelta(days=i) for i in range(7)]
         for i, date in enumerate(candidates):
             if is_in_holiday(date):
-                return candidates[: i + 1] + [
-                    get_holiday_data_from_date(date)["first_day_after"]
-                ]
+                return [*candidates[: i + 1], get_holiday_data_from_date(date)["first_day_after"]]
         return candidates
 
 
 def main() -> None:
-    info(f"starting processing at {dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+    info(f"starting processing at {dt.datetime.now(tz).strftime('%Y-%m-%d %H:%M:%S')}")
 
     files = VertretungsplanFormatter.generate_html_files(select_dates())
 

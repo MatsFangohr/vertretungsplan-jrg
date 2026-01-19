@@ -1,4 +1,3 @@
-# ruff: noqa: E501
 import datetime as dt
 import sys
 
@@ -7,12 +6,10 @@ import git
 from base_types import HTML, SchoolClass, SchoolHoliday
 from content import BASE_PATH, HTMLElements, SetupData
 from untis import Announcement
-from utils import get_weekday_str
+from utils import get_weekday_str, tz
 
 
-def generate_title(
-    title: str, letzteaenderung: dt.datetime, next_update: dt.datetime
-) -> HTML:
+def generate_title(title: str, letzteaenderung: dt.datetime, next_update: dt.datetime) -> HTML:
     dt_format = "%d.%m.%Y, %H:%M"
 
     return f"""<div class="title-block colorblock">
@@ -21,11 +18,11 @@ def generate_title(
         <div style="container-type: inline-size;">
         <div class="centered-box-div cbd-flex cbd-flex-dynamic status-bar">
             <span class="cbd-flex-item letzte-aenderung">Letzte Änderung: {letzteaenderung.strftime(dt_format)}</span>
-            <span class="cbd-flex-item letzte-aktualisierung">Letzte Akt.: {dt.datetime.now().strftime(dt_format)}</span>
+            <span class="cbd-flex-item letzte-aktualisierung">Letzte Akt.: {dt.datetime.now(tz).strftime(dt_format)}</span>
             <span class="cbd-flex-item naechste-aktualisierung">Nächste Akt.: {next_update.strftime(dt_format)}</span>
         </div></div>
     </div>
-</div>"""
+</div>"""  # noqa: E501
 
 
 def generate_header(
@@ -36,14 +33,12 @@ def generate_header(
     header = HTMLElements.HEAD_TEMPLATE
     for placeholder, replacement in [
         ("letzteänderungTimestamp", str(last_change.timestamp())),
-        ("letzteaktTimestamp", str(dt.datetime.now().timestamp())),
+        ("letzteaktTimestamp", str(dt.datetime.now(tz).timestamp())),
         ("nächsteaktTimestamp", str(next_update.timestamp())),
         ("startpage", str(startpage)),
         (
             "title",
-            "JRG Vertretungsplan"
-            if "--debug" in sys.argv
-            else "[DEBUG] Vertretungsplan",
+            "JRG Vertretungsplan" if "--debug" in sys.argv else "[DEBUG] Vertretungsplan",
         ),
         (
             "reloadIfRequired",
@@ -56,7 +51,7 @@ def generate_header(
 
 def generate_footer() -> HTML:
     repo = git.Repo(BASE_PATH)
-    ts = dt.datetime.fromtimestamp(repo.head.commit.committed_date)
+    ts = dt.datetime.fromtimestamp(repo.head.commit.committed_date, tz=tz)
     version_information = repo.git.describe("HEAD", tags=True, long=True)
 
     footer = HTMLElements.FOOTER_TEMPLATE
@@ -114,18 +109,16 @@ def generate_error_message() -> HTML:
 
 
 def generate_holiday_div(holiday: SchoolHoliday) -> HTML:
-    return f"""<hr><span style="display: table; margin: 0 auto; padding: 1rem;">Es sind {holiday["name"]}! Die Schule beginnt am {get_weekday_str(holiday["first_day_after"])}, dem {holiday["first_day_after"].strftime("%d.%m.%Y")} wieder. Wahrscheinlich kann man den Vertretungsplan mit dem Knopf unten schon einsehen.</span>"""
+    return f"""<hr><span style="display: table; margin: 0 auto; padding: 1rem;">Es sind {holiday["name"]}! Die Schule beginnt am {get_weekday_str(holiday["first_day_after"])}, dem {holiday["first_day_after"].strftime("%d.%m.%Y")} wieder. Wahrscheinlich kann man den Vertretungsplan mit dem Knopf unten schon einsehen.</span>"""  # noqa: E501
 
 
-def generate_unaffected_classes_div(
-    unaffected_classes: list[SchoolClass], is_active: bool
-) -> HTML:
+def generate_unaffected_classes_div(unaffected_classes: list[SchoolClass], is_active: bool) -> HTML:
     def classes_to_string(cls: SchoolClass) -> str:
         return f"""<span id="klasse-{cls.to_string()}"></span>"""
 
     return (
         """<div class="colorblock" style="background-color: var(--unaffected-color)">"""
-        + "<h2>Klassen ohne Veränderung"
+        "<h2>Klassen ohne Veränderung"
         + "".join(
             map(
                 classes_to_string,

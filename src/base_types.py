@@ -52,9 +52,7 @@ class SchoolClass:
     letter: str
 
     letters_to_year = {"Q2": 13, "Q1": 12, "Ej": 11, "DAZ": 1, "Verw": 99}
-    year_to_letters: dict[int, str] = dict(  # type: ignore
-        reversed(item) for item in letters_to_year.items()
-    )
+    year_to_letters: dict[int, str] = {year: letter for letter, year in letters_to_year.items()}
 
     def __init__(self, year: int, letter: str) -> None:
         self.year = year
@@ -87,8 +85,7 @@ class SchoolClass:
     def __repr__(self) -> str:
         if self.year in SchoolClass.year_to_letters:
             return SchoolClass.year_to_letters[self.year] + self.letter
-        else:
-            return str(self.year) + self.letter
+        return str(self.year) + self.letter
 
     def __eq__(self, other: object) -> bool:
         if isinstance(other, SchoolClass):

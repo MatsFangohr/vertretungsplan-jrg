@@ -14,14 +14,12 @@ BASE_PATH = pathlib.Path(__file__).parent.parent.resolve()
 
 class SetupData:
     @staticmethod
-    def get_color(
-        klasse: int, tone: Literal["pale", "dark", "normal", "strong"]
-    ) -> str:
+    def get_color(klasse: int, tone: Literal["pale", "dark", "normal", "strong"]) -> str:
         if tone not in ["pale", "dark"]:
             raise ValueError("unsupported color!")
-        elif tone == "pale":
+        if tone == "pale":
             return f"var(--year-color-{klasse})"
-        else:
+        else:  # tone must be dark
             return f"var(--year-color-{klasse}-intense)"
 
     BASE_PAYLOAD = {
@@ -296,13 +294,15 @@ class SetupData:
     ]
 
 
-def load_js():
-    with open(BASE_PATH / "src" / "page_js_template.js", encoding="utf-8") as f:
+def load_js() -> str:
+    path = BASE_PATH / "src" / "page_js_template.js"
+    with path.open(encoding="utf-8") as f:
         return f.read()
 
 
-def load_css():
-    with open(BASE_PATH / "src" / "page_css.css", encoding="utf-8") as f:
+def load_css() -> str:
+    path = BASE_PATH / "src" / "page_css.css"
+    with path.open(encoding="utf-8") as f:
         return f.read()
 
 
@@ -442,11 +442,11 @@ SCHOOL_HOLIDAYS: list[SchoolHoliday] = [
 HOLIDAY_DAYS: dict[dt.date, SchoolHoliday] = {}
 
 for holiday in SCHOOL_HOLIDAYS:
-    assert holiday["end"] >= holiday["start"], "holiday must end after it begins!"
+    if holiday["end"] < holiday["start"]:
+        raise ValueError("holiday must end after it begins!")
     current_date = holiday["start"]
     while current_date <= holiday["end"]:
-        assert current_date not in HOLIDAY_DAYS, (
-            f"date {current_date} is part of two holidays!"
-        )
+        if current_date in HOLIDAY_DAYS:
+            raise ValueError(f"date {current_date} is part of two holidays!")
         HOLIDAY_DAYS[current_date] = holiday
         current_date += dt.timedelta(days=1)

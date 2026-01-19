@@ -1,4 +1,3 @@
-# ruff: noqa: E501
 from __future__ import annotations
 
 import asyncio
@@ -8,6 +7,7 @@ from typing import Self
 
 import aiohttp
 
+import utils
 from base_types import (
     HTML,
     RawAnnouncementData,
@@ -17,24 +17,23 @@ from base_types import (
 )
 from content import SetupData
 from logger import warn
+from utils import tz
 
 
 class WebUntisManager:
     url: str
 
     def __init__(self) -> None:
-        self.url = "https://rist2024.webuntis.com/WebUntis/monitor/substitution/data?school=rist2024"
+        self.url = (
+            "https://rist2024.webuntis.com/WebUntis/monitor/substitution/data?school=rist2024"
+        )
 
-    async def get_data(
-        self, session: aiohttp.ClientSession, date: dt.date
-    ) -> RawWebUntisData:
+    async def get_data(self, session: aiohttp.ClientSession, date: dt.date) -> RawWebUntisData:
         payload = {"date": int(date.strftime("%Y%m%d"))} | SetupData.BASE_PAYLOAD
         async with session.post(self.url, json=payload) as r:
             return (await r.json())["payload"]
 
-    async def get_multiple(
-        self, dates: list[dt.date]
-    ) -> dict[dt.date, RawWebUntisData]:
+    async def get_multiple(self, dates: list[dt.date]) -> dict[dt.date, RawWebUntisData]:
         async with aiohttp.ClientSession() as session:
             tasks = [self.get_data(session, d) for d in dates]
             results = await asyncio.gather(*tasks)
@@ -57,7 +56,7 @@ class HourInfo:
                     self.start = int(start)
                     self.end = int(end)
                     if self.start >= self.end:
-                        raise ValueError()
+                        raise ValueError("hour ends before it starts!")
                 case [single_digit]:
                     self.start = self.end = int(single_digit)
                 case _:
@@ -76,31 +75,12 @@ class HourInfo:
         return hourinfo
 
     def parse_data(self) -> HourInfo:
-        HOUR_DATA = {
-            "0 - 11": ("Ganztägig", 0, 0),
-            "1 - 6": ("1. bis 3. Block", 1, 6),
-            "1 - 9": ("1. bis 4. Block", 1, 9),
-            "1 - 11": ("Ganztägig", 0, 0),
-            "1 - 2": ("1. Block", 1, 2),
-            "3 - 4": ("2. Block", 3, 4),
-            "5 - 6": ("3. Block", 5, 6),
-            "8 - 9": ("4. Block", 8, 9),
-            "10 - 11": ("5. Block", 10, 11),
-            "2 - 11": ("Ab 2. Stunde", 2, 11),
-            "3 - 11": ("Ab 2. Block", 3, 11),
-            "4 - 11": ("Ab 4. Stunde", 4, 11),
-            "5 - 11": ("Ab 3. Block", 5, 11),
-            "6 - 11": ("Ab 6. Stunde", 6, 11),
-            "8 - 11": ("Ab 4. Block", 8, 11),
-            "9 - 11": ("Ab 9. Stunde", 9, 11),
-        }
-
-        if self.data in HOUR_DATA:
+        if self.data in utils.HOUR_DATA:
             return HourInfo.from_data(
-                HOUR_DATA[self.data][0],
+                utils.HOUR_DATA[self.data][0],
                 False,
-                HOUR_DATA[self.data][1],
-                HOUR_DATA[self.data][2],
+                utils.HOUR_DATA[self.data][1],
+                utils.HOUR_DATA[self.data][2],
             )
 
         return self
@@ -127,7 +107,7 @@ class TimetableChange:
     canceled: bool
     originalteacher: str
 
-    def __init__(  # noqa: PLR0913
+    def __init__(
         self,
         hours: HourInfo,
         klasse: SchoolClass,
@@ -143,9 +123,7 @@ class TimetableChange:
         self.klasse = klasse
 
         self.teacher = TimetableChange.strip_html(teacher.upper().strip())
-        self.originalteacher = TimetableChange.strip_html(
-            originalteacher.upper().strip()
-        )
+        self.originalteacher = TimetableChange.strip_html(originalteacher.upper().strip())
 
         self.message = TimetableChange.parse_message(message)
         self.lessonname = TimetableChange.parse_lesson_name(lessonname)
@@ -170,11 +148,7 @@ class TimetableChange:
                     re.sub(
                         "\\([^)]+\\)",
                         "",
-                        (
-                            TimetableChange.strip_html(teacherinfo)
-                            .replace("-", "")
-                            .replace(",", "")
-                        ),
+                        (TimetableChange.strip_html(teacherinfo).replace("-", "").replace(",", "")),
                     ).split(" "),
                 )
             )
@@ -198,9 +172,7 @@ class TimetableChange:
             elif status.strip() and not message.strip():
                 message = status
 
-        return cls(
-            hours, klasse, lessonname, newteacher, originalteacher, message, entfall
-        )
+        return cls(hours, klasse, lessonname, newteacher, originalteacher, message, entfall)
 
     def __repr__(self) -> str:
         base = "[c] " if self.canceled else ""
@@ -214,7 +186,7 @@ class TimetableChange:
     def repr_stripped(self) -> str:
         return TimetableChange.strip_html(self.repr_html())
 
-    def repr_html(self) -> HTML:  # noqa: C901, PLR0912
+    def repr_html(self) -> HTML:
         out = ""
         hours = self.hours.to_string()
         if self.canceled:
@@ -236,14 +208,14 @@ class TimetableChange:
                 if self.lessonname:
                     if self.originalteacher:
                         if "---" in self.teacher:
-                            out += f"{hours}: {self.lessonname} bei {self.teacher.replace('--- , ', '')} findet <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>ohne {self.originalteacher}</span> statt"
+                            out += f"{hours}: {self.lessonname} bei {self.teacher.replace('--- , ', '')} findet <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>ohne {self.originalteacher}</span> statt"  # noqa: E501
                         else:
-                            out += f"{hours}: {self.lessonname} bei {self.teacher} <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"
+                            out += f"{hours}: {self.lessonname} bei {self.teacher} <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"  # noqa: E501
                     else:
                         out += f"{hours}: {self.lessonname} bei {self.teacher}"
                 else:  # noqa: PLR5501
                     if self.originalteacher:
-                        out += f"{hours} bei {self.teacher} <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"
+                        out += f"{hours} bei {self.teacher} <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"  # noqa: E501
                     else:
                         out += f"{hours} bei {self.teacher}"
             else:  # noqa: PLR5501
@@ -266,11 +238,11 @@ class TimetableChange:
         elif stripped_message == "Desy":
             return "DESY"
         else:
-            REPLACEMENTS = {
+            replacements = {
                 "f.a.": "fällt aus",
                 "LaaO": "Lernen am anderen Ort",
             }
-            for keyword, replacement in REPLACEMENTS.items():
+            for keyword, replacement in replacements.items():
                 message = message.replace(keyword, replacement)
             return message
 
@@ -335,28 +307,28 @@ class WebUntisData:
         changes: list[TimetableChange],
         announcements: list[Announcement],
         weekday: str,
-        lastUpdate: dt.datetime,
+        last_update: dt.datetime,
         created_with_error: bool,
     ) -> None:
         self.date = date
         self.changes = changes
         self.announcements = announcements
         self.weekday = weekday
-        self.last_update = lastUpdate
+        self.last_update = last_update
         self.created_with_error = created_with_error
 
     @classmethod
     def from_raw_data(cls, data: RawWebUntisData) -> WebUntisData:
         ttchanges = list(map(TimetableChange.from_row, data["rows"]))
-        announcements = list(
-            map(Announcement.from_dict, data["messageData"]["messages"])
-        )
+        announcements = list(map(Announcement.from_dict, data["messageData"]["messages"]))
 
         return WebUntisData(
-            date=dt.datetime.strptime(str(data["date"]), "%Y%m%d").date(),
+            date=dt.datetime.strptime(str(data["date"]), "%Y%m%d").astimezone(tz).date(),
             changes=ttchanges,
             announcements=announcements,
             weekday=data["weekDay"],
-            lastUpdate=dt.datetime.strptime(data["lastUpdate"], "%d.%m.%Y %H:%M:%S"),
+            last_update=dt.datetime.strptime(data["lastUpdate"], "%d.%m.%Y %H:%M:%S").astimezone(
+                tz
+            ),
             created_with_error=False,
         )
