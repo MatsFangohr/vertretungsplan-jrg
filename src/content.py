@@ -40,13 +40,13 @@ class SetupData:
         "showSubject": True,
         "groupBy": 1,
         "hideAbsent": False,  # klassenfahrten
-        "departmentIds": [],
+        "departmentIds": [],  # type: ignore
         "departmentElementType": 1,
         "hideCancelWithSubstitution": True,  # ersetztes als ausgefallen anzeigen
         "hideCancelCausedByEvent": False,  # LEAVE FALSE
         "showTime": False,
         "showSubstText": True,
-        "showAbsentElements": [],
+        "showAbsentElements": [],  # type: ignore
         "showAffectedElements": [1],
         "showUnitTime": False,
         "showMessages": True,
@@ -56,7 +56,7 @@ class SetupData:
         "showTeacherOnEvent": False,  # nothing
         "showAbsentTeacher": True,
         "strikethroughAbsentTeacher": False,
-        "activityTypeIds": [],
+        "activityTypeIds": [],  # type: ignore
         "showEvent": True,
         "showCancel": True,
         "showOnlyCancel": False,

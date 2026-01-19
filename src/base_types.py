@@ -52,9 +52,8 @@ class SchoolClass:
     letter: str
 
     letters_to_year = {"Q2": 13, "Q1": 12, "Ej": 11, "DAZ": 1, "Verw": 99}
-    year_to_letters: dict[int, str] = dict(
-        reversed(item)
-        for item in letters_to_year.items()  # type: ignore
+    year_to_letters: dict[int, str] = dict(  # type: ignore
+        reversed(item) for item in letters_to_year.items()
     )
 
     def __init__(self, year: int, letter: str) -> None:
