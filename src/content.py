@@ -112,6 +112,7 @@ class SetupData:
         "ELZdo": "Eigenlernzeit",
         "ELZfr": "Eigenlernzeit",
         "Textil": "Textiles Werken",
+        "UmuNa": "Umwelt und Nachhaltigkeit",
         "": "",
     }
 
