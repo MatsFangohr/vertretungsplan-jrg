@@ -12,8 +12,10 @@
         height 0.3s ease,
         min-height 0.3s ease,
         margin 0.3s ease,
-        border-width 0.3s steps(2, jump-none),
-        border-top-width 0.3s steps(2, jump-none);
+        padding-bottom 0.3s ease,
+        margin-bottom 0.3s ease,
+        border-width 0.3s ease,
+        border-top-width 0.3s ease;
     --bg-color: #f8f8f8;
     --header-color: #fff;
     --text-color: #000000;
@@ -159,14 +161,24 @@ h1 {
 
 h2 {
     margin-bottom: 0;
+    margin-top: 1rem;
     font-weight: var(--bold-weight);
 }
-
 
 h2:first-child {
     padding-top: 0.25rem;
     margin-top: 0;
 }
+
+html[data-theme="dark"] h2 {
+    margin-top: 1.15rem;
+}
+
+html[data-theme="dark"] h2:first-child {
+    margin-top: 0;
+}
+
+
 
 h3 {
     font-weight: var(--bold-weight);
@@ -186,6 +198,7 @@ body {
 
 p {
     margin-top: 3px;
+    margin-bottom: 1rem;
 }
 
 a {
@@ -242,6 +255,7 @@ html[data-theme="dark"] hr {
     padding: 5px 0 0 0;
     background-color: var(--header-color);
     border-width: 0px;
+    border-color: var(--header-color);
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
 }
 
@@ -311,7 +325,7 @@ svg.link-icon-svg {
     height: 1.2rem;
     padding: 0 8px 0 8px;
     fill: var(--text-color);
-    opacity: .3;
+    opacity: .25;
 }
 
 /* theme toggle */
