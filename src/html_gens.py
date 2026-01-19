@@ -1,6 +1,6 @@
 # ruff: noqa: E501
 import datetime as dt
-import platform
+import sys
 
 import git
 
@@ -42,14 +42,12 @@ def generate_header(
         (
             "title",
             "JRG Vertretungsplan"
-            if platform.system() == "Linux"
+            if "--debug" in sys.argv
             else "[DEBUG] Vertretungsplan",
         ),
         (
             "reloadIfRequired",
-            HTMLElements.RELOAD_IF_REQUIRED_FUNCTION
-            if platform.system() == "Linux"
-            else "",
+            HTMLElements.RELOAD_IF_REQUIRED_FUNCTION if "--debug" in sys.argv else "",
         ),
     ]:
         header = header.replace("{{" + placeholder + "}}", replacement)
@@ -57,7 +55,7 @@ def generate_header(
 
 
 def generate_footer() -> HTML:
-    repo = git.Repo(BASE_PATH.parent)
+    repo = git.Repo(BASE_PATH)
     ts = dt.datetime.fromtimestamp(repo.head.commit.committed_date)
     version_information = repo.git.describe("HEAD", tags=True, long=True)
 
