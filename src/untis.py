@@ -252,15 +252,15 @@ class TimetableChange:
 
         if mat := re.search(r"Verlegung (nach|von) (\d?\d\.\d?\d\.) \/ (\d?\d:\d\d)", self.message):
             date = (
-                dt.datetime.strptime(mat.group(2), "%d.%m.")
+                dt.datetime.strptime(mat.group(2), "%d.%m.")  # noqa: DTZ007 see two lines below
+                .replace(year=dt.datetime.now(tz).year)
                 .astimezone(tz)
                 .date()
-                .replace(year=dt.datetime.now(tz).year)
             )
             if date.month == 1 and dt.datetime.now(tz).month == 12:
                 date = date.replace(year=date.year + 1)
 
-            time = dt.datetime.strptime(mat.group(3), "%H:%M").astimezone(tz)
+            time = dt.datetime.strptime(mat.group(3), "%H:%M").time().replace(tzinfo=tz)  # noqa: DTZ007
 
             improved = ""
 

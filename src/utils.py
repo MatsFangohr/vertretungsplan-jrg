@@ -1,11 +1,12 @@
 import datetime as dt
+import zoneinfo
 
 import croniter
 
 from base_types import SchoolHoliday
 from content import HOLIDAY_DAYS
 
-tz = dt.timezone(dt.timedelta(hours=1))
+tz = zoneinfo.ZoneInfo("Europe/Berlin")
 
 HOUR_DATA = {
     "0 - 11": ("Ganztägig", 0, 0),
@@ -53,7 +54,7 @@ def is_start_of_block(hour: int) -> bool:
     return hour in [1, 3, 5, 8, 10]
 
 
-def time_to_hour(time: dt.datetime) -> int | None:
+def time_to_hour(time: dt.time) -> int | None:
     LUT = {
         "07:50": 1,
         "08:35": 2,
