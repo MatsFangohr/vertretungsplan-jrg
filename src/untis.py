@@ -3,11 +3,11 @@ from __future__ import annotations
 import asyncio
 import datetime as dt
 import re
+from dataclasses import dataclass
 from typing import Self
 
 import aiohttp
 
-import utils
 from base_types import (
     HTML,
     RawAnnouncementData,
@@ -17,7 +17,7 @@ from base_types import (
 )
 from content import SetupData
 from logger import warn
-from utils import get_weekday_str, hour_to_name, is_start_of_block, time_to_hour, tz
+from utils import HOUR_DATA, get_weekday_str, hour_to_name, is_start_of_block, time_to_hour, tz
 
 
 class WebUntisManager:
@@ -40,62 +40,47 @@ class WebUntisManager:
         return dict(zip(dates, results, strict=True))
 
 
+@dataclass
 class HourInfo:
-    data: str
     start: int
     end: int
     needs_suffix: bool
 
-    def __init__(self, data: str, needs_suffix: bool = True) -> None:
-        self.needs_suffix = needs_suffix
-
-        self.data = data.strip()
-        try:
-            match list(self.data.split(" ")):
-                case [start, "-", end]:
-                    self.start = int(start)
-                    self.end = int(end)
-                    if self.start >= self.end:
-                        raise ValueError("hour ends before it starts!")
-                case [single_digit]:
-                    self.start = self.end = int(single_digit)
-                case _:
-                    self.start = self.end = 0
-                    warn(f"unrecognized time format: '{data}'!")
-        except ValueError:
-            warn(f"invalid time format: '{data}'!")
-
     @classmethod
-    def from_data(cls, data: str, needs_suffix: bool, start: int, end: int) -> HourInfo:
-        hourinfo = HourInfo("1", needs_suffix)
-        hourinfo.data = data
-        hourinfo.start = start
-        hourinfo.end = end
+    def from_webuntis_string(cls, data: str) -> Self:
+        data = data.strip()
 
-        return hourinfo
+        if data in HOUR_DATA:
+            needs_suffix = False
+            start = HOUR_DATA[data][1]
+            end = HOUR_DATA[data][2]
+        else:
+            needs_suffix = True
+            match list(data.split(" ")):
+                case [single_number]:
+                    start = end = int(single_number)
+                case [st, "-", ed]:
+                    start = int(st)
+                    end = int(ed)
+                    if start >= end:
+                        raise ValueError(f"hour '{data}' ends before it starts!")
+                case _:
+                    start = end = 0
+                    warn(f"unrecognized time format: '{data}'!")
 
-    def parse_data(self) -> HourInfo:
-        if self.data in utils.HOUR_DATA:
-            return HourInfo.from_data(
-                utils.HOUR_DATA[self.data][0],
-                False,
-                utils.HOUR_DATA[self.data][1],
-                utils.HOUR_DATA[self.data][2],
-            )
-
-        return self
+        return cls(start, end, needs_suffix)
 
     def to_string(self) -> str:
-        if self.needs_suffix:
-            return self.data + ". Stunde"
+        key = f"{self.start} - {self.end}"
+        if key in HOUR_DATA:
+            return HOUR_DATA[key][0]
+        elif self.start == self.end:
+            return f"{self.start}. Stunde"
         else:
-            return self.data
+            return f"{key}. Stunde"
 
     def to_sorttuple(self) -> tuple[int, int]:
         return (self.start, self.end)
-
-    def __repr__(self) -> str:
-        return f"{self.start}-{self.end}"
 
 
 class TimetableChange:
@@ -142,7 +127,7 @@ class TimetableChange:
 
         hours_str, lessonname, teacherinfo, status, message = rowdata["data"]
 
-        hours = HourInfo(hours_str).parse_data()
+        hours = HourInfo.from_webuntis_string(hours_str)
 
         if klasse == "Verw":
             newteacher = ", ".join(
