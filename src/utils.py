@@ -100,15 +100,19 @@ def get_holiday_data_from_date(date: dt.date) -> SchoolHoliday:
 
 def get_soonest_weekday() -> dt.date:
     today = dt.datetime.now(tz).date()
+    return get_soonest_weekday_to(today)
+
+
+def get_soonest_weekday_to(date: dt.date) -> dt.date:
     return {
-        0: today,
-        1: today,
-        2: today,
-        3: today,
-        4: today,
-        5: today + dt.timedelta(days=2),
-        6: today + dt.timedelta(days=1),
-    }[today.weekday()]
+        0: date,
+        1: date,
+        2: date,
+        3: date,
+        4: date,
+        5: date + dt.timedelta(days=2),
+        6: date + dt.timedelta(days=1),
+    }[date.weekday()]
 
 
 def get_next_update_time(cron_specs: list[str], start_time: dt.datetime) -> dt.datetime:
