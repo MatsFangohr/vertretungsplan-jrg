@@ -5,3 +5,4 @@ about.html
 index.html
 .vscode
 config.toml
+.coverage
