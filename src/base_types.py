@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import datetime as dt
-from typing import TypedDict
+from typing import Self, TypedDict
 
 type HTML = str
 
@@ -59,7 +59,7 @@ class SchoolClass:
         self.letter = letter
 
     @classmethod
-    def from_string(cls, data: str) -> SchoolClass:
+    def from_string(cls, data: str) -> Self:
         match list(data.strip()):
             case ["Q", "2", _]:
                 year = SchoolClass.letters_to_year["Q2"]

@@ -378,12 +378,12 @@ class WebUntisData:
         self.created_with_error = created_with_error
 
     @classmethod
-    def from_raw_data(cls, data: RawWebUntisData) -> WebUntisData:
+    def from_raw_data(cls, data: RawWebUntisData) -> Self:
         date = dt.datetime.strptime(str(data["date"]), "%Y%m%d").astimezone(tz).date()
         ttchanges = [TimetableChange.from_row(row, date) for row in data["rows"]]
         announcements = list(map(Announcement.from_dict, data["messageData"]["messages"]))
 
-        return WebUntisData(
+        return cls(
             date=date,
             changes=ttchanges,
             announcements=announcements,
