@@ -1,9 +1,10 @@
 import datetime as dt
+import re
 import zoneinfo
 
 import croniter
 
-from base_types import SchoolHoliday
+from base_types import HTML, SchoolHoliday
 from content import HOLIDAY_DAYS
 
 tz = zoneinfo.ZoneInfo("Europe/Berlin")
@@ -121,3 +122,7 @@ def get_next_update_time(cron_specs: list[str], start_time: dt.datetime) -> dt.d
         cron = croniter.croniter(spec, start_time)
         options.append(cron.get_next(dt.datetime))
     return min(options)
+
+
+def strip_html(data: HTML) -> str:
+    return re.sub("<[^>]+>", "", data)

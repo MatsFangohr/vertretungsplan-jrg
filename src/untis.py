@@ -16,8 +16,12 @@ from base_types import (
     SchoolClass,
 )
 from content import SetupData
-from logger import warn
-from utils import HOUR_DATA, get_weekday_str, hour_to_name, is_start_of_block, time_to_hour, tz
+from formatting import parse_lesson_name, parse_message
+from utils import (
+    HOUR_DATA,
+    strip_html,
+    tz,
+)
 
 
 class WebUntisManager:
@@ -44,18 +48,15 @@ class WebUntisManager:
 class HourInfo:
     start: int
     end: int
-    needs_suffix: bool
 
     @classmethod
     def from_webuntis_string(cls, data: str) -> Self:
         data = data.strip()
 
         if data in HOUR_DATA:
-            needs_suffix = False
             start = HOUR_DATA[data][1]
             end = HOUR_DATA[data][2]
         else:
-            needs_suffix = True
             match list(data.split(" ")):
                 case [single_number]:
                     start = end = int(single_number)
@@ -65,10 +66,9 @@ class HourInfo:
                     if start >= end:
                         raise ValueError(f"hour '{data}' ends before it starts!")
                 case _:
-                    start = end = 0
-                    warn(f"unrecognized time format: '{data}'!")
+                    raise ValueError(f"unrecognized time format: '{data}'!")
 
-        return cls(start, end, needs_suffix)
+        return cls(start, end)
 
     def to_string(self) -> str:
         key = f"{self.start} - {self.end}"
@@ -83,14 +83,16 @@ class HourInfo:
         return (self.start, self.end)
 
 
+@dataclass
 class TimetableChange:
-    hours: HourInfo
+    date: dt.date
+    klasse: SchoolClass  # affected class
+    hours: HourInfo  # when does the change take place
     lessonname: str
-    teacher: str
+    teacher: str  # substitute teacher
     message: str
-    klasse: SchoolClass
     canceled: bool
-    originalteacher: str
+    originalteacher: str  # ill / absent teacher
 
     def __init__(
         self,
@@ -109,15 +111,13 @@ class TimetableChange:
         self.message = message
         self.canceled = canceled
 
-        self.parse_message()
+        self.message = parse_message(message, date)
 
-        self.teacher = TimetableChange.strip_html(teacher.upper().strip())
-        self.originalteacher = TimetableChange.strip_html(originalteacher.upper().strip())
+        self.teacher = strip_html(teacher.upper().strip())
+        self.originalteacher = strip_html(originalteacher.upper().strip())
 
-        self.lessonname = TimetableChange.parse_lesson_name(lessonname)
+        self.lessonname = parse_lesson_name(lessonname)
 
-        if not self.hours:
-            raise ValueError("no hours!")
         if not self.teacher and not self.message:
             raise ValueError("needs either teacher or message!")
 
@@ -136,7 +136,7 @@ class TimetableChange:
                     re.sub(
                         "\\([^)]+\\)",
                         "",
-                        (TimetableChange.strip_html(teacherinfo).replace("-", "").replace(",", "")),
+                        (strip_html(teacherinfo).replace("-", "").replace(",", "")),
                     ).split(" "),
                 )
             )
@@ -149,7 +149,6 @@ class TimetableChange:
                 re.sub("\\).*?\\(", ", ", teacherinfo) if "(" in teacherinfo else "",
             )
 
-        # marker for ausfall
         if status.strip() == "Entfall":
             entfall = True
         else:
@@ -166,13 +165,8 @@ class TimetableChange:
         base = "[c] " if self.canceled else ""
         return base + f"{self.klasse} | {self.repr_stripped()}"
 
-    # quite crude but does the job
-    @staticmethod
-    def strip_html(data: str) -> str:
-        return re.sub("<[^>]+>", "", data)
-
     def repr_stripped(self) -> str:
-        return TimetableChange.strip_html(self.repr_html())
+        return strip_html(self.repr_html())
 
     def repr_html(self) -> HTML:
         out = ""
@@ -214,115 +208,6 @@ class TimetableChange:
             if self.message:
                 out += f": {self.message}"
         return out
-
-    def parse_message(self) -> None:
-        """basic replacements to improve message legibility'"""
-        stripped_message = self.message.replace(" ", "").strip()
-        COMPLETE_REPLACEMENTS = {  # noqa: N806
-            "AA": "Aufgaben",
-            "AA@home": "Aufgaben (zuhause)",
-            "Desy": "DESY",
-        }
-
-        if stripped_message in COMPLETE_REPLACEMENTS:
-            self.message = COMPLETE_REPLACEMENTS[stripped_message]
-
-        PARTIAL_REPLACEMENTS = {  # noqa: N806
-            "f.a.": "fällt aus",
-            "LaaO": "Lernen am anderen Ort",
-        }
-
-        for keyword, replacement in PARTIAL_REPLACEMENTS.items():
-            self.message = self.message.replace(keyword, replacement)
-
-        if mat := re.search(r"Verlegung (nach|von) (\d?\d\.\d?\d\.) \/ (\d?\d:\d\d)", self.message):
-            date = (
-                dt.datetime.strptime(mat.group(2), "%d.%m.")  # noqa: DTZ007 see two lines below
-                .replace(year=dt.datetime.now(tz).year)
-                .astimezone(tz)
-                .date()
-            )
-            if date.month == 1 and dt.datetime.now(tz).month == 12:
-                date = date.replace(year=date.year + 1)
-
-            time = dt.datetime.strptime(mat.group(3), "%H:%M").time().replace(tzinfo=tz)  # noqa: DTZ007
-
-            improved = ""
-
-            if mat.group(1) == "nach":
-                if self.date == date:
-                    improved += "Verlegt in "
-                    if hour := time_to_hour(time):
-                        if is_start_of_block(hour):
-                            improved += f"den {hour_to_name(hour)}"
-                        else:
-                            improved += f"die {hour_to_name(hour)}"
-                    else:
-                        improved += f"verlegt nach {time.strftime('%H:%M')}"
-                else:
-                    improved += f"Verlegt auf {get_weekday_str(date)}, {date.strftime('%d.%m.%Y')} "
-                    if hour := time_to_hour(time):
-                        if is_start_of_block(hour):
-                            improved += f"im {hour_to_name(hour)}"
-                        else:
-                            improved += f"in der {hour_to_name(hour)}"
-                    else:
-                        improved += time.strftime("%H:%M")
-            elif mat.group(1) == "von":
-                if self.date == date:
-                    improved += "Verlegung "
-                    if hour := time_to_hour(time):
-                        if is_start_of_block(hour):
-                            improved += f"aus dem {hour_to_name(hour)}"
-                        else:
-                            improved += f"aus der {hour_to_name(hour)}"
-                    else:
-                        improved += f"von {time.strftime('%H:%M')}"
-                else:
-                    improved += "Verlegung "
-                    if hour := time_to_hour(time):
-                        if is_start_of_block(hour):
-                            improved += f"aus dem {hour_to_name(hour)} "
-                        else:
-                            improved += f"aus der {hour_to_name(hour)} "
-                    else:
-                        improved += f"von {time.strftime('%H:%M')} "
-                    improved += f"vom {get_weekday_str(date)}, {date.strftime('%d.%m.%Y')}"
-
-            self.message = self.message.replace(mat.group(0), improved)
-
-    @staticmethod
-    def parse_lesson_name(name: str) -> str:
-        """expands lesson names and returns the short version if not found"""
-        stripname = name.strip()
-        if stripname in SetupData.LESSON_NAMES:
-            return SetupData.LESSON_NAMES[stripname]
-        else:
-            warn(f"can't find lesson name: {name}")
-            return stripname
-
-    @staticmethod
-    def parse_klasse(klasse: str) -> tuple[int, str]:
-        """grabs year number and class letter from class name where possible"""
-        year = 0
-        match list(klasse.strip()):
-            case ["Q", "2", _]:
-                year = 13
-            case ["Q", "1", _]:
-                year = 12
-            case ["E", "j", _]:
-                year = 11
-            case ["1", "0", _]:
-                year = 10
-            case [yr, letter]:
-                return (int(yr), letter)
-            case ["D", "A", "Z"]:
-                return (1, "a")
-            case ["V", "e", "r", "w"]:
-                return (99, "a")
-            case _:
-                raise ValueError(f"invalid klasse: '{klasse}'!")
-        return (year, klasse[-1])
 
 
 class Announcement:

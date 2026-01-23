@@ -8,6 +8,7 @@ from utils import (
     get_weekday_str,
     hour_to_name,
     is_start_of_block,
+    strip_html,
     time_to_hour,
     tz,
 )
@@ -133,3 +134,14 @@ def test_get_weekday_str(day: int | dt.date | dt.datetime, expected: str):
 )
 def test_get_soonest_weekday_to(date: dt.date, expected: dt.date):
     assert get_soonest_weekday_to(date) == expected
+
+
+@pytest.mark.parametrize(
+    ("html", "expected"),
+    [
+        ("<span>test</span>", "test"),
+        ('<a href="https://example.com">link</a>', "link"),
+    ],
+)
+def test_strip_html(html: str, expected: str):
+    assert strip_html(html) == expected
