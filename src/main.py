@@ -8,11 +8,11 @@ from collections.abc import Iterable
 import minify_html
 
 import config
-from base_types import HTML, HTMLFiles, RawWebUntisData
-from content import HTMLElements, SetupData
-from html_gens import (
-    create_background_color_div,
+import templates
+import untis.data
+from formatter.generators import (
     generate_announcement_html,
+    generate_background_color_div,
     generate_error_message,
     generate_footer,
     generate_header,
@@ -20,8 +20,10 @@ from html_gens import (
     generate_title,
     generate_unaffected_classes_div,
 )
+from formatter.types import HTML, HTMLFiles
 from logger import info, warn
-from untis import WebUntisData, WebUntisManager
+from untis.types import RawWebUntisData, WebUntisData
+from untis.web import WebUntisManager
 from utils import (
     get_holiday_data_from_date,
     get_next_update_time,
@@ -114,7 +116,7 @@ class VertretungsplanFormatter:
             return out
 
         affected_classes = {row.klasse for row in changes}
-        unaffected_classes = [c for c in SetupData.ALL_CLASSES if c not in affected_classes]
+        unaffected_classes = [c for c in untis.data.ALL_CLASSES if c not in affected_classes]
 
         if unaffected_classes and show_unaffected_classes:
             out += "<hr>" + generate_unaffected_classes_div(
@@ -122,7 +124,7 @@ class VertretungsplanFormatter:
             )
 
         for year, year_changes in itertools.groupby(changes, lambda x: x.klasse.year):
-            out += f"""<hr>{create_background_color_div(year)}"""
+            out += f"""<hr>{generate_background_color_div(year)}"""
 
             for cls, cls_change_gen in itertools.groupby(year_changes, lambda x: x.klasse):
                 cls_changes = list(cls_change_gen)
@@ -203,7 +205,7 @@ class VertretungsplanFormatter:
         active_data = self.find_active_day(dates)
 
         next_update_time = get_next_update_time(
-            SetupData.CRON_SPECS, dt.datetime.now(tz)
+            config.cron_specs, dt.datetime.now(tz)
         ) + dt.timedelta(seconds=8)
 
         for n, date in enumerate(dates):
@@ -229,16 +231,16 @@ class VertretungsplanFormatter:
                 last_change=last_update,
                 next_update=next_update_time,
             )
-            + HTMLElements.LINK_ICON_DEF
-            + HTMLElements.NAVIGATION
-            + HTMLElements.THEME_SWITCH_BUTTON
+            + templates.LINK_ICON_DEF
+            + templates.NAVIGATION
+            + templates.THEME_SWITCH_BUTTON
             + main_element
             + generate_footer()
         )
 
     def generate_about_page(self, last_update: dt.datetime) -> HTML:
         next_update_time = get_next_update_time(
-            SetupData.CRON_SPECS, dt.datetime.now(tz)
+            config.cron_specs, dt.datetime.now(tz)
         ) + dt.timedelta(seconds=8)
 
         return (
@@ -247,8 +249,8 @@ class VertretungsplanFormatter:
                 last_change=last_update,
                 next_update=next_update_time,
             )
-            + HTMLElements.THEME_SWITCH_BUTTON
-            + HTMLElements.ABOUT_TEXT
+            + templates.THEME_SWITCH_BUTTON
+            + templates.ABOUT_TEXT
             + generate_footer()
         )
 

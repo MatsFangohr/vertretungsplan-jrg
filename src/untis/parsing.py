@@ -1,7 +1,7 @@
 import datetime as dt
 import re
 
-from content import SetupData
+import untis.data
 from logger import warn
 from utils import get_weekday_str, hour_to_name, is_start_of_block, time_to_hour, tz
 
@@ -80,8 +80,8 @@ def parse_message(message: str, date_of_message: dt.date) -> str:
 def parse_lesson_name(name: str) -> str:
     """expands lesson names and returns the short version if not found"""
     stripname = name.strip()
-    if stripname in SetupData.LESSON_NAMES:
-        return SetupData.LESSON_NAMES[stripname]
+    if stripname in untis.data.LESSON_NAMES:
+        return untis.data.LESSON_NAMES[stripname]
     else:
         warn(f"can't find lesson name: {name}")
         return stripname

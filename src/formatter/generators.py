@@ -3,9 +3,11 @@ import sys
 
 import git
 
-from base_types import HTML, SchoolClass, SchoolHoliday
-from content import BASE_PATH, HTMLElements, SetupData
-from untis import Announcement
+import config
+import formatter
+import templates
+from formatter.types import HTML
+from untis.types import Announcement, SchoolClass, SchoolHoliday
 from utils import get_weekday_str, tz
 
 
@@ -30,7 +32,7 @@ def generate_header(
     last_change: dt.datetime,
     next_update: dt.datetime,
 ) -> HTML:
-    header = HTMLElements.HEAD_TEMPLATE
+    header = templates.HEAD_TEMPLATE
     for placeholder, replacement in [
         ("letzteänderungTimestamp", str(last_change.timestamp())),
         ("letzteaktTimestamp", str(dt.datetime.now(tz).timestamp())),
@@ -42,7 +44,7 @@ def generate_header(
         ),
         (
             "reloadIfRequired",
-            HTMLElements.RELOAD_IF_REQUIRED_FUNCTION if "--debug" not in sys.argv else "",
+            templates.RELOAD_IF_REQUIRED_FUNCTION if "--debug" not in sys.argv else "",
         ),
     ]:
         header = header.replace("{{" + placeholder + "}}", replacement)
@@ -50,11 +52,11 @@ def generate_header(
 
 
 def generate_footer() -> HTML:
-    repo = git.Repo(BASE_PATH)
+    repo = git.Repo(config.BASE_PATH)
     ts = dt.datetime.fromtimestamp(repo.head.commit.committed_date, tz=tz)
     version_information = repo.git.describe("HEAD", tags=True, long=True)
 
-    footer = HTMLElements.FOOTER_TEMPLATE
+    footer = templates.FOOTER_TEMPLATE
     for keyword, replacement in [
         ("gitHash", f"{version_information} ({ts.strftime('%d.%m.%Y')})"),
     ]:
@@ -62,8 +64,8 @@ def generate_footer() -> HTML:
     return footer
 
 
-def create_background_color_div(year: int) -> HTML:
-    color = SetupData.get_color(year, "pale")
+def generate_background_color_div(year: int) -> HTML:
+    color = formatter.get_color(year, "pale")
     return f"""<div class="colorblock" style="background-color: {color}">"""
 
 
@@ -85,10 +87,10 @@ def generate_icon_block(icon: HTML, subject: str, body: str) -> HTML:
 
 def generate_announcement_html(data: list[Announcement]) -> HTML:
     if data:
-        html = "<hr>" + create_background_color_div(0)
+        html = "<hr>" + generate_background_color_div(0)
         for message in data:
             html += generate_icon_block(
-                HTMLElements.ANNOUNCE_ICON,
+                templates.ANNOUNCE_ICON,
                 message.subject.strip(),
                 message.body.strip(),
             )
@@ -98,11 +100,11 @@ def generate_announcement_html(data: list[Announcement]) -> HTML:
 
 
 def generate_error_message() -> HTML:
-    error_warning = create_background_color_div(0)
+    error_warning = generate_background_color_div(0)
     error_warning += generate_icon_block(
-        HTMLElements.WARN_ICON,
+        templates.WARN_ICON,
         "Fehler bei der Datenverarbeitung!",
-        HTMLElements.ERROR_MESSAGE,
+        templates.ERROR_MESSAGE,
     )
     error_warning += "</div><hr>"
     return error_warning

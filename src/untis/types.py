@@ -1,47 +1,95 @@
 from __future__ import annotations
 
-import asyncio
 import datetime as dt
 import re
 from dataclasses import dataclass
-from typing import Self
+from typing import Self, TypedDict
 
-import aiohttp
-
-from base_types import (
+import formatter
+from formatter.types import (
     HTML,
-    RawAnnouncementData,
-    RawTTChange,
-    RawWebUntisData,
-    SchoolClass,
 )
-from content import SetupData
-from formatting import parse_lesson_name, parse_message
-from utils import (
-    HOUR_DATA,
-    strip_html,
-    tz,
-)
+from untis.data import HOUR_DATA
+from untis.parsing import parse_lesson_name, parse_message
+from utils import strip_html, tz
 
 
-class WebUntisManager:
-    url: str
+class RawAnnouncementData(TypedDict):
+    subject: str
+    body: str
 
-    def __init__(self) -> None:
-        self.url = (
-            "https://rist2024.webuntis.com/WebUntis/monitor/substitution/data?school=rist2024"
-        )
 
-    async def get_data(self, session: aiohttp.ClientSession, date: dt.date) -> RawWebUntisData:
-        payload = {"date": int(date.strftime("%Y%m%d"))} | SetupData.BASE_PAYLOAD
-        async with session.post(self.url, json=payload) as r:
-            return (await r.json())["payload"]
+class RawAnnouncementsData(TypedDict):
+    messages: list[RawAnnouncementData]
 
-    async def get_multiple(self, dates: list[dt.date]) -> dict[dt.date, RawWebUntisData]:
-        async with aiohttp.ClientSession() as session:
-            tasks = [self.get_data(session, d) for d in dates]
-            results = await asyncio.gather(*tasks)
-        return dict(zip(dates, results, strict=True))
+
+class RawTTChange(TypedDict):
+    data: tuple[str, str, str, str, str]
+    group: str
+
+
+class RawWebUntisData(TypedDict):
+    date: str
+    rows: list[RawTTChange]
+    messageData: RawAnnouncementsData
+    weekDay: str
+    lastUpdate: str
+
+
+class SchoolHoliday(TypedDict):
+    name: str
+    start: dt.date  # first date at which the message should be shown
+    end: dt.date  # final date at which the message should be shown
+    first_day_after: dt.date  # first day of school after the holidays
+
+
+class SchoolClass:
+    year: int
+    letter: str
+
+    letters_to_year = {"Q2": 13, "Q1": 12, "Ej": 11, "DAZ": 1, "Verw": 99}
+    year_to_letters: dict[int, str] = {year: letter for letter, year in letters_to_year.items()}
+
+    def __init__(self, year: int, letter: str) -> None:
+        self.year = year
+        self.letter = letter
+
+    @classmethod
+    def from_string(cls, data: str) -> Self:
+        match list(data.strip()):
+            case ["Q", "2", _]:
+                year = SchoolClass.letters_to_year["Q2"]
+            case ["Q", "1", _]:
+                year = SchoolClass.letters_to_year["Q1"]
+            case ["E", "j", _]:
+                year = SchoolClass.letters_to_year["Ej"]
+            case ["1", "0", _]:
+                year = 10
+            case [yr, letter]:
+                return cls(int(yr), letter)
+            case ["D", "A", "Z"]:
+                return cls(SchoolClass.letters_to_year["DAZ"], "")
+            case ["V", "e", "r", "w"]:
+                return cls(SchoolClass.letters_to_year["Verw"], "")
+            case _:
+                raise ValueError(f"invalid klasse: '{data}'!")
+        return cls(year, data[-1])
+
+    def to_string(self) -> str:
+        return repr(self)
+
+    def __repr__(self) -> str:
+        if self.year in SchoolClass.year_to_letters:
+            return SchoolClass.year_to_letters[self.year] + self.letter
+        return str(self.year) + self.letter
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, SchoolClass):
+            return self.year == other.year and self.letter == other.letter
+        return False
+
+    def __hash__(self) -> int:
+        return hash(self.letter) ^ hash(str(self.year))
 
 
 @dataclass
@@ -81,6 +129,19 @@ class HourInfo:
 
     def to_sorttuple(self) -> tuple[int, int]:
         return (self.start, self.end)
+
+
+class Announcement:
+    subject: str
+    body: str
+
+    def __init__(self, subject: str, body: str) -> None:
+        self.subject = subject
+        self.body = body
+
+    @classmethod
+    def from_dict(cls, data: RawAnnouncementData) -> Self:
+        return cls(data["subject"], data["body"])
 
 
 @dataclass
@@ -168,6 +229,7 @@ class TimetableChange:
     def repr_stripped(self) -> str:
         return strip_html(self.repr_html())
 
+    # TODO: move into formatting and away from logic
     def repr_html(self) -> HTML:
         out = ""
         hours = self.hours.to_string()
@@ -190,14 +252,14 @@ class TimetableChange:
                 if self.lessonname:
                     if self.originalteacher:
                         if "---" in self.teacher:
-                            out += f"{hours}: {self.lessonname} bei {self.teacher.replace('--- , ', '')} findet <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>ohne {self.originalteacher}</span> statt"  # noqa: E501
+                            out += f"{hours}: {self.lessonname} bei {self.teacher.replace('--- , ', '')} findet <span style='color: {formatter.get_color(self.klasse.year, 'dark')}'>ohne {self.originalteacher}</span> statt"  # noqa: E501
                         else:
-                            out += f"{hours}: {self.lessonname} bei {self.teacher} <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"  # noqa: E501
+                            out += f"{hours}: {self.lessonname} bei {self.teacher} <span style='color: {formatter.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"  # noqa: E501
                     else:
                         out += f"{hours}: {self.lessonname} bei {self.teacher}"
                 else:  # noqa: PLR5501
                     if self.originalteacher:
-                        out += f"{hours} bei {self.teacher} <span style='color: {SetupData.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"  # noqa: E501
+                        out += f"{hours} bei {self.teacher} <span style='color: {formatter.get_color(self.klasse.year, 'dark')}'>statt {self.originalteacher}</span>"  # noqa: E501
                     else:
                         out += f"{hours} bei {self.teacher}"
             else:  # noqa: PLR5501
@@ -210,19 +272,7 @@ class TimetableChange:
         return out
 
 
-class Announcement:
-    subject: str
-    body: str
-
-    def __init__(self, subject: str, body: str) -> None:
-        self.subject = subject
-        self.body = body
-
-    @classmethod
-    def from_dict(cls, data: RawAnnouncementData) -> Self:
-        return cls(data["subject"], data["body"])
-
-
+@dataclass
 class WebUntisData:
     date: dt.date
     changes: list[TimetableChange]

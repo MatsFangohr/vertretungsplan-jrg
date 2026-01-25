@@ -1,7 +1,8 @@
 import pathlib
 import tomllib
 
-from content import BASE_PATH
+BASE_PATH = pathlib.Path(__file__).parent.parent.resolve()
+
 
 config_path = BASE_PATH / "config.toml"
 with config_path.open("rb") as f:
@@ -9,3 +10,4 @@ with config_path.open("rb") as f:
 
 copy_command: str = configdata["copy-to-server-command"]
 target_dir: pathlib.Path = pathlib.Path(configdata["target-dir"])
+cron_specs: list[str] = configdata["cron-specs"]

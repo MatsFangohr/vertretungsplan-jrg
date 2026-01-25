@@ -3,3 +3,6 @@ target-dir = "/my/target/dir"
 
 # WARNING: This is passed directly to `subprocess.run` after writing the files. Leave as an empty string to skip.
 copy-to-server-command = ""
+
+# Cron specs used to determine 'next update time'
+cron-specs = ["*/3 6-8 * * 1-5"]

@@ -4,29 +4,11 @@ import zoneinfo
 
 import croniter
 
-from base_types import HTML, SchoolHoliday
-from content import HOLIDAY_DAYS
+from formatter.types import HTML
+from untis.data import HOLIDAY_DAYS
+from untis.types import SchoolHoliday
 
 tz = zoneinfo.ZoneInfo("Europe/Berlin")
-
-HOUR_DATA = {
-    "0 - 11": ("Ganztägig", 0, 0),
-    "1 - 6": ("1. bis 3. Block", 1, 6),
-    "1 - 9": ("1. bis 4. Block", 1, 9),
-    "1 - 11": ("Ganztägig", 0, 0),
-    "1 - 2": ("1. Block", 1, 2),
-    "3 - 4": ("2. Block", 3, 4),
-    "5 - 6": ("3. Block", 5, 6),
-    "8 - 9": ("4. Block", 8, 9),
-    "10 - 11": ("5. Block", 10, 11),
-    "2 - 11": ("Ab 2. Stunde", 2, 11),
-    "3 - 11": ("Ab 2. Block", 3, 11),
-    "4 - 11": ("Ab 4. Stunde", 4, 11),
-    "5 - 11": ("Ab 3. Block", 5, 11),
-    "6 - 11": ("Ab 6. Stunde", 6, 11),
-    "8 - 11": ("Ab 4. Block", 8, 11),
-    "9 - 11": ("Ab 9. Stunde", 9, 11),
-}
 
 
 def hour_to_name(hour: int) -> str:
