@@ -2,7 +2,9 @@ import datetime as dt
 
 import pytest
 
-from untis.types import HourInfo, RawTTChange, SchoolClass, TimetableChange
+from untis import ttchange_from_row
+from untis.raw_types import RawTTChange
+from untis.types import HourInfo, SchoolClass, TimetableChange
 
 
 @pytest.mark.parametrize(
@@ -101,4 +103,4 @@ def test_ttchange_init_errors():
     ],
 )
 def test_ttchange_from_row(rowdata: RawTTChange, date: dt.date, expected: TimetableChange):
-    assert TimetableChange.from_row(rowdata, date) == expected
+    assert ttchange_from_row(rowdata, date) == expected

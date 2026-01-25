@@ -6,7 +6,7 @@ import datetime as dt
 import aiohttp
 
 from untis.data import BASE_PAYLOAD
-from untis.types import RawWebUntisData
+from untis.raw_types import RawWebUntisData
 
 
 class WebUntisManager:

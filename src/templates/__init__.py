@@ -1,16 +1,17 @@
 # ruff: noqa: E501
 from config import BASE_PATH
-from formatter.types import HTML
+
+type HTML = str
 
 
 def load_js() -> str:
-    path = BASE_PATH / "src" / "page_js_template.js"
+    path = BASE_PATH / "src" / "templates" / "page_js_template.js"
     with path.open(encoding="utf-8") as f:
         return f.read()
 
 
 def load_css() -> str:
-    path = BASE_PATH / "src" / "page_css.css"
+    path = BASE_PATH / "src" / "templates" / "page_css.css"
     with path.open(encoding="utf-8") as f:
         return f.read()
 

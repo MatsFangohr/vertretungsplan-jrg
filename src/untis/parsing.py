@@ -1,9 +1,59 @@
 import datetime as dt
 import re
 
-import untis.data
 from logger import warn
-from utils import get_weekday_str, hour_to_name, is_start_of_block, time_to_hour, tz
+from utils import get_weekday_str, tz
+
+
+def strip_html(data: str) -> str:
+    return re.sub("<[^>]+>", "", data)
+
+
+def hour_to_name(hour: int) -> str:
+    LUT = {
+        1: "1. Block",
+        3: "2. Block",
+        5: "3. Block",
+        8: "4. Block",
+        10: "5. Block",
+        2: "2. Stunde",
+        4: "4. Stunde",
+        6: "6. Stunde",
+        7: "Mittagspause",
+        9: "9. Stunde",
+        11: "11. Stunde",
+        12: "12. Stunde",
+    }
+
+    if hour in LUT:
+        return LUT[hour]
+    else:
+        return f"{hour}. Stunde"
+
+
+def is_start_of_block(hour: int) -> bool:
+    return hour in [1, 3, 5, 8, 10]
+
+
+def time_to_hour(time: dt.time) -> int | None:
+    LUT = {
+        "07:50": 1,
+        "08:35": 2,
+        "09:50": 3,
+        "10:35": 4,
+        "11:50": 5,
+        "12:35": 6,
+        "13:20": 7,
+        "13:35": 7,
+        "14:20": 8,
+        "15:05": 9,
+        "15:50": 10,
+        "16:05": 11,
+        "16:50": 12,
+    }
+
+    time_str = time.strftime("%H:%M")
+    return LUT.get(time_str)
 
 
 def parse_message(message: str, date_of_message: dt.date) -> str:
@@ -77,11 +127,65 @@ def parse_message(message: str, date_of_message: dt.date) -> str:
     return message
 
 
+LESSON_NAMES = {
+    "Mat": "Mathe",
+    "Eng": "Englisch",
+    "Deu": "Deutsch",
+    "Lat": "Latein",
+    "Franz": "Französisch",
+    "Frz": "Französisch",
+    "Phy": "Physik",
+    "Mus": "Musik",
+    "Spo": "Sport",
+    "Che": "Chemie",
+    "Inf": "Informatik",
+    "Sem": "Seminar",
+    "Bio": "Bio",
+    "Geo": "Erdkunde",
+    "Ges": "Geschichte",
+    "förCho": "Chor",
+    "Ita": "Italienisch",
+    "Rel": "Religion",
+    "Kun": "Kunst",
+    "FörKL": "Klassenleitung",
+    "Phi": "Philosophie",
+    "Swi": "Schwimmen",
+    "DSp": "DSP",
+    "WiP": "WiPo",
+    "Men": "Men",
+    "A15": "Schulleitungsrunde",
+    "MusBläs": "Musik (Bläser)",
+    "Lion": "Lion's Quest",
+    "FuP": "Forschen und Präsentieren",
+    "Spa": "Spanisch",
+    "SoRMS": "Schule ohne Rassismus",
+    "kRe": "katholische Religion",
+    "Rob": "Roberta",
+    "ImpThea WPU": "Improtheater",
+    "DaZDEU 5": "DAZ Deutsch",
+    "DaZDEU 6": "DAZ Deutsch",
+    "DaZMAT 5": "DAZ Mathe",
+    "DaZMAT 6": "DAZ Mathe",
+    "DaZ": "DAZ",
+    "Leg": "LRS",
+    "AmM": "Art meets Music",
+    "UuG": "Unternehmen und Gesellschaft",
+    "ELZmo": "Eigenlernzeit",
+    "ELZdi": "Eigenlernzeit",
+    "ELZmi": "Eigenlernzeit",
+    "ELZdo": "Eigenlernzeit",
+    "ELZfr": "Eigenlernzeit",
+    "Textil": "Textiles Werken",
+    "UmuNa": "Umwelt und Nachhaltigkeit",
+    "": "",
+}
+
+
 def parse_lesson_name(name: str) -> str:
     """expands lesson names and returns the short version if not found"""
     stripname = name.strip()
-    if stripname in untis.data.LESSON_NAMES:
-        return untis.data.LESSON_NAMES[stripname]
+    if stripname in LESSON_NAMES:
+        return LESSON_NAMES[stripname]
     else:
         warn(f"can't find lesson name: {name}")
         return stripname

@@ -6,7 +6,7 @@ import git
 import config
 import formatter
 import templates
-from formatter.types import HTML
+from templates import HTML
 from untis.types import Announcement, SchoolClass, SchoolHoliday
 from utils import get_weekday_str, tz
 

@@ -4,12 +4,13 @@ import itertools
 import subprocess
 import sys
 from collections.abc import Iterable
+from typing import TypedDict
 
 import minify_html
 
 import config
+import formatter
 import templates
-import untis.data
 from formatter.generators import (
     generate_announcement_html,
     generate_background_color_div,
@@ -20,18 +21,33 @@ from formatter.generators import (
     generate_title,
     generate_unaffected_classes_div,
 )
-from formatter.types import HTML, HTMLFiles
 from logger import info, warn
-from untis.types import RawWebUntisData, WebUntisData
+from templates import HTML
+from untis import webuntisdata_from_raw
+from untis.data import ALL_CLASSES, HOLIDAY_DAYS
+from untis.raw_types import RawWebUntisData
+from untis.types import SchoolHoliday, WebUntisData
 from untis.web import WebUntisManager
 from utils import (
-    get_holiday_data_from_date,
     get_next_update_time,
     get_soonest_weekday,
     get_weekday_str,
-    is_in_holiday,
     tz,
 )
+
+
+class HTMLFiles(TypedDict):
+    main: HTML
+    about: HTML
+
+
+def is_in_holiday(date: dt.date) -> bool:
+    return date in HOLIDAY_DAYS
+
+
+def get_holiday_data_from_date(date: dt.date) -> SchoolHoliday:
+    """only call if is_in_holiday(date) returns true, will return none otherwise"""
+    return HOLIDAY_DAYS.get(date)  # type: ignore
 
 
 def write_out_and_copy(index_html: HTML, about_html: HTML) -> None:
@@ -116,7 +132,7 @@ class VertretungsplanFormatter:
             return out
 
         affected_classes = {row.klasse for row in changes}
-        unaffected_classes = [c for c in untis.data.ALL_CLASSES if c not in affected_classes]
+        unaffected_classes = [c for c in ALL_CLASSES if c not in affected_classes]
 
         if unaffected_classes and show_unaffected_classes:
             out += "<hr>" + generate_unaffected_classes_div(
@@ -140,7 +156,7 @@ class VertretungsplanFormatter:
                     continue
 
                 for ttchange in cls_changes:
-                    out += ttchange.repr_html() + "<br>"
+                    out += formatter.format_ttchange(ttchange) + "<br>"
 
                 out += "</p>"
             out += "</div>"
@@ -159,7 +175,7 @@ class VertretungsplanFormatter:
 
         for date, raw_data in raw_untis_data.items():
             try:
-                untis_data[date] = WebUntisData.from_raw_data(raw_data)
+                untis_data[date] = webuntisdata_from_raw(raw_data)
             except ValueError as e:
                 warn(str(e))
                 untis_data[date] = WebUntisData(date, [], [], "Montag", dt.datetime.now(tz), True)
