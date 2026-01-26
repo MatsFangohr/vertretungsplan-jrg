@@ -74,13 +74,15 @@ def ttchange_from_row(rowdata: RawTTChange, date: dt.date) -> TimetableChange:
 
     if status.strip() == "Entfall":
         entfall = True
+
     else:
-        entfall = False
         # if status isn't "Entfall" then add it to the end of the message string
         if status.strip() and message.strip():
             message += f" / {status}"
         elif status.strip() and not message.strip():
             message = status
+
+        entfall = ["cancelStyle"] in rowdata["cellClasses"].values()
 
     message = parse_message(message, date)
 

@@ -4,6 +4,8 @@ from untis.types import TimetableChange
 
 
 def format_ttchange(ttchange: TimetableChange) -> HTML:
+    if ttchange.lessonname == "Mathe":
+        x = 5
     out = ""
     hours = ttchange.hours.to_string()
     if ttchange.canceled:
@@ -18,6 +20,8 @@ def format_ttchange(ttchange: TimetableChange) -> HTML:
             else:
                 out += f"{hours}"
         out += " <b>fällt aus</b>"
+        if ttchange.lessonname == "Mathe":
+            x = 5
         if ttchange.message:
             out += f": {ttchange.message}"
     else:

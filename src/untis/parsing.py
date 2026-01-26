@@ -11,7 +11,7 @@ def strip_html(data: str) -> str:
 
 
 def hour_to_name(hour: int) -> str:
-    LUT = {
+    LUT = {  # noqa: N806
         1: "1. Block",
         3: "2. Block",
         5: "3. Block",
@@ -37,7 +37,7 @@ def is_start_of_block(hour: int) -> bool:
 
 
 def time_to_hour(time: dt.time) -> int | None:
-    LUT = {
+    LUT = {  # noqa: N806
         "07:50": 1,
         "08:35": 2,
         "09:50": 3,

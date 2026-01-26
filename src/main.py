@@ -69,7 +69,8 @@ def select_dates() -> list[dt.date]:
 def main() -> None:
     info(f"starting processing at {utils.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
-    untis_data = process_raw_untis_data(WebUntisManager.get_raw_untis_data(select_dates()))
+    raw = WebUntisManager.get_raw_untis_data(select_dates())
+    untis_data = process_raw_untis_data(raw)
 
     last_update = get_last_update_time(untis_data.values())
 

@@ -16,7 +16,7 @@ BASE_PAYLOAD = {
     "formatName": "itslearning",
     "schoolName": "rist2024",
     "dateOffset": 0,
-    "strikethrough": False,
+    "strikethrough": True,
     "mergeBlocks": True,  # leave on
     "showOnlyFutureSub": False,  # show past
     "showBreakSupervisions": False,  # does nothing

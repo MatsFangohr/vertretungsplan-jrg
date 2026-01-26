@@ -13,6 +13,7 @@ class RawAnnouncementsData(TypedDict):
 class RawTTChange(TypedDict):
     data: tuple[str, str, str, str, str]
     group: str
+    cellClasses: dict[str, str]
 
 
 class RawWebUntisData(TypedDict):
