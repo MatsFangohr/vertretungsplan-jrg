@@ -60,7 +60,6 @@ def time_to_hour(time: dt.time) -> int | None:
 def parse_message(message: str, date_of_message: dt.date) -> str:
     stripped_message = message.replace(" ", "").strip()
     COMPLETE_REPLACEMENTS = {  # noqa: N806
-        "AA": "Aufgaben",
         "AA@home": "Aufgaben (zuhause)",
         "Desy": "DESY",
     }
@@ -71,6 +70,7 @@ def parse_message(message: str, date_of_message: dt.date) -> str:
     PARTIAL_REPLACEMENTS = {  # noqa: N806
         "f.a.": "fällt aus",
         "LaaO": "Lernen am anderen Ort",
+        "AA": "Aufgaben",
     }
 
     for keyword, replacement in PARTIAL_REPLACEMENTS.items():
