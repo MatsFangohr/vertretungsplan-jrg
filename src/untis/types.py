@@ -57,6 +57,7 @@ class HourInfo:
     end: int
 
     HOUR_DATA = {
+        "0 - 0": ("Ganztägig", 0, 11),
         "0 - 11": ("Ganztägig", 0, 0),
         "1 - 6": ("1. bis 3. Block", 1, 6),
         "1 - 9": ("1. bis 4. Block", 1, 9),
