@@ -55,7 +55,7 @@ def create_day_div_data(
 
     changes = sorted(
         untis_data.changes,
-        key=lambda r: (-1 * r.klasse.year, r.klasse.letter, r.hours.to_sorttuple()),
+        key=lambda r: (-1 * r.klass.year, r.klass.letter, r.hours.to_sorttuple()),
     )
 
     return DayDivData(
@@ -101,7 +101,7 @@ def generate_day_div(data: DayDivData) -> HTML:
         out += """<hr><span style="display: table; margin: 0 auto; padding: 1rem;">Keine Vertretungen bisher.</span></div>"""  # noqa: E501
         return out
 
-    affected_classes = {row.klasse for row in data.changes}
+    affected_classes = {row.klass for row in data.changes}
     unaffected_classes = [c for c in ALL_CLASSES if c not in affected_classes]
 
     if unaffected_classes and data.show_unaffected_classes:
@@ -109,10 +109,10 @@ def generate_day_div(data: DayDivData) -> HTML:
             unaffected_classes, is_active=data.div_active
         )
 
-    for year, year_changes in itertools.groupby(data.changes, lambda x: x.klasse.year):
+    for year, year_changes in itertools.groupby(data.changes, lambda x: x.klass.year):
         out += f"""<hr>{generate_background_color_div(year)}"""
 
-        for cls, cls_change_gen in itertools.groupby(year_changes, lambda x: x.klasse):
+        for cls, cls_change_gen in itertools.groupby(year_changes, lambda x: x.klass):
             cls_changes = list(cls_change_gen)
             out += "<h2"
             if data.div_active:

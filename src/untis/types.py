@@ -39,7 +39,7 @@ class SchoolClass:
             case ["V", "e", "r", "w"]:
                 return cls(SchoolClass.letters_to_year["Verw"], "")
             case _:
-                raise ValueError(f"invalid klasse: '{data}'!")
+                raise ValueError(f"invalid class: '{data}'!")
         return cls(year, data[-1])
 
     def to_string(self) -> str:
@@ -118,7 +118,7 @@ class Announcement:
 @dataclass
 class TimetableChange:
     date: dt.date
-    klasse: SchoolClass  # affected class
+    klass: SchoolClass  # affected class
     hours: HourInfo  # when does the change take place
     lessonname: str
     teacher: str  # substitute teacher

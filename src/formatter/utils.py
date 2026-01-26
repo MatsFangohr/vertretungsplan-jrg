@@ -15,10 +15,10 @@ def find_active_day(dates: list[dt.date]) -> dt.date:
     return today
 
 
-def get_color(klasse: int, tone: Literal["pale", "dark", "normal", "strong"]) -> str:
+def get_color(klass: int, tone: Literal["pale", "dark", "normal", "strong"]) -> str:
     if tone not in ["pale", "dark"]:
         raise ValueError("unsupported color!")
     if tone == "pale":
-        return f"var(--year-color-{klasse})"
+        return f"var(--year-color-{klass})"
     else:  # tone must be dark
-        return f"var(--year-color-{klasse}-intense)"
+        return f"var(--year-color-{klass}-intense)"

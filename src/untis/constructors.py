@@ -46,13 +46,13 @@ def webuntisdata_from_raw(data: RawWebUntisData) -> WebUntisData:
 
 
 def ttchange_from_row(rowdata: RawTTChange, date: dt.date) -> TimetableChange:
-    klasse = SchoolClass.from_string(rowdata["group"])
+    klass = SchoolClass.from_string(rowdata["group"])
 
     hours_str, lessonname, teacherinfo, status, message = rowdata["data"]
 
     hours = HourInfo.from_webuntis_string(hours_str)
 
-    if klasse == "Verw":
+    if klass == "Verw":
         newteacher = ", ".join(
             filter(
                 lambda teacher: teacher != "",
@@ -73,7 +73,7 @@ def ttchange_from_row(rowdata: RawTTChange, date: dt.date) -> TimetableChange:
         )
 
     if status.strip() == "Entfall":
-        entfall = True
+        lesson_canceled = True
 
     else:
         # if status isn't "Entfall" then add it to the end of the message string
@@ -82,7 +82,7 @@ def ttchange_from_row(rowdata: RawTTChange, date: dt.date) -> TimetableChange:
         elif status.strip() and not message.strip():
             message = status
 
-        entfall = ["cancelStyle"] in rowdata["cellClasses"].values()
+        lesson_canceled = ["cancelStyle"] in rowdata["cellClasses"].values()
 
     message = parse_message(message, date)
 
@@ -93,11 +93,11 @@ def ttchange_from_row(rowdata: RawTTChange, date: dt.date) -> TimetableChange:
 
     return TimetableChange(
         date,
-        klasse,
+        klass,
         hours,
         lessonname,
         newteacher,
         message,
-        entfall,
+        lesson_canceled,
         originalteacher,
     )

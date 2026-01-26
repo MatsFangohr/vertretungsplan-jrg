@@ -190,26 +190,3 @@ def parse_lesson_name(name: str) -> str:
     else:
         warn(f"can't find lesson name: {name}")
         return stripname
-
-
-def parse_klasse(klasse: str) -> tuple[int, str]:
-    """grabs year number and class letter from class name where possible"""
-    year = 0
-    match list(klasse.strip()):
-        case ["Q", "2", _]:
-            year = 13
-        case ["Q", "1", _]:
-            year = 12
-        case ["E", "j", _]:
-            year = 11
-        case ["1", "0", _]:
-            year = 10
-        case [yr, letter]:
-            return (int(yr), letter)
-        case ["D", "A", "Z"]:
-            return (1, "a")
-        case ["V", "e", "r", "w"]:
-            return (99, "a")
-        case _:
-            raise ValueError(f"invalid klasse: '{klasse}'!")
-    return (year, klasse[-1])
