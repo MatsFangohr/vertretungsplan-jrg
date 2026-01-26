@@ -1,0 +1,30 @@
+import datetime as dt
+
+import pytest
+
+from untis.constructors import ttchange_from_row
+from untis.raw_types import RawTTChange
+from untis.types import HourInfo, SchoolClass, TimetableChange
+
+
+@pytest.mark.parametrize(
+    ("rowdata", "date", "expected"),
+    [
+        (
+            {"data": ("1 - 12", "Deutsch", "AB (CD)", "Entfall", "Message"), "group": "Q2c"},
+            dt.date(2026, 3, 1),
+            TimetableChange(
+                dt.date(2026, 3, 1),
+                SchoolClass(13, "c"),
+                HourInfo(1, 12),
+                "Deutsch",
+                "AB",
+                "CD",
+                True,
+                "Message",
+            ),
+        ),
+    ],
+)
+def test_ttchange_from_row(rowdata: RawTTChange, date: dt.date, expected: TimetableChange):
+    assert ttchange_from_row(rowdata, date) == expected

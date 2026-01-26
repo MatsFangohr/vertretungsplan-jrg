@@ -95,40 +95,40 @@ ALL_CLASSES = [
 
 
 SCHOOL_HOLIDAYS: list[SchoolHoliday] = [
-    {
-        "name": "Winterferien",
-        "start": dt.date(2025, 12, 19),
-        "end": dt.date(2026, 1, 6),
-        "first_day_after": dt.date(2026, 1, 7),
-    },
-    {
-        "name": "Osterferien",
-        "start": dt.date(2026, 3, 26),
-        "end": dt.date(2026, 4, 10),
-        "first_day_after": dt.date(2026, 4, 13),
-    },
-    {
-        "name": "Pfingstferien",
-        "start": dt.date(2026, 5, 13),
-        "end": dt.date(2026, 5, 15),
-        "first_day_after": dt.date(2026, 5, 18),
-    },
-    {
-        "name": "Sommerferien",
-        "start": dt.date(2026, 7, 5),
-        "end": dt.date(2026, 8, 15),
-        "first_day_after": dt.date(2026, 8, 17),
-    },
+    SchoolHoliday(
+        name="Winterferien",
+        start=dt.date(2025, 12, 19),
+        end=dt.date(2026, 1, 6),
+        first_day_after=dt.date(2026, 1, 7),
+    ),
+    SchoolHoliday(
+        name="Osterferien",
+        start=dt.date(2026, 3, 26),
+        end=dt.date(2026, 4, 10),
+        first_day_after=dt.date(2026, 4, 13),
+    ),
+    SchoolHoliday(
+        name="Pfingstferien",
+        start=dt.date(2026, 5, 13),
+        end=dt.date(2026, 5, 15),
+        first_day_after=dt.date(2026, 5, 18),
+    ),
+    SchoolHoliday(
+        name="Sommerferien",
+        start=dt.date(2026, 7, 5),
+        end=dt.date(2026, 8, 15),
+        first_day_after=dt.date(2026, 8, 17),
+    ),
 ]
 
 
 HOLIDAY_DAYS: dict[dt.date, SchoolHoliday] = {}
 
 for holiday in SCHOOL_HOLIDAYS:
-    if holiday["end"] < holiday["start"]:
+    if holiday.end < holiday.start:
         raise ValueError("holiday must end after it begins!")
-    current_date = holiday["start"]
-    while current_date <= holiday["end"]:
+    current_date = holiday.start
+    while current_date <= holiday.end:
         if current_date in HOLIDAY_DAYS:
             raise ValueError(f"date {current_date} is part of two holidays!")
         HOLIDAY_DAYS[current_date] = holiday

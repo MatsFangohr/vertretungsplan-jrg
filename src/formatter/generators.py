@@ -111,7 +111,7 @@ def generate_error_message() -> HTML:
 
 
 def generate_holiday_div(holiday: SchoolHoliday) -> HTML:
-    return f"""<hr><span style="display: table; margin: 0 auto; padding: 1rem;">Es sind {holiday["name"]}! Die Schule beginnt am {get_weekday_str(holiday["first_day_after"])}, dem {holiday["first_day_after"].strftime("%d.%m.%Y")} wieder. Wahrscheinlich kann man den Vertretungsplan mit dem Knopf unten schon einsehen.</span>"""  # noqa: E501
+    return f"""<hr><span style="display: table; margin: 0 auto; padding: 1rem;">Es sind {holiday.name}! Die Schule beginnt am {get_weekday_str(holiday.first_day_after)}, dem {holiday.first_day_after.strftime("%d.%m.%Y")} wieder. Wahrscheinlich kann man den Vertretungsplan mit dem Knopf unten schon einsehen.</span>"""  # noqa: E501
 
 
 def generate_unaffected_classes_div(unaffected_classes: list[SchoolClass], is_active: bool) -> HTML:

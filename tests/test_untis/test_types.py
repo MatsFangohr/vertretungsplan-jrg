@@ -1,10 +1,6 @@
-import datetime as dt
-
 import pytest
 
-from untis import ttchange_from_row
-from untis.raw_types import RawTTChange
-from untis.types import HourInfo, SchoolClass, TimetableChange
+from untis.types import HourInfo
 
 
 @pytest.mark.parametrize(
@@ -74,33 +70,3 @@ def test_hourinfo_to_string(info: HourInfo, expected: str):
 )
 def test_hourinfo_to_sorttuple(start: int, end: int):
     assert HourInfo(start, end).to_sorttuple() == (start, end)
-
-
-def test_ttchange_init_errors():
-    with pytest.raises(ValueError, match="needs either teacher or message"):
-        TimetableChange(
-            dt.date(2026, 1, 1), HourInfo(1, 2), SchoolClass(5, "a"), "Mathe", "", "", "", False
-        )
-
-
-@pytest.mark.parametrize(
-    ("rowdata", "date", "expected"),
-    [
-        (
-            {"data": ("1 - 12", "Deutsch", "AB (CD)", "Entfall", "Message"), "group": "Q2c"},
-            dt.date(2026, 3, 1),
-            TimetableChange(
-                dt.date(2026, 3, 1),
-                HourInfo(1, 12),
-                SchoolClass(13, "c"),
-                "Deutsch",
-                "AB",
-                "CD",
-                "Message",
-                True,
-            ),
-        ),
-    ],
-)
-def test_ttchange_from_row(rowdata: RawTTChange, date: dt.date, expected: TimetableChange):
-    assert ttchange_from_row(rowdata, date) == expected

@@ -292,7 +292,7 @@ def select_dates() -> list[dt.date]:
     today = dt.datetime.now(tz).date()
     if is_in_holiday(today):
         tomorrow = today + dt.timedelta(days=1)
-        first_day_after_holidays = get_holiday_data_from_date(today)["first_day_after"]
+        first_day_after_holidays = get_holiday_data_from_date(today).first_day_after
         if not is_in_holiday(tomorrow):
             first_day = max(tomorrow, first_day_after_holidays)
             return [
@@ -304,7 +304,7 @@ def select_dates() -> list[dt.date]:
         candidates = [today + dt.timedelta(days=i) for i in range(7)]
         for i, date in enumerate(candidates):
             if is_in_holiday(date):
-                return [*candidates[: i + 1], get_holiday_data_from_date(date)["first_day_after"]]
+                return [*candidates[: i + 1], get_holiday_data_from_date(date).first_day_after]
         return candidates
 
 

@@ -73,5 +73,12 @@ def ttchange_from_row(rowdata: RawTTChange, date: dt.date) -> TimetableChange:
     lessonname = parse_lesson_name(lessonname)
 
     return TimetableChange(
-        date, hours, klasse, lessonname, newteacher, originalteacher, message, entfall
+        date,
+        klasse,
+        hours,
+        lessonname,
+        newteacher,
+        message,
+        entfall,
+        originalteacher,
     )

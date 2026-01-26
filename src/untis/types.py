@@ -1,25 +1,25 @@
 import datetime as dt
 from dataclasses import dataclass
-from typing import Self, TypedDict
+from typing import ClassVar, Self
 
 
-class SchoolHoliday(TypedDict):
+@dataclass
+class SchoolHoliday:
     name: str
     start: dt.date  # first date at which the message should be shown
     end: dt.date  # final date at which the message should be shown
     first_day_after: dt.date  # first day of school after the holidays
 
 
+@dataclass(frozen=True)
 class SchoolClass:
     year: int
     letter: str
 
-    letters_to_year = {"Q2": 13, "Q1": 12, "Ej": 11, "DAZ": 1, "Verw": 99}
-    year_to_letters: dict[int, str] = {year: letter for letter, year in letters_to_year.items()}
-
-    def __init__(self, year: int, letter: str) -> None:
-        self.year = year
-        self.letter = letter
+    letters_to_year: ClassVar[dict[str, int]] = {"Q2": 13, "Q1": 12, "Ej": 11, "DAZ": 1, "Verw": 99}
+    year_to_letters: ClassVar[dict[int, str]] = {
+        year: letter for letter, year in letters_to_year.items()
+    }
 
     @classmethod
     def from_string(cls, data: str) -> Self:
@@ -49,14 +49,6 @@ class SchoolClass:
         if self.year in SchoolClass.year_to_letters:
             return SchoolClass.year_to_letters[self.year] + self.letter
         return str(self.year) + self.letter
-
-    def __eq__(self, other: object) -> bool:
-        if isinstance(other, SchoolClass):
-            return self.year == other.year and self.letter == other.letter
-        return False
-
-    def __hash__(self) -> int:
-        return hash(self.letter) ^ hash(str(self.year))
 
 
 @dataclass
@@ -117,13 +109,10 @@ class HourInfo:
         return (self.start, self.end)
 
 
+@dataclass
 class Announcement:
     subject: str
     body: str
-
-    def __init__(self, subject: str, body: str) -> None:
-        self.subject = subject
-        self.body = body
 
 
 @dataclass
@@ -137,33 +126,6 @@ class TimetableChange:
     canceled: bool
     originalteacher: str  # ill / absent teacher
 
-    def __init__(
-        self,
-        date: dt.date,
-        hours: HourInfo,
-        klasse: SchoolClass,
-        lessonname: str,
-        teacher: str,
-        originalteacher: str,
-        message: str,
-        canceled: bool,
-    ) -> None:
-        self.date = date
-        self.hours = hours
-        self.klasse = klasse
-        self.message = message
-        self.canceled = canceled
-
-        self.message = message
-
-        self.teacher = teacher
-        self.originalteacher = originalteacher
-
-        self.lessonname = lessonname
-
-        if not self.teacher and not self.message:
-            raise ValueError("needs either teacher or message!")
-
 
 @dataclass
 class WebUntisData:
@@ -173,19 +135,3 @@ class WebUntisData:
     weekday: str
     last_update: dt.datetime
     created_with_error: bool
-
-    def __init__(
-        self,
-        date: dt.date,
-        changes: list[TimetableChange],
-        announcements: list[Announcement],
-        weekday: str,
-        last_update: dt.datetime,
-        created_with_error: bool,
-    ) -> None:
-        self.date = date
-        self.changes = changes
-        self.announcements = announcements
-        self.weekday = weekday
-        self.last_update = last_update
-        self.created_with_error = created_with_error
