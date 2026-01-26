@@ -1,6 +1,7 @@
 import datetime as dt
 import re
 
+import utils
 from logger import warn
 from utils import get_weekday_str, tz
 
@@ -78,11 +79,11 @@ def parse_message(message: str, date_of_message: dt.date) -> str:
     if mat := re.search(r"Verlegung (nach|von) (\d?\d\.\d?\d\.) \/ (\d?\d:\d\d)", message):
         date = (
             dt.datetime.strptime(mat.group(2), "%d.%m.")  # noqa: DTZ007 see two lines below
-            .replace(year=dt.datetime.now(tz).year)
+            .replace(year=utils.now().year)
             .astimezone(tz)
             .date()
         )
-        if date.month == 1 and dt.datetime.now(tz).month == 12:
+        if date.month == 1 and utils.now().month == 12:
             date = date.replace(year=date.year + 1)
 
         time = dt.datetime.strptime(mat.group(3), "%H:%M").time().replace(tzinfo=tz)  # noqa: DTZ007

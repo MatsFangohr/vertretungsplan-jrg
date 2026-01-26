@@ -5,6 +5,7 @@ import datetime as dt
 
 import aiohttp
 
+from logger import info
 from untis.data import BASE_PAYLOAD
 from untis.raw_types import RawWebUntisData
 
@@ -27,3 +28,8 @@ class WebUntisManager:
             tasks = [self.get_data(session, d) for d in dates]
             results = await asyncio.gather(*tasks)
         return dict(zip(dates, results, strict=True))
+
+    @classmethod
+    def get_raw_untis_data(cls, dates: list[dt.date]) -> dict[dt.date, RawWebUntisData]:
+        info("contacting webuntis...")
+        return asyncio.run(cls().get_multiple(dates))

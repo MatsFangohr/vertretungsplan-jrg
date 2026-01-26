@@ -3,6 +3,8 @@ from __future__ import annotations
 import datetime as dt
 import re
 
+import utils
+from logger import warn
 from untis.parsing import parse_lesson_name, parse_message, strip_html
 from untis.raw_types import RawAnnouncementData, RawTTChange, RawWebUntisData
 from untis.types import Announcement, HourInfo, SchoolClass, TimetableChange, WebUntisData
@@ -11,6 +13,21 @@ from utils import tz
 
 def announcement_from_dict(data: RawAnnouncementData) -> Announcement:
     return Announcement(data["subject"], data["body"])
+
+
+def process_raw_untis_data(
+    raw_untis_data: dict[dt.date, RawWebUntisData],
+) -> dict[dt.date, WebUntisData]:
+    clean_data: dict[dt.date, WebUntisData] = {}
+
+    for date, raw_data in raw_untis_data.items():
+        try:
+            clean_data[date] = webuntisdata_from_raw(raw_data)
+        except ValueError as e:
+            warn(str(e))
+            clean_data[date] = WebUntisData(date, [], [], "Montag", utils.now(), True)
+
+    return clean_data
 
 
 def webuntisdata_from_raw(data: RawWebUntisData) -> WebUntisData:

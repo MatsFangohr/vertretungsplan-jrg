@@ -21,8 +21,7 @@ def get_weekday_str(day: int | dt.date | dt.datetime) -> str:
 
 
 def get_soonest_weekday() -> dt.date:
-    today = dt.datetime.now(tz).date()
-    return get_soonest_weekday_to(today)
+    return get_soonest_weekday_to(today())
 
 
 def get_soonest_weekday_to(date: dt.date) -> dt.date:
@@ -43,3 +42,11 @@ def get_next_update_time(cron_specs: list[str], start_time: dt.datetime) -> dt.d
         cron = croniter.croniter(spec, start_time)
         options.append(cron.get_next(dt.datetime))
     return min(options)
+
+
+def now() -> dt.datetime:
+    return dt.datetime.now(tz)
+
+
+def today() -> dt.date:
+    return now().date()

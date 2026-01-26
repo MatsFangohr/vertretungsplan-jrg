@@ -2,6 +2,16 @@ import datetime as dt
 
 from untis.types import SchoolClass, SchoolHoliday
 
+
+def is_in_holiday(date: dt.date) -> bool:
+    return date in HOLIDAY_DAYS
+
+
+def get_holiday_data_from_date(date: dt.date) -> SchoolHoliday:
+    """only call if is_in_holiday(date) returns true, will return none otherwise"""
+    return HOLIDAY_DAYS.get(date)  # type: ignore
+
+
 BASE_PAYLOAD = {
     "formatName": "itslearning",
     "schoolName": "rist2024",

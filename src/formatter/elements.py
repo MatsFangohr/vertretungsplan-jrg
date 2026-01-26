@@ -4,8 +4,9 @@ import sys
 import git
 
 import config
-import formatter
+import formatter.utils
 import templates
+import utils
 from templates import HTML
 from untis.types import Announcement, SchoolClass, SchoolHoliday
 from utils import get_weekday_str, tz
@@ -20,7 +21,7 @@ def generate_title(title: str, letzteaenderung: dt.datetime, next_update: dt.dat
         <div style="container-type: inline-size;">
         <div class="centered-box-div cbd-flex cbd-flex-dynamic status-bar">
             <span class="cbd-flex-item letzte-aenderung">Letzte Änderung: {letzteaenderung.strftime(dt_format)}</span>
-            <span class="cbd-flex-item letzte-aktualisierung">Letzte Akt.: {dt.datetime.now(tz).strftime(dt_format)}</span>
+            <span class="cbd-flex-item letzte-aktualisierung">Letzte Akt.: {utils.now().strftime(dt_format)}</span>
             <span class="cbd-flex-item naechste-aktualisierung">Nächste Akt.: {next_update.strftime(dt_format)}</span>
         </div></div>
     </div>
@@ -35,7 +36,7 @@ def generate_header(
     header = templates.HEAD_TEMPLATE
     for placeholder, replacement in [
         ("letzteänderungTimestamp", str(last_change.timestamp())),
-        ("letzteaktTimestamp", str(dt.datetime.now(tz).timestamp())),
+        ("letzteaktTimestamp", str(utils.now().timestamp())),
         ("nächsteaktTimestamp", str(next_update.timestamp())),
         ("startpage", str(startpage)),
         (
@@ -65,7 +66,7 @@ def generate_footer() -> HTML:
 
 
 def generate_background_color_div(year: int) -> HTML:
-    color = formatter.get_color(year, "pale")
+    color = formatter.utils.get_color(year, "pale")
     return f"""<div class="colorblock" style="background-color: {color}">"""
 
 
