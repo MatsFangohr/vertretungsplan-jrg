@@ -13,11 +13,12 @@ from .firebase import messaging
 
 def send_notification(klass: str, title: str, body: str) -> None:
     message = messaging.Message(
-        notification=messaging.Notification(
-            title=title,
-            body=body,
-        ),
-        webpush=messaging.WebpushConfig(fcm_options=messaging.WebpushFCMOptions(link=f"#{klass}")),
+        data={
+            "title": title,
+            "body": body,
+            "class": klass,
+            "image": "https://vertretungsplan.fangohr.org/favicon256.png",
+        },
         topic=f"class-{klass}",
     )
 

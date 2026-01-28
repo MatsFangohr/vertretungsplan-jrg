@@ -16,6 +16,12 @@ def load_css() -> str:
         return f.read()
 
 
+def load_fcm() -> str:
+    path = BASE_PATH / "src" / "templates" / "fcm.html"
+    with path.open(encoding="utf-8") as f:
+        return f.read()
+
+
 FOOTER_TEMPLATE: HTML = """<footer><div class="centered-box-div" style="padding-top: 0;">
 <span id="gitInfo">running {{gitHash}}</span>
 </div>
@@ -46,23 +52,13 @@ HEAD_TEMPLATE: HTML = (
 <script defer src="https://cloud.umami.is/script.js" data-website-id="02acc140-c615-419c-b909-07dd0e7a36d7"></script>
 <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-messaging-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCjdIkLWB21j44CP88Z1dmbhGGjVEjF7GM",
-    authDomain: "vertretungsplan-ac27a.firebaseapp.com",
-    projectId: "vertretungsplan-ac27a",
-    messagingSenderId: "500049181819",
-    appId: "1:500049181819:web:2a3637c4f27571866636de"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const messaging = firebase.messaging();
-</script>
 <style>"""
     + load_css()
     + """</style>
 <script>"""
     + load_js().replace("{{ ", "{{").replace(" }}", "}}")
     + "</script>"
+    + load_fcm()
     + "</head>"
 )
 
