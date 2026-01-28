@@ -112,6 +112,12 @@ SCHOOL_HOLIDAYS: list[SchoolHoliday] = [
         first_day_after=dt.date(2026, 1, 7),
     ),
     SchoolHoliday(
+        name="Zeugnisferien",
+        start=dt.date(2026, 1, 31),
+        end=dt.date(2026, 2, 3),
+        first_day_after=dt.date(2026, 2, 4),
+    ),
+    SchoolHoliday(
         name="Osterferien",
         start=dt.date(2026, 3, 26),
         end=dt.date(2026, 4, 10),
