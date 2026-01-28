@@ -6,6 +6,7 @@ from collections.abc import Iterable
 import minify_html
 
 import config
+import notifications
 import utils
 from formatter.pages import generate_about_page, generate_index_file
 from logger import info
@@ -16,6 +17,7 @@ from untis.types import WebUntisData
 from untis.web import WebUntisManager
 from utils import (
     get_soonest_weekday,
+    get_soonest_weekday_to,
 )
 
 
@@ -62,7 +64,11 @@ def select_dates() -> list[dt.date]:
         candidates = [today + dt.timedelta(days=i) for i in range(7)]
         for i, date in enumerate(candidates):
             if is_in_holiday(date):
-                return [*candidates[: i + 1], get_holiday_data_from_date(date).first_day_after]
+                return [
+                    *candidates[:i],
+                    get_soonest_weekday_to(date),
+                    get_holiday_data_from_date(date).first_day_after,
+                ]
         return candidates
 
 
@@ -73,6 +79,12 @@ def main() -> None:
     untis_data = process_raw_untis_data(raw)
 
     last_update = get_last_update_time(untis_data.values())
+
+    notification_candidate_messages = []
+    for data in untis_data.values():
+        notification_candidate_messages.extend(data.changes)
+
+    notifications.send_notifications(notification_candidate_messages)
 
     index = generate_index_file(untis_data, last_update)
     about = generate_about_page(last_update)

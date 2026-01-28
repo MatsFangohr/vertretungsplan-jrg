@@ -6,3 +6,5 @@ index.html
 .vscode
 config.toml
 .coverage
+firebaseAdminPk.json
+last_run_changes.json

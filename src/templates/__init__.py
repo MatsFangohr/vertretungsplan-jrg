@@ -26,6 +26,7 @@ FOOTER_TEMPLATE: HTML = """<footer><div class="centered-box-div" style="padding-
 <a href='https://ko-fi.com/K3K71KYTMX' target='_blank'>Kaffee kaufen</a>
 </div></footer>"""
 
+
 HEAD_TEMPLATE: HTML = (
     """<!DOCTYPE html>
 <html lang="de">
@@ -43,14 +44,26 @@ HEAD_TEMPLATE: HTML = (
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
 <script defer src="https://cloud.umami.is/script.js" data-website-id="02acc140-c615-419c-b909-07dd0e7a36d7"></script>
+<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/12.8.0/firebase-messaging-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCjdIkLWB21j44CP88Z1dmbhGGjVEjF7GM",
+    authDomain: "vertretungsplan-ac27a.firebaseapp.com",
+    projectId: "vertretungsplan-ac27a",
+    messagingSenderId: "500049181819",
+    appId: "1:500049181819:web:2a3637c4f27571866636de"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const messaging = firebase.messaging();
+</script>
 <style>"""
     + load_css()
     + """</style>
 <script>"""
     + load_js().replace("{{ ", "{{").replace(" }}", "}}")
-    + """</script>
-</head>
-"""
+    + "</script>"
+    + "</head>"
 )
 
 ERROR_MESSAGE: HTML = """Es kann sein, dass manche Einträge fehlen. Schaut sicherheitshalber bei <a style="color: unset; padding: unset;" href="https://rist2024.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a> nach. Schreibt mir gerne, dann ist der Fehler bald weg. Wahrscheinlich hat WebUntis wieder das Format geändert."""
