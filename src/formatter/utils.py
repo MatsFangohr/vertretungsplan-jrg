@@ -6,8 +6,12 @@ from utils import tz
 
 
 def find_active_day(dates: list[dt.date]) -> dt.date:
+    """Dates list must be sorted ascendingly."""
     today = utils.today()
     tomorrow = today + dt.timedelta(days=1)
+
+    if today.weekday() in [5, 6]:
+        return dates[0]
 
     if (today in dates and tomorrow in dates) or today.weekday() == 4:  # noqa: SIM102
         if utils.now() > dt.datetime.combine(today, dt.time(14, 30), tzinfo=tz):
