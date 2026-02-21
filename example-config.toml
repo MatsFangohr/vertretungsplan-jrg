@@ -1,8 +1,13 @@
-# Directory to write index.html and about.html to
+# Directory to write index.html and about.html to. Use an absolute path like 
+# C:/Users/abcde/my/target/dir on Windows or /home/abcde/my/target/dir on Linux.
 target-dir = "/my/target/dir"
 
-# WARNING: This is passed directly to `subprocess.run` after writing the files. Leave as an empty string to skip.
+# WARNING: This is passed directly to `subprocess.run` after writing the files. Never paste unknown
+# commands here. Leave as an empty string to skip.
+# Intended to be used to copy files to a web server if they are generated elsewhere.
 copy-to-server-command = ""
 
-# Cron specs used to determine 'next update time'
+# Cron specs used to determine 'next update time'. If you list multiple, the script will assume 
+# they are all active and determine the next call time of any of them. If you don't know what cron
+# is, leave this as an empty list and the script will use the current time.
 cron-specs = ["*/3 6-8 * * 1-5"]

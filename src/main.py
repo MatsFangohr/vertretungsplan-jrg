@@ -10,7 +10,7 @@ import utils
 from formatter.pages import generate_about_page, generate_index_file
 from logger import info
 from templates import HTML
-from untis.constructors import process_raw_untis_data
+from untis import process_raw_untis_data
 from untis.data import get_holiday_data_from_date, is_in_holiday
 from untis.types import WebUntisData
 from untis.web import WebUntisManager
@@ -20,6 +20,7 @@ from utils import (
 
 
 def write_out_and_copy(index_html: HTML, about_html: HTML) -> None:
+    """Writes the passed strings as HTML files in the target directory specified in `config.toml`."""
     info("writing out...")
     if "--test" in sys.argv:
         main_path = config.target_dir / "test.html"
@@ -43,10 +44,15 @@ def write_out_and_copy(index_html: HTML, about_html: HTML) -> None:
 
 
 def get_last_update_time(untis_data: Iterable[WebUntisData]) -> dt.datetime:
+    """Returns the latest `last_update` time from passed `untis_data`."""
     return max(data.last_update for data in untis_data)
 
 
 def select_dates() -> list[dt.date]:
+    """Selects the dates for which the data should be fetched. If today is in a holiday, it selects
+    a holiday date and the first day after the holidays. Otherwise, it selects the next 7 days up to
+    a holiday.
+    """
     today = utils.today()
     if is_in_holiday(today):
         tomorrow = today + dt.timedelta(days=1)

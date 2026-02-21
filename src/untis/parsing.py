@@ -33,10 +33,14 @@ def hour_to_name(hour: int) -> str:
 
 
 def is_start_of_block(hour: int) -> bool:
+    """Returns true if the hour is the start of a block (1-2, 3-4, 5-6, 8-9, 10-11)."""
     return hour in [1, 3, 5, 8, 10]
 
 
 def time_to_hour(time: dt.time) -> int | None:
+    """Converts a time to an hour number based on the JRG timetable. Returns None if the time does
+    not correspond to a school hour.
+    """
     LUT = {  # noqa: N806
         "07:50": 1,
         "08:35": 2,
@@ -58,6 +62,9 @@ def time_to_hour(time: dt.time) -> int | None:
 
 
 def parse_message(message: str, date_of_message: dt.date) -> str:
+    """Improves the message string by replacing abbreviations, formatting information and using
+    proper german grammar for better readability.
+    """
     stripped_message = message.replace(" ", "").strip()
     COMPLETE_REPLACEMENTS = {  # noqa: N806
         "AA@home": "Aufgaben (zuhause)",
@@ -183,7 +190,7 @@ LESSON_NAMES = {
 
 
 def parse_lesson_name(name: str) -> str:
-    """expands lesson names and returns the short version if not found"""
+    """Expands lesson names; returns the short version if not found."""
     stripname = name.strip()
     if stripname in LESSON_NAMES:
         return LESSON_NAMES[stripname]

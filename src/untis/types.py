@@ -53,6 +53,14 @@ class SchoolClass:
 
 @dataclass
 class HourInfo:
+    """Represents the hours at which a timetable change takes place.
+
+    For example, "1 - 2" for a change during the first and second hour,
+    or "1 - 6" for a change during the first to sixth hour. If start and
+    end are the same, it represents a single hour (e.g. "3" for the third
+    hour).
+    """
+
     start: int
     end: int
 

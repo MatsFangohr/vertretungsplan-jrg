@@ -18,6 +18,9 @@ def announcement_from_dict(data: RawAnnouncementData) -> Announcement:
 def process_raw_untis_data(
     raw_untis_data: dict[dt.date, RawWebUntisData],
 ) -> dict[dt.date, WebUntisData]:
+    """Converts raw WebUntis data to WebUntisData objects. Catches errors in parsing and sets the
+    WebUntisData's `created_with_error` field to True instead of throwing the error.
+    """
     clean_data: dict[dt.date, WebUntisData] = {}
 
     for date, raw_data in raw_untis_data.items():
@@ -46,6 +49,9 @@ def webuntisdata_from_raw(data: RawWebUntisData) -> WebUntisData:
 
 
 def ttchange_from_row(rowdata: RawTTChange, date: dt.date) -> TimetableChange:
+    """Converts raw data from WebUntis to a TimetableChange object, parsing teacher information and
+    stripping HTML tags.
+    """
     klass = SchoolClass.from_string(rowdata["group"])
 
     hours_str, lessonname, teacherinfo, status, message = rowdata["data"]

@@ -17,21 +17,21 @@ window.addEventListener("hashchange", scrollToClass);
 
 // Setup
 
-let currentPage = {{ startpage }};
+let currentPage = {{ startpage }}; // this will be replaced by python
 const pages = document.getElementsByClassName('daywrapper');
 updateButtons();
 
 // Alerts
 
 function showAlerts() {
-    ; // no alerts currently
+    ; // no alerts to show currently
 }
 
 // Time information
 
-const lastChange = new Date({{ letzteänderungTimestamp }} * 1000);
-const lastUpdate = new Date({{ letzteaktTimestamp }} * 1000);
-const nextUpdate = new Date({{ nächsteaktTimestamp }} * 1000);
+const lastChange = new Date({{ letzteänderungTimestamp }} * 1000); // this will be filled by python
+const lastUpdate = new Date({{ letzteaktTimestamp }} * 1000); // this will be filled by python
+const nextUpdate = new Date({{ nächsteaktTimestamp }} * 1000); // this will be filled by python
 
 function updateLastChangeTime() {
     const lastChangeFields = document.querySelectorAll(".letzte-aenderung");
@@ -173,7 +173,7 @@ function changeTextColorsSingle(tolerance, duration, targetTime, cssClass, targe
 setInterval(changeTextColors, 30 * 1000);
 
 function changeTextColors() {
-    // seconds after which red begins
+    // seconds after which red coloring begins
     const updateTolerance = 12 * 60; // 12m
     const lastChangeTolerance = 62 * 60 * 60; // 62h (>2.5d)
     // seconds after which red is max

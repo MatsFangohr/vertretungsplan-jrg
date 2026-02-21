@@ -1,3 +1,7 @@
+"""Contains various HTML, CSS and JS templates used for generating the page. Doesn't contain any
+logic.
+"""
+
 # ruff: noqa: E501
 from config import BASE_PATH
 

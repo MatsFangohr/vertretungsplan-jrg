@@ -26,6 +26,8 @@ from utils import get_next_update_time, get_weekday_str
 
 @dataclass
 class DayDivData:
+    """Contains all data necessary to generate the <div> for a single day."""
+
     date: dt.date
     changes: list[TimetableChange]
     announcements: list[Announcement]
@@ -74,6 +76,7 @@ def create_day_div_data(
 
 
 def generate_day_div(data: DayDivData) -> HTML:
+    """Contains or calls overall logic to generate the <div> for a single day."""
     date = data.date
 
     announcements = generate_announcement_html(data.announcements)
@@ -141,7 +144,8 @@ def generate_index_file(
 ) -> HTML:
     """Generates the main website file.
 
-    @param dates May not be empty."""
+    `dates` may not be empty.
+    """
     if not untis_data:
         raise ValueError("dates may not be empty!")
 

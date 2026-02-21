@@ -11,6 +11,12 @@ from untis.raw_types import RawWebUntisData
 
 
 class WebUntisManager:
+    """
+    Manager for fetching data from WebUntis.
+    Uses aiohttp to make asynchronous requests to the WebUntis API.
+    Call `get_raw_untis_data` to use.
+    """
+
     url: str
 
     def __init__(self) -> None:

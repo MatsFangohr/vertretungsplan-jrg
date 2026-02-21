@@ -12,7 +12,15 @@ from untis.types import Announcement, SchoolClass, SchoolHoliday
 from utils import get_weekday_str, tz
 
 
-def generate_title(title: str, letzteaenderung: dt.datetime, next_update: dt.datetime) -> HTML:
+def generate_title(title: str, last_change: dt.datetime, next_update: dt.datetime) -> HTML:
+    """Generates the HTML title block.
+
+    `last_change` should be the time intended to be displayed as "Letzte Änderung"
+    `next_update` should be the predicted next update time
+
+    These times are included as static HTML - if the user has JavaScript enabled, they will be
+    updated live with the values passed to the `generate_header` function.
+    """
     dt_format = "%d.%m.%Y, %H:%M"
 
     return f"""<div class="title-block colorblock">
@@ -20,7 +28,7 @@ def generate_title(title: str, letzteaenderung: dt.datetime, next_update: dt.dat
         <h1 style="margin-bottom: 0;">{title}</h1>
         <div style="container-type: inline-size;">
         <div class="centered-box-div cbd-flex cbd-flex-dynamic status-bar">
-            <span class="cbd-flex-item letzte-aenderung">Letzte Änderung: {letzteaenderung.strftime(dt_format)}</span>
+            <span class="cbd-flex-item letzte-aenderung">Letzte Änderung: {last_change.strftime(dt_format)}</span>
             <span class="cbd-flex-item letzte-aktualisierung">Letzte Akt.: {utils.now().strftime(dt_format)}</span>
             <span class="cbd-flex-item naechste-aktualisierung">Nächste Akt.: {next_update.strftime(dt_format)}</span>
         </div></div>
@@ -33,6 +41,16 @@ def generate_header(
     last_change: dt.datetime,
     next_update: dt.datetime,
 ) -> HTML:
+    """Generates the HTML header.
+
+    `startpage` should be the 0-indexed number of the currently 'active' page. Page change buttons
+    may not work correctly if set incorrectly.
+    `last_change` should be the time intended to be displayed as "Letzte Änderung"
+    `next_update` should be the predicted next update time
+
+    These times will not be visible to users without JavaScript, but will be updated as a relative
+    time (e.g. "vor 5 Minuten") by the page JavaScript.
+    """
     header = templates.HEAD_TEMPLATE
     for placeholder, replacement in [
         ("letzteänderungTimestamp", str(last_change.timestamp())),
@@ -53,6 +71,9 @@ def generate_header(
 
 
 def generate_footer() -> HTML:
+    """Generates the HTML footer, including git version information. May throw errors if git
+    information can't be found.
+    """
     repo = git.Repo(config.BASE_PATH)
     ts = dt.datetime.fromtimestamp(repo.head.commit.committed_date, tz=tz)
     version_information = repo.git.describe("HEAD", tags=True, long=True)
@@ -70,7 +91,7 @@ def generate_background_color_div(year: int) -> HTML:
     return f"""<div class="colorblock" style="background-color: {color}">"""
 
 
-def generate_icon_block(icon: HTML, subject: str, body: str) -> HTML:
+def generate_single_announce_block(icon: HTML, subject: str, body: str) -> HTML:
     html = f"""<div class="announcement">{icon}<div class="announce-text">"""
     if subject and body:
         html += f"<h3>{subject}</h3><p>{body}</p>"
@@ -90,7 +111,7 @@ def generate_announcement_html(data: list[Announcement]) -> HTML:
     if data:
         html = "<hr>" + generate_background_color_div(0)
         for message in data:
-            html += generate_icon_block(
+            html += generate_single_announce_block(
                 templates.ANNOUNCE_ICON,
                 message.subject.strip(),
                 message.body.strip(),
@@ -102,7 +123,7 @@ def generate_announcement_html(data: list[Announcement]) -> HTML:
 
 def generate_error_message() -> HTML:
     error_warning = generate_background_color_div(0)
-    error_warning += generate_icon_block(
+    error_warning += generate_single_announce_block(
         templates.WARN_ICON,
         "Fehler bei der Datenverarbeitung!",
         templates.ERROR_MESSAGE,

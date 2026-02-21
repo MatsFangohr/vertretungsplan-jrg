@@ -37,6 +37,11 @@ def get_soonest_weekday_to(date: dt.date) -> dt.date:
 
 
 def get_next_update_time(cron_specs: list[str], start_time: dt.datetime) -> dt.datetime:
+    """Parses given cron specifications and (assuming they are all active) returns the next time one
+    will be called.
+    """
+    if not cron_specs:
+        return now()
     options = []
     for spec in cron_specs:
         cron = croniter.croniter(spec, start_time)
@@ -45,8 +50,10 @@ def get_next_update_time(cron_specs: list[str], start_time: dt.datetime) -> dt.d
 
 
 def now() -> dt.datetime:
+    """Returns a timezone-aware datetime.now() object in the Europe/Berlin timezone."""
     return dt.datetime.now(tz)
 
 
 def today() -> dt.date:
+    """Returns a timezone-aware date.today() object in the Europe/Berlin timezone."""
     return now().date()

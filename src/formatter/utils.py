@@ -6,7 +6,12 @@ from utils import tz
 
 
 def find_active_day(dates: list[dt.date]) -> dt.date:
-    """Dates list must be sorted ascendingly."""
+    """Using current date and time, determines which date should be shown on page load from the
+    given options.
+
+    Will return `dates[0]` if today is a weekend, sorting `dates` ascendingly is recommended
+    accordingly.
+    """
     today = utils.today()
     tomorrow = today + dt.timedelta(days=1)
 
