@@ -2,11 +2,14 @@ import datetime as dt
 
 import pytest
 
-from untis.constructors import strip_html
 from untis.parsing import (
-    get_weekday_str,
+    LESSON_NAMES,
+    _parse_message_substitutions,
+    _parse_message_verlegungen,
     hour_to_name,
     is_start_of_block,
+    parse_lesson_name,
+    strip_html,
     time_to_hour,
 )
 
@@ -92,30 +95,46 @@ def test_time_to_hour(time: dt.time, expected: int | None):
 
 
 @pytest.mark.parametrize(
-    ("day", "expected"),
+    ("msg", "expected"),
     [
-        (0, "Montag"),
-        (1, "Dienstag"),
-        (2, "Mittwoch"),
-        (3, "Donnerstag"),
-        (4, "Freitag"),
-        (5, "Samstag"),
-        (6, "Sonntag"),
-        (dt.date(2026, 3, 2), "Montag"),
-        (dt.date(2026, 3, 3), "Dienstag"),
-        (dt.date(2026, 3, 4), "Mittwoch"),
-        (dt.date(2026, 3, 5), "Donnerstag"),
-        (dt.date(2026, 3, 6), "Freitag"),
-        (dt.date(2026, 3, 7), "Samstag"),
-        (dt.date(2026, 3, 8), "Sonntag"),
-        (dt.datetime(2026, 3, 9, 00, 00), "Montag"),
-        (dt.datetime(2026, 3, 10, 23, 59), "Dienstag"),
-        (dt.datetime(2026, 3, 11, 12, 00), "Mittwoch"),
-        (dt.datetime(2026, 3, 12, 7, 50), "Donnerstag"),
-        (dt.datetime(2026, 3, 13, 13, 20), "Freitag"),
-        (dt.datetime(2026, 3, 14, 14, 20), "Samstag"),
-        (dt.datetime(2026, 3, 15, 15, 50), "Sonntag"),
+        ("AA @ home", "Aufgaben (zuhause)"),
+        ("Desy ", "DESY"),
+        ("letzte Stunde f.a.", "letzte Stunde fällt aus"),
+        ("3. Block LaaO", "3. Block Lernen am anderen Ort"),
+        ("AA zuhause", "Aufgaben zuhause"),
     ],
 )
-def test_get_weekday_str(day: int | dt.date | dt.datetime, expected: str):
-    assert get_weekday_str(day) == expected
+def test_parse_message_substitutions(msg: str, expected: str):
+    assert _parse_message_substitutions(msg) == expected
+
+
+@pytest.mark.parametrize(
+    ("msg", "date", "expected"),
+    [
+        ("Verlegung von 23.2. / 7:50", dt.date(2026, 2, 23), "Verlegung aus dem 1. Block"),
+        (
+            "Verlegung von 23.2. / 7:50",
+            dt.date(2026, 2, 19),
+            "Verlegung aus dem 1. Block vom Montag, 23.02.2026",
+        ),
+        ("Verlegung von 21.5. / 14:20", dt.date(2026, 5, 21), "Verlegung aus dem 4. Block"),
+        (
+            "Verlegung von 21.5. / 14:20",
+            dt.date(2026, 5, 20),
+            "Verlegung aus dem 4. Block vom Donnerstag, 21.05.2026",
+        ),
+        ("Verlegung nach 9.6. / 12:35", dt.date(2026, 6, 9), "Verlegt in die 6. Stunde"),
+        (
+            "Verlegung nach 9.6. / 12:35",
+            dt.date(2026, 6, 8),
+            "Verlegt auf Dienstag, 09.06.2026 in der 6. Stunde",
+        ),
+    ],
+)
+def test_parse_message_verlegungen(msg: str, date: dt.date, expected: str):
+    assert _parse_message_verlegungen(msg, date) == expected
+
+
+@pytest.mark.parametrize(("name", "expected"), [*list(LESSON_NAMES.items()), ("Test", "Test")])
+def test_parse_lesson_name(name: str, expected: str):
+    assert parse_lesson_name(name) == expected
