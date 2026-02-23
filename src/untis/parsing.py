@@ -61,18 +61,15 @@ def time_to_hour(time: dt.time) -> int | None:
     return LUT.get(time_str)
 
 
-def parse_message(message: str, date_of_message: dt.date) -> str:
-    """Improves the message string by replacing abbreviations, formatting information and using
-    proper german grammar for better readability.
-    """
-    stripped_message = message.replace(" ", "").strip()
+def _parse_message_substitutions(msg: str) -> str:
+    stripped_msg = msg.replace(" ", "").strip()
     COMPLETE_REPLACEMENTS = {  # noqa: N806
         "AA@home": "Aufgaben (zuhause)",
         "Desy": "DESY",
     }
 
-    if stripped_message in COMPLETE_REPLACEMENTS:
-        message = COMPLETE_REPLACEMENTS[stripped_message]
+    if stripped_msg in COMPLETE_REPLACEMENTS:
+        msg = COMPLETE_REPLACEMENTS[stripped_msg]
 
     PARTIAL_REPLACEMENTS = {  # noqa: N806
         "f.a.": "fällt aus",
@@ -81,12 +78,14 @@ def parse_message(message: str, date_of_message: dt.date) -> str:
     }
 
     for keyword, replacement in PARTIAL_REPLACEMENTS.items():
-        message = message.replace(keyword, replacement)
+        msg = msg.replace(keyword, replacement)
+    return msg
 
+
+def _parse_message_verlegungen(message: str, date_of_message: dt.date) -> str:
     if mat := re.search(r"Verlegung (nach|von) (\d?\d\.\d?\d\.) \/ (\d?\d:\d\d)", message):
         date = (
-            dt.datetime.strptime(mat.group(2), "%d.%m.")  # noqa: DTZ007 see two lines below
-            .replace(year=utils.now().year)
+            dt.datetime.strptime(mat.group(2) + str(utils.now().year), "%d.%m.%Y")
             .astimezone(tz)
             .date()
         )
@@ -133,6 +132,17 @@ def parse_message(message: str, date_of_message: dt.date) -> str:
 
         message = message.replace(mat.group(0), improved)
     return message
+
+
+def parse_message(message: str, date_of_message: dt.date) -> str:
+    """Improves the message string by replacing abbreviations, formatting information and using
+    proper german grammar for better readability.
+    """
+
+    return _parse_message_verlegungen(
+        _parse_message_substitutions(message),
+        date_of_message,
+    )
 
 
 LESSON_NAMES = {

@@ -7,6 +7,7 @@ tz = zoneinfo.ZoneInfo("Europe/Berlin")
 
 
 def get_weekday_str(day: int | dt.date | dt.datetime) -> str:
+    """Returns the German name of the given weekday (0-6 or a date/datetime object)."""
     if isinstance(day, (dt.date, dt.datetime)):
         day = day.weekday()
     return {
@@ -38,10 +39,11 @@ def get_soonest_weekday_to(date: dt.date) -> dt.date:
 
 def get_next_update_time(cron_specs: list[str], start_time: dt.datetime) -> dt.datetime:
     """Parses given cron specifications and (assuming they are all active) returns the next time one
-    will be called.
+    will be called. If an empty list is passed, returns the given start_time.
     """
     if not cron_specs:
-        return now()
+        return start_time
+
     options = []
     for spec in cron_specs:
         cron = croniter.croniter(spec, start_time)

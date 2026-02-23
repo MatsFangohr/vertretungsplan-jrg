@@ -8,8 +8,10 @@ def is_in_holiday(date: dt.date) -> bool:
 
 
 def get_holiday_data_from_date(date: dt.date) -> SchoolHoliday:
-    """Only call if `is_in_holiday(date)`, will return None otherwise."""
-    return HOLIDAY_DAYS.get(date)  # type: ignore
+    """Only call if `is_in_holiday(date)`, will throw a ValueError otherwise."""
+    if date in HOLIDAY_DAYS:
+        return HOLIDAY_DAYS[date]
+    raise ValueError(f"date {date} is not in a holiday!")
 
 
 BASE_PAYLOAD = {
