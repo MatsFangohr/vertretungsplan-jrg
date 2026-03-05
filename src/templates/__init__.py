@@ -28,6 +28,7 @@ FOOTER_TEMPLATE: HTML = f"""<footer><div class="centered-box-div" style="padding
 <a href="/about">About</a>
 <a href="/">Home</a>
 <a href="{config.untis_url}">WebUntis</a>
+<a href="https://github.com/MatsFangohr/vertretungsplan-jrg">Quellcode</a>
 </div></footer>"""
 
 HEAD_TEMPLATE: HTML = (
