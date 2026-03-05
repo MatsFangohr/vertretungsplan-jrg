@@ -37,7 +37,7 @@ HEAD_TEMPLATE: HTML = (
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<meta name="description" content="Ein besserer Vertretungsplan für das Johann-Rist-Gymnasium.">
+<meta name="description" content="Ein besserer Vertretungsplan für das JRG.">
 <meta name="author" content="Mats Fangohr">
 <title>{{title}}</title>
 <link rel="canonical" href="https://vertretungsplan.fangohr.org"/>
