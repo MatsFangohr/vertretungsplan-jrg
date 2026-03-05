@@ -3,6 +3,7 @@ logic.
 """
 
 # ruff: noqa: E501
+import config
 from config import BASE_PATH
 
 type HTML = str
@@ -20,14 +21,13 @@ def load_css() -> str:
         return f.read()
 
 
-FOOTER_TEMPLATE: HTML = """<footer><div class="centered-box-div" style="padding-top: 0;">
-<span id="gitInfo">running {{gitHash}}</span>
+FOOTER_TEMPLATE: HTML = f"""<footer><div class="centered-box-div" style="padding-top: 0;">
+<span id="gitInfo">running {{{{gitHash}}}}</span>
 </div>
 <div class="centered-box-div cbd-flex">
 <a href="/about">About</a>
 <a href="/">Home</a>
-<a href="https://rist2024.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a>
-<a href='https://ko-fi.com/K3K71KYTMX' target='_blank'>Kaffee kaufen</a>
+<a href="{config.untis_url}">WebUntis</a>
 </div></footer>"""
 
 HEAD_TEMPLATE: HTML = (
@@ -57,7 +57,7 @@ HEAD_TEMPLATE: HTML = (
 """
 )
 
-ERROR_MESSAGE: HTML = """Es kann sein, dass manche Einträge fehlen. Schaut sicherheitshalber bei <a style="color: unset; padding: unset;" href="https://rist2024.webuntis.com/WebUntis/monitor?school=rist2024&monitorType=subst&format=itslearning">WebUntis</a> nach. Schreibt mir gerne, dann ist der Fehler bald weg. Wahrscheinlich hat WebUntis wieder das Format geändert."""
+ERROR_MESSAGE: HTML = f"""Es kann sein, dass manche Einträge fehlen. Schaut sicherheitshalber bei <a style="color: unset; padding: unset;" href="{config.untis_url}">WebUntis</a> nach. Schreibt mir gerne, dann ist der Fehler bald weg. Wahrscheinlich hat WebUntis wieder das Format geändert."""
 
 RELOAD_IF_REQUIRED_FUNCTION: HTML = """
 const pageLoadDate = new Date();

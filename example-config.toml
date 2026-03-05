@@ -11,3 +11,12 @@ copy-to-server-command = ""
 # they are all active and determine the next call time of any of them. If you don't know what cron
 # is, leave this as an empty list and the script will use the current time.
 cron-specs = ["*/3 6-8 * * 1-5"]
+
+# URL to the 'usual' substitution plan page. Used only for the link in the page footer. You may only
+# need to change the subdomain and schoolname parts.
+untis-url = "https://subdomain.webuntis.com/WebUntis/monitor?school=schoolname"
+
+# URL to the API endpoint that returns the substitution plan data. You may only need to change the 
+# subdomain and schoolname parts. You may need to grab this URL from your browser's network 
+# inspector while loading the substitution plan page.
+untis-api-url = "https://subdomain.webuntis.com/WebUntis/monitor/substitution/data?school=schoolname"
