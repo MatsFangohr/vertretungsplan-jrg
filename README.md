@@ -8,6 +8,9 @@ When run, it will
 
 If the demo is running, you can see a dummy output [here](https://vertretungsplan.fangohr.org).
 
+## Intention
+This project is open-source mostly as a showcase. If you intend to build something similar for your own school, you'll have to either write it from scrach or (not recommended) fork this project and make significant changes - especially if the Untis versions return different information. I didn't build this with cross-school-configurability in mind and while most parts of the project are fine, some things should have been refactored a while ago.
+
 ## Configuration
 Make a copy of `example-config.toml` and rename it to `config.toml`. Adjust the parameters as you wish according to the comments provided.
 
