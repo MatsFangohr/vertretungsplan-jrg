@@ -20,7 +20,7 @@ from utils import (
 
 
 def write_out_and_copy(index_html: HTML, about_html: HTML) -> None:
-    """Writes the passed strings as HTML files in the target directory specified in `config.toml`."""
+    """Writes the passed strings as HTML files in the target directory from `config.toml`."""
     info("writing out...")
     if "--test" in sys.argv:
         main_path = config.target_dir / "test.html"
