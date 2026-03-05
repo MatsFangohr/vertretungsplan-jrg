@@ -1,5 +1,6 @@
 import datetime as dt
 import zoneinfo
+from collections.abc import Iterable
 
 import croniter
 
@@ -37,7 +38,7 @@ def get_soonest_weekday_to(date: dt.date) -> dt.date:
     }[date.weekday()]
 
 
-def get_next_update_time(cron_specs: list[str], start_time: dt.datetime) -> dt.datetime:
+def get_next_update_time(cron_specs: Iterable[str], start_time: dt.datetime) -> dt.datetime:
     """Parses given cron specifications and (assuming they are all active) returns the next time one
     will be called. If an empty list is passed, returns the given start_time.
     """

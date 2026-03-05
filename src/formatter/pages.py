@@ -152,11 +152,12 @@ def generate_index_file(
     day_divs: list[HTML] = []
     """Contains the html <divs>, one for each day."""
 
-    # strip weekends
     dates = [date for date in untis_data if date.weekday() <= 4]
 
     # determine active page
-    active_day = find_active_day(dates)
+    active_day = find_active_day(untis_data.keys(), utils.now())
+    if not active_day:
+        raise ValueError("no active day could be found from given dates!")
 
     next_update_time = get_next_update_time(config.cron_specs, utils.now()) + dt.timedelta(
         seconds=8

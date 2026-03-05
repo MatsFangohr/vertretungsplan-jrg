@@ -1,5 +1,6 @@
 import datetime as dt
 import sys
+from collections.abc import Iterable
 
 import git
 
@@ -107,7 +108,7 @@ def generate_single_announce_block(icon: HTML, subject: str, body: str) -> HTML:
     return html
 
 
-def generate_announcement_html(data: list[Announcement]) -> HTML:
+def generate_announcement_html(data: Iterable[Announcement]) -> HTML:
     if data:
         html = "<hr>" + generate_background_color_div(0)
         for message in data:
