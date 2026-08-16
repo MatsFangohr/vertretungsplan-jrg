@@ -1,6 +1,12 @@
 import datetime as dt
 from dataclasses import dataclass
+from enum import Enum
 from typing import ClassVar, Self
+
+
+class ParseError(Enum):
+    MISSING_PAYLOAD = 0
+    GENERIC_PARSE_ERROR = 1
 
 
 @dataclass
@@ -143,4 +149,4 @@ class WebUntisData:
     announcements: list[Announcement]
     weekday: str
     last_update: dt.datetime
-    created_with_error: bool
+    created_with_error: ParseError | None

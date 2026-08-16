@@ -60,6 +60,8 @@ HEAD_TEMPLATE: HTML = (
 
 ERROR_MESSAGE: HTML = f"""Es kann sein, dass manche Einträge fehlen. Schaut sicherheitshalber bei <a style="color: unset; padding: unset;" href="{config.untis_url}">WebUntis</a> nach. Schreibt mir gerne, dann ist der Fehler bald weg. Wahrscheinlich hat WebUntis wieder das Format geändert."""
 
+PAYLOAD_ERROR_MESSAGE = """Das heißt meistens, dass WebUntis gerade Probleme hat. Wenn der normale Vertretungsplan wie gewohnt funktioniert, dann ist dieser Plan schuld; schreibt mir mal."""
+
 RELOAD_IF_REQUIRED_FUNCTION: HTML = """
 const pageLoadDate = new Date();
 function reloadIfRequired() {

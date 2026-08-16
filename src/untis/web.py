@@ -8,7 +8,7 @@ import aiohttp
 import config
 from logger import info
 from untis.data import BASE_PAYLOAD
-from untis.raw_types import RawWebUntisData
+from untis.raw_types import PackedRawWebUntisData
 
 
 class WebUntisManager:
@@ -18,18 +18,20 @@ class WebUntisManager:
     Call `get_raw_untis_data` to use.
     """
 
-    async def get_data(self, session: aiohttp.ClientSession, date: dt.date) -> RawWebUntisData:
+    async def get_data(
+        self, session: aiohttp.ClientSession, date: dt.date
+    ) -> PackedRawWebUntisData:
         payload = {"date": int(date.strftime("%Y%m%d"))} | BASE_PAYLOAD
         async with session.post(config.api_url, json=payload) as r:
-            return (await r.json())["payload"]
+            return await r.json()
 
-    async def get_multiple(self, dates: list[dt.date]) -> dict[dt.date, RawWebUntisData]:
+    async def get_multiple(self, dates: list[dt.date]) -> dict[dt.date, PackedRawWebUntisData]:
         async with aiohttp.ClientSession() as session:
             tasks = [self.get_data(session, d) for d in dates]
             results = await asyncio.gather(*tasks)
         return dict(zip(dates, results, strict=True))
 
     @classmethod
-    def get_raw_untis_data(cls, dates: list[dt.date]) -> dict[dt.date, RawWebUntisData]:
+    def get_raw_untis_data(cls, dates: list[dt.date]) -> dict[dt.date, PackedRawWebUntisData]:
         info("contacting webuntis...")
         return asyncio.run(cls().get_multiple(dates))

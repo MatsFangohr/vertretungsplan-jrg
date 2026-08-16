@@ -22,3 +22,7 @@ class RawWebUntisData(TypedDict):
     messageData: RawAnnouncementsData
     weekDay: str
     lastUpdate: str
+
+
+class PackedRawWebUntisData(TypedDict):
+    payload: RawWebUntisData

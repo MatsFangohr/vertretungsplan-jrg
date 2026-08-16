@@ -133,6 +133,17 @@ def generate_error_message() -> HTML:
     return error_warning
 
 
+def generate_payload_missing_error_message() -> HTML:
+    error_warning = generate_background_color_div(0)
+    error_warning += generate_single_announce_block(
+        templates.WARN_ICON,
+        "Fehler beim Datenabruf!",
+        templates.PAYLOAD_ERROR_MESSAGE,
+    )
+    error_warning += "</div><hr>"
+    return error_warning
+
+
 def generate_holiday_div(holiday: SchoolHoliday) -> HTML:
     return f"""<hr><span style="display: table; margin: 0 auto; padding: 1rem;">Es sind {holiday.name}! Die Schule beginnt am {get_weekday_str(holiday.first_day_after)}, dem {holiday.first_day_after.strftime("%d.%m.%Y")} wieder. Wahrscheinlich kann man den Vertretungsplan mit dem Knopf unten schon einsehen.</span>"""  # noqa: E501
 

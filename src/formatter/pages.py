@@ -13,6 +13,7 @@ from formatter.elements import (
     generate_footer,
     generate_header,
     generate_holiday_div,
+    generate_payload_missing_error_message,
     generate_title,
     generate_unaffected_classes_div,
 )
@@ -20,7 +21,7 @@ from formatter.utils import find_active_day
 from logger import info
 from templates import HTML
 from untis.data import ALL_CLASSES, get_holiday_data_from_date, is_in_holiday
-from untis.types import Announcement, TimetableChange, WebUntisData
+from untis.types import Announcement, ParseError, TimetableChange, WebUntisData
 from utils import get_next_update_time, get_weekday_str
 
 
@@ -33,7 +34,7 @@ class DayDivData:
     announcements: list[Announcement]
     div_active: bool
     show_unaffected_classes: bool
-    encountered_parse_error: bool
+    encountered_parse_error: ParseError | None
     last_update: dt.datetime
     next_update: dt.datetime
     div_id: str
@@ -45,7 +46,7 @@ def create_day_div_data(
     date: dt.date,
     untis_data: WebUntisData,
     date_of_active_div: dt.date,
-    encountered_parse_error: bool,
+    encountered_parse_error: ParseError | None,
     last_update: dt.datetime,
     next_update: dt.datetime,
     div_id: str,
@@ -90,7 +91,10 @@ def generate_day_div(data: DayDivData) -> HTML:
     if data.is_valid:
         out += announcements
         if data.encountered_parse_error:
-            out += generate_error_message()
+            if data.encountered_parse_error == ParseError.MISSING_PAYLOAD:
+                out += generate_payload_missing_error_message()
+            elif data.encountered_parse_error == ParseError.GENERIC_PARSE_ERROR:
+                out += generate_error_message()
     else:
         if is_in_holiday(date):
             holiday = get_holiday_data_from_date(date)

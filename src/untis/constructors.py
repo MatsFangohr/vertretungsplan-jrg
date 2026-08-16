@@ -6,8 +6,15 @@ import re
 import utils
 from logger import warn
 from untis.parsing import parse_lesson_name, parse_message, strip_html
-from untis.raw_types import RawAnnouncementData, RawTTChange, RawWebUntisData
-from untis.types import Announcement, HourInfo, SchoolClass, TimetableChange, WebUntisData
+from untis.raw_types import PackedRawWebUntisData, RawAnnouncementData, RawTTChange
+from untis.types import (
+    Announcement,
+    HourInfo,
+    ParseError,
+    SchoolClass,
+    TimetableChange,
+    WebUntisData,
+)
 from utils import tz
 
 
@@ -16,24 +23,30 @@ def announcement_from_dict(data: RawAnnouncementData) -> Announcement:
 
 
 def process_raw_untis_data(
-    raw_untis_data: dict[dt.date, RawWebUntisData],
+    raw_untis_data: dict[dt.date, PackedRawWebUntisData],
 ) -> dict[dt.date, WebUntisData]:
     """Converts raw WebUntis data to WebUntisData objects. Catches errors in parsing and sets the
-    WebUntisData's `created_with_error` field to True instead of throwing the error.
+    WebUntisData's `created_with_error` field to an instance of ParseError instead of throwing the
+    error.
     """
     clean_data: dict[dt.date, WebUntisData] = {}
 
     for date, raw_data in raw_untis_data.items():
         try:
             clean_data[date] = webuntisdata_from_raw(raw_data)
-        except ValueError as e:
+        except (KeyError, ValueError) as e:
             warn(str(e))
-            clean_data[date] = WebUntisData(date, [], [], "Montag", utils.now(), True)
+            if isinstance(e, KeyError) and "payload" in str(e):
+                error_type = ParseError.MISSING_PAYLOAD
+            else:
+                error_type = ParseError.GENERIC_PARSE_ERROR
+            clean_data[date] = WebUntisData(date, [], [], "Montag", utils.now(), error_type)
 
     return clean_data
 
 
-def webuntisdata_from_raw(data: RawWebUntisData) -> WebUntisData:
+def webuntisdata_from_raw(packed_data: PackedRawWebUntisData) -> WebUntisData:
+    data = packed_data["payload"]
     date = dt.datetime.strptime(str(data["date"]), "%Y%m%d").astimezone(tz).date()
     ttchanges = [ttchange_from_row(row, date) for row in data["rows"]]
     announcements = list(map(announcement_from_dict, data["messageData"]["messages"]))
@@ -44,7 +57,7 @@ def webuntisdata_from_raw(data: RawWebUntisData) -> WebUntisData:
         announcements=announcements,
         weekday=data["weekDay"],
         last_update=dt.datetime.strptime(data["lastUpdate"], "%d.%m.%Y %H:%M:%S").astimezone(tz),
-        created_with_error=False,
+        created_with_error=None,
     )
 
 
@@ -61,7 +74,7 @@ def ttchange_from_row(rowdata: RawTTChange, date: dt.date) -> TimetableChange:
     if klass == "Verw":
         newteacher = ", ".join(
             filter(
-                lambda teacher: teacher != "",
+                lambda teacher: teacher != "",  # type: ignore
                 re.sub(
                     "\\([^)]+\\)",
                     "",
