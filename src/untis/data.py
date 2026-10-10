@@ -141,6 +141,42 @@ SCHOOL_HOLIDAYS: list[SchoolHoliday] = [
         end=dt.date(2026, 8, 15),
         first_day_after=dt.date(2026, 8, 17),
     ),
+    SchoolHoliday(
+        name="Herbstferien",
+        start=dt.date(2026, 10, 10),
+        end=dt.date(2026, 10, 24),
+        first_day_after=dt.date(2026, 10, 26),
+    ),
+    SchoolHoliday(
+        name="Winterferien",
+        start=dt.date(2026, 12, 19),
+        end=dt.date(2027, 1, 6),
+        first_day_after=dt.date(2027, 1, 7),
+    ),
+    SchoolHoliday(
+        name="Zeugnisferien",
+        start=dt.date(2027, 2, 1),
+        end=dt.date(2027, 2, 2),
+        first_day_after=dt.date(2027, 2, 3),
+    ),
+    SchoolHoliday(
+        name="Osterferien",
+        start=dt.date(2027, 3, 26),
+        end=dt.date(2027, 4, 10),
+        first_day_after=dt.date(2027, 4, 12),
+    ),
+    SchoolHoliday(
+        name="Pfingstferien",
+        start=dt.date(2027, 5, 7),
+        end=dt.date(2027, 5, 7),
+        first_day_after=dt.date(2027, 5, 10),
+    ),
+    SchoolHoliday(
+        name="Sommerferien",
+        start=dt.date(2027, 7, 3),
+        end=dt.date(2027, 8, 14),
+        first_day_after=dt.date(2027, 8, 16),
+    ),
 ]
 
 
