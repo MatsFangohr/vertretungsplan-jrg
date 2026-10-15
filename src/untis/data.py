@@ -167,7 +167,7 @@ SCHOOL_HOLIDAYS: list[SchoolHoliday] = [
     ),
     SchoolHoliday(
         name="Pfingstferien",
-        start=dt.date(2027, 5, 7),
+        start=dt.date(2027, 5, 6),
         end=dt.date(2027, 5, 7),
         first_day_after=dt.date(2027, 5, 10),
     ),
